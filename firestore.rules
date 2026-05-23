@@ -1,0 +1,312 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Funções auxiliares ────────────────────────────────────────────────
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    // Verifica se o utilizador é admin (documento existe em /admins/{uid})
+    function isAdmin() {
+      return isAuth() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function str(data, field, maxLen) {
+      return !(field in data) || (data[field] is string && data[field].size() <= maxLen);
+    }
+
+    function num(data, field) {
+      return !(field in data) || data[field] is number;
+    }
+
+    // ── Admins ────────────────────────────────────────────────────────────
+    // Cada utilizador pode ler o seu próprio documento para verificar se é admin.
+    // Escrita apenas via Firebase Console — nunca pelo cliente.
+    match /admins/{adminId} {
+      allow read:  if isOwner(adminId);
+      allow write: if false;
+    }
+
+    // ── Utilizadores ──────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isAuth();
+
+      allow create: if isOwner(userId)
+        // type só pode ser 'client' ou 'provider' — nunca 'admin'
+        && (!('type' in request.resource.data)
+            || request.resource.data.type in ['client', 'provider']);
+
+      allow update: if isOwner(userId)
+        // type não pode mudar após criação
+        && (!('type' in request.resource.data)
+            || request.resource.data.type == resource.data.type);
+
+      allow delete: if isOwner(userId);
+    }
+
+    // ── Prestadores ───────────────────────────────────────────────────────
+    match /providers/{userId} {
+      allow read: if true;
+
+      allow create: if isOwner(userId)
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 80
+        && str(request.resource.data, 'bio',       500)
+        && str(request.resource.data, 'phone',      20)
+        && str(request.resource.data, 'location',  100)
+        && str(request.resource.data, 'photoURL', 25000)
+        && str(request.resource.data, 'photoUrl', 25000)
+        && str(request.resource.data, 'instagram', 100)
+        && str(request.resource.data, 'facebook',  100)
+        && str(request.resource.data, 'x',         100)
+        && num(request.resource.data, 'price')
+        && (!('portfolio' in request.resource.data)
+            || (request.resource.data.portfolio is list
+                && request.resource.data.portfolio.size() <= 8))
+        // type deve ser 'provider' — nunca arbitrário
+        && (!('type' in request.resource.data)
+            || request.resource.data.type == 'provider');
+
+      // Prestador actualiza o próprio perfil
+      allow update: if isOwner(userId)
+        // campos imutáveis pelo próprio utilizador
+        && (!('verified'    in request.resource.data) || request.resource.data.verified    == resource.data.verified)
+        && (!('isVerified'  in request.resource.data) || request.resource.data.isVerified  == resource.data.isVerified)
+        && (!('rating'      in request.resource.data) || request.resource.data.rating      == resource.data.rating)
+        && (!('reviews'     in request.resource.data) || request.resource.data.reviews     == resource.data.reviews)
+        && (!('type'        in request.resource.data) || request.resource.data.type        == resource.data.type)
+        // validação dos campos editáveis
+        && str(request.resource.data, 'name',      80)
+        && str(request.resource.data, 'bio',       500)
+        && str(request.resource.data, 'phone',      20)
+        && str(request.resource.data, 'location',  100)
+        && str(request.resource.data, 'photoURL', 25000)
+        && str(request.resource.data, 'photoUrl', 25000)
+        && str(request.resource.data, 'instagram', 100)
+        && str(request.resource.data, 'facebook',  100)
+        && str(request.resource.data, 'x',         100)
+        && num(request.resource.data, 'price')
+        && (!('portfolio' in request.resource.data)
+            || (request.resource.data.portfolio is list
+                && request.resource.data.portfolio.size() <= 8));
+
+      // Admin pode actualizar tudo (ex: verificar prestador, actualizar rating)
+      allow update: if isAdmin();
+
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ── Reservas (App nativa) ─────────────────────────────────────────────
+    match /bookings/{bookingId} {
+      allow read: if isAuth() && (
+        resource.data.clientId   == request.auth.uid ||
+        resource.data.providerId == request.auth.uid
+      );
+      allow create: if isAuth()
+        && request.resource.data.clientId == request.auth.uid;
+      allow update: if isAuth() && (
+        resource.data.clientId   == request.auth.uid ||
+        resource.data.providerId == request.auth.uid
+      )
+        // as partes envolvidas não podem mudar após criação
+        && request.resource.data.clientId   == resource.data.clientId
+        && request.resource.data.providerId == resource.data.providerId;
+    }
+
+    // ── Chat (App nativa) ─────────────────────────────────────────────────
+    // Regras simples por enquanto — quando o chat for implementado no site
+    // estas serão restritas por participants:[uid1, uid2]
+    match /chats/{chatId} {
+      allow read, write: if isAuth();
+      match /messages/{messageId} {
+        allow read, write: if isAuth();
+      }
+    }
+
+    match /chatRooms/{chatRoomId} {
+      allow read, write: if isAuth();
+    }
+
+    // ── Pedidos de verificação ────────────────────────────────────────────
+    match /verificationRequests/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+
+      allow create: if isOwner(userId)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.uid == userId
+        && request.resource.data.biNumber is string
+        && request.resource.data.biNumber.size() >= 5
+        && request.resource.data.biNumber.size() <= 30
+        && str(request.resource.data, 'notes', 300)
+        && str(request.resource.data, 'name',   80)
+        && str(request.resource.data, 'email', 100);
+
+      allow update: if isOwner(userId)
+          && resource.data.status == 'rejected'
+          && request.resource.data.status == 'pending'
+          && request.resource.data.biNumber is string
+          && request.resource.data.biNumber.size() >= 5
+          && request.resource.data.biNumber.size() <= 30
+          && str(request.resource.data, 'notes', 300);
+
+      // Admin pode aprovar, rejeitar ou actualizar o status
+      allow update: if isAdmin();
+
+      allow delete: if false;
+    }
+
+    // ── Pedidos/Ordens (Site) ─────────────────────────────────────────────
+    match /orders/{orderId} {
+      allow read: if isAdmin() || (isAuth() && (
+        resource.data.clientId   == request.auth.uid ||
+        resource.data.providerId == request.auth.uid
+      ));
+
+      allow create: if isAuth()
+        && request.resource.data.clientId == request.auth.uid
+        && request.resource.data.clientId != request.resource.data.providerId
+        && request.resource.data.providerId is string
+        && str(request.resource.data, 'message', 500);
+
+      allow update: if isAuth() && (
+        resource.data.clientId   == request.auth.uid ||
+        resource.data.providerId == request.auth.uid
+      )
+        // as partes envolvidas não podem mudar após criação
+        && request.resource.data.clientId   == resource.data.clientId
+        && request.resource.data.providerId == resource.data.providerId;
+
+      allow update: if isAdmin();
+    }
+
+    // ── Avaliações ────────────────────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read: if true;
+
+      allow create: if isAuth()
+        && request.resource.data.clientId == request.auth.uid
+        && request.resource.data.clientId != request.resource.data.providerId
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && str(request.resource.data, 'text', 500);
+
+      allow update: if isAuth()
+        && resource.data.clientId == request.auth.uid
+        // clientId e providerId são imutáveis
+        && request.resource.data.clientId   == resource.data.clientId
+        && request.resource.data.providerId == resource.data.providerId
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && str(request.resource.data, 'text', 500);
+
+      allow delete: if (isAuth() && resource.data.clientId == request.auth.uid)
+        || isAdmin();
+    }
+
+    // ── Bisno (mural comunitário) ─────────────────────────────────────────────
+    match /posts/{postId} {
+      // Qualquer pessoa pode ler o mural
+      allow read: if true;
+
+      // Utilizador autenticado pode criar a sua própria publicação
+      allow create: if isAuth()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 3
+        && request.resource.data.text.size() <= 1000
+        && str(request.resource.data, 'authorName', 80)
+        && str(request.resource.data, 'location',   60)    // campo opcional
+        && str(request.resource.data, 'imageData', 200000) // base64 ~150KB
+        // authorType só pode ser 'client' ou 'provider'
+        && (!('authorType' in request.resource.data)
+            || request.resource.data.authorType in ['client', 'provider'])
+        // category só pode ser um dos valores conhecidos
+        && (!('category' in request.resource.data)
+            || request.resource.data.category in
+               ['casa', 'trabalho', 'veiculo', 'venda', 'parceria', 'outro']);
+
+      // Só o autor pode editar o texto, categoria e localização
+      // (uid, authorName, authorType e imageData são imutáveis)
+      allow update: if isAuth()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid          == resource.data.uid
+        && request.resource.data.authorName   == resource.data.authorName
+        && request.resource.data.authorType   == resource.data.authorType
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 3
+        && request.resource.data.text.size() <= 1000
+        && str(request.resource.data, 'location', 60);
+
+      // Qualquer utilizador autenticado pode dar/tirar like (só altera likeCount e likedBy)
+      allow update: if isAuth()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount', 'likedBy']);
+
+      // O autor pode marcar/desmarcar como Resolvido (só altera o campo resolved)
+      allow update: if isAuth()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resolved']);
+
+      // Só o autor pode eliminar a sua publicação
+      allow delete: if isAuth() && resource.data.uid == request.auth.uid;
+
+      // ── Comentários (subcoleção) ──────────────────────────────────────────
+      match /comments/{commentId} {
+        // Qualquer pessoa pode ler comentários
+        allow read: if true;
+
+        // Utilizador autenticado pode comentar com o próprio uid
+        allow create: if isAuth()
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1
+          && request.resource.data.text.size() <= 300
+          && str(request.resource.data, 'authorName', 80);
+
+        // Comentários são imutáveis após criação
+        allow update: if false;
+
+        // Só o autor pode eliminar o seu comentário
+        allow delete: if isAuth() && resource.data.uid == request.auth.uid;
+      }
+    }
+
+    // ── Denúncias ─────────────────────────────────────────────────────────────
+    // Utilizadores autenticados podem criar denúncias sobre posts de terceiros.
+    // Leitura e gestão reservadas ao admin (via Firebase Console ou futuro painel).
+    match /reports/{reportId} {
+      allow read:   if isAdmin();
+      allow create: if isAuth()
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.postId is string
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() <= 50
+        && request.resource.data.status == 'pending'
+        && str(request.resource.data, 'postText',     300)
+        && str(request.resource.data, 'reporterName',  80);
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ── Estatísticas ──────────────────────────────────────────────────────
+    match /stats/{docId} {
+      allow read: if true;
+      // Admin escreve livremente; utilizador autenticado só pode actualizar
+      // contadores conhecidos (sem injectar campos arbitrários)
+      allow write: if isAdmin();
+      allow write: if isAuth()
+        && request.resource.data.keys().hasOnly([
+             'totalOrders', 'completedOrders',
+             'totalUsers',  'totalProviders'
+           ]);
+    }
+
+  }
+}
