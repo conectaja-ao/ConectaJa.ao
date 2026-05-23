@@ -1,0 +1,130 @@
+/* ============================================
+   CORREÇÃO DO DROPDOWN DE USUÁRIO
+   Adiciona este código ao final do styles.css
+   ============================================ */
+
+/* User Dropdown - Posicionamento e Visibilidade */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 1rem);
+    right: 0;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    min-width: 220px;
+    padding: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+/* Mostrar dropdown quando ativo */
+.user-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Items do dropdown */
+.user-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    color: var(--color-gray-700);
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+}
+
+.user-dropdown__item:hover {
+    background: var(--color-gray-100);
+    color: var(--color-primary);
+}
+
+.user-dropdown__item i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Divider */
+.user-dropdown__divider {
+    margin: 0.5rem 0;
+    border: none;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+/* User Avatar Button */
+.user-avatar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    background: var(--color-gray-100);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.user-avatar:hover {
+    background: var(--color-gray-200);
+}
+
+.user-avatar__img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+}
+
+.user-avatar__name {
+    font-weight: 600;
+    color: var(--color-gray-800);
+}
+
+.user-avatar i {
+    font-size: 0.75rem;
+    color: var(--color-gray-600);
+    transition: transform 0.2s;
+}
+
+/* Rotacionar seta quando aberto */
+.user-dropdown.show + .user-avatar i,
+.user-avatar:hover i {
+    transform: rotate(180deg);
+}
+
+/* Navbar User Container */
+.navbar__user {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .user-dropdown {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%) translateY(-10px);
+        min-width: 200px;
+    }
+    
+    .user-dropdown.show {
+        transform: translateX(-50%) translateY(0);
+    }
+    
+    .user-avatar__name {
+        display: none;
+    }
+}
