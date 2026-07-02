@@ -133,8 +133,34 @@
               <input id="prof_phone" type="tel" placeholder="244 9XX XXX XXX" maxlength="20">
             </div>
             <div class="profile-field">
-              <label>Localização</label>
-              <input id="prof_location" type="text" placeholder="Ex: Luanda, Talatona" maxlength="100">
+              <label>Província</label>
+              <select id="prof_province">
+                <option value="">Selecciona a província</option>
+              </select>
+            </div>
+            <div class="profile-field">
+              <label>Município</label>
+              <select id="prof_municipality" disabled>
+                <option value="">Selecciona primeiro a província</option>
+              </select>
+            </div>
+            <div class="profile-field" style="grid-column:1/-1">
+              <label>Bairro / Zona <span style="font-weight:400;color:var(--color-gray-400)">(opcional)</span></label>
+              <input id="prof_neighborhood" type="text" placeholder="Ex: Camama, Rua 21 de Janeiro" maxlength="80">
+            </div>
+            <div class="profile-field" style="grid-column:1/-1" id="geoLocationField">
+              <label>Localização no mapa <span style="font-weight:400;color:var(--color-gray-400)">(GPS — opcional mas recomendado)</span></label>
+              <input type="hidden" id="prof_lat">
+              <input type="hidden" id="prof_lng">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;">
+                <button type="button" class="btn btn--outline btn--sm" id="btnUseLocation">
+                  <i class="fas fa-location-crosshairs"></i> Usar a minha localização
+                </button>
+                <span id="geoStatus" style="font-size:.85rem;color:var(--color-gray-500);display:inline-flex;align-items:center;gap:.4rem;"></span>
+              </div>
+              <small style="display:block;margin-top:.4rem;color:var(--color-gray-400);font-size:.77rem;">
+                <i class="fas fa-lock"></i> <span id="geoLocationHint">Usamos só para mostrar distâncias na plataforma.</span>
+              </small>
             </div>
           </div>
 
@@ -192,7 +218,7 @@
                 <select id="prof_category">
                   <option value="">Selecciona uma categoria</option>
                   <option value="canalizacao">Canalização</option>
-                  <option value="electricidade">Electricidade</option>
+                  <option value="eletricidade">Electricidade</option>
                   <option value="limpeza">Limpeza</option>
                   <option value="pintura">Pintura</option>
                   <option value="jardinagem">Jardinagem</option>
@@ -334,6 +360,7 @@
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
+<script src="ao-locations.js"></script>
 <script src="script.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
