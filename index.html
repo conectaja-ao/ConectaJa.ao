@@ -218,32 +218,49 @@
 
                 <div class="search-form__group">
                     <i class="fas fa-map-marker-alt search-form__icon"></i>
-                    <select class="search-form__select" id="searchLocation" aria-label="Localização">
-                        <option value="">Todas as Províncias</option>
-                        <option value="luanda">Luanda</option>
+                    <select class="search-form__select" id="searchLocation" aria-label="Província">
+                        <option value="all">Todas as Províncias</option>
+                        <option value="bengo">Bengo</option>
                         <option value="benguela">Benguela</option>
-                        <option value="huambo">Huambo</option>
-                        <option value="huila">Huíla</option>
+                        <option value="bie">Bié</option>
                         <option value="cabinda">Cabinda</option>
+                        <option value="cuando-cubango">Cuando Cubango</option>
                         <option value="cuanza-norte">Cuanza Norte</option>
                         <option value="cuanza-sul">Cuanza Sul</option>
+                        <option value="cunene">Cunene</option>
+                        <option value="huambo">Huambo</option>
+                        <option value="huila">Huíla</option>
+                        <option value="luanda">Luanda</option>
+                        <option value="lunda-norte">Lunda Norte</option>
+                        <option value="lunda-sul">Lunda Sul</option>
                         <option value="malanje">Malanje</option>
-                        <option value="outros">Outras Províncias</option>
+                        <option value="moxico">Moxico</option>
+                        <option value="namibe">Namibe</option>
+                        <option value="uige">Uíge</option>
+                        <option value="zaire">Zaire</option>
                     </select>
                 </div>
 
                 <div class="search-form__group">
                     <i class="fas fa-th-large search-form__icon"></i>
                     <select class="search-form__select" id="searchCategory" aria-label="Categoria">
-                        <option value="">Todas as Categorias</option>
-                        <option value="casa-construcao">Casa e Construção</option>
-                        <option value="tecnologia">Tecnologia</option>
-                        <option value="educacao">Educação</option>
-                        <option value="beleza">Beleza e Bem-estar</option>
-                        <option value="eventos">Eventos</option>
+                        <option value="all">Todas as Categorias</option>
+                        <option value="canalizacao">Canalização</option>
+                        <option value="eletricidade">Electricidade</option>
+                        <option value="pintura">Pintura</option>
                         <option value="limpeza">Limpeza</option>
-                        <option value="transporte">Transporte</option>
-                        <option value="saude">Saúde</option>
+                        <option value="mecanica">Mecânica</option>
+                        <option value="carpintaria">Carpintaria</option>
+                        <option value="construcao">Construção</option>
+                        <option value="jardinagem">Jardinagem</option>
+                        <option value="informatica">Informática</option>
+                        <option value="design">Design</option>
+                        <option value="fotografia">Fotografia</option>
+                        <option value="beleza">Beleza &amp; Estética</option>
+                        <option value="saude">Saúde &amp; Bem-estar</option>
+                        <option value="eventos">Eventos</option>
+                        <option value="seguranca">Segurança</option>
+                        <option value="outro">Outro</option>
                     </select>
                 </div>
 
@@ -660,10 +677,10 @@
                 <h4 class="footer-column__title">Serviços</h4>
                 <ul class="footer-links">
                     <li><a href="prestadores.html">Todos os Prestadores</a></li>
-                    <li><a href="prestadores.html?cat=casa-construcao">Casa e Construção</a></li>
-                    <li><a href="prestadores.html?cat=tecnologia">Tecnologia</a></li>
-                    <li><a href="prestadores.html?cat=educacao">Educação</a></li>
-                    <li><a href="prestadores.html?cat=beleza">Beleza</a></li>
+                    <li><a href="servicos.html">Serviços por Cidade</a></li>
+                    <li><a href="prestadores.html?category=canalizacao">Canalização</a></li>
+                    <li><a href="prestadores.html?category=eletricidade">Electricidade</a></li>
+                    <li><a href="prestadores.html?category=beleza">Beleza</a></li>
                 </ul>
             </div>
 
@@ -871,6 +888,7 @@
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
+<script src="ao-locations.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

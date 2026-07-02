@@ -223,6 +223,9 @@
             <button id="btn-request" class="btn btn--ghost btn--lg">
               <i class="fas fa-paper-plane"></i> Fazer Pedido
             </button>
+            <button id="btn-share" class="btn btn--ghost btn--lg" style="border:1.5px dashed var(--color-gray-300);">
+              <i class="fas fa-share-alt"></i> Partilhar Perfil
+            </button>
           </div>
           <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--color-gray-100);text-align:center;">
             <div style="font-size:.8rem;color:var(--color-gray-400);margin-bottom:.25rem;">Preço a partir de</div>
@@ -331,7 +334,68 @@
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-storage-compat.js"></script>
+<!-- MODAL: SOLICITAR SERVIÇO -->
+<style>
+  #requestModal .req-inner { background: white; }
+  [data-theme="dark"] #requestModal .req-inner { background: var(--color-gray-100); }
+  #requestModal .profile-field label { display: block; font-size: .85rem; font-weight: 700; margin-bottom: .4rem; color: var(--color-gray-700); }
+  #requestModal input, #requestModal textarea, #requestModal select {
+    width: 100%; padding: .8rem 1rem; border: 2px solid var(--color-gray-200);
+    border-radius: .875rem; font-family: inherit; font-size: .925rem;
+    background: var(--color-gray-50); color: var(--color-gray-900); transition: border-color .2s;
+  }
+  #requestModal input:focus, #requestModal textarea:focus, #requestModal select:focus {
+    outline: none; border-color: var(--color-primary);
+  }
+</style>
+<div id="requestModal"
+  style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:1rem;"
+  onclick="if(event.target===this)this.style.display='none'">
+  <div class="req-inner" style="border-radius:1.5rem;width:100%;max-width:460px;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.22);max-height:90vh;overflow-y:auto;">
+    <button type="button" onclick="document.getElementById('requestModal').style.display='none'"
+      style="position:absolute;top:.875rem;right:.875rem;width:34px;height:34px;border-radius:50%;background:var(--color-gray-100);border:none;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1;">
+      <i class="fas fa-times" style="font-size:.9rem;color:var(--color-gray-600);"></i>
+    </button>
+    <div style="padding:1.75rem 1.5rem 1.5rem;">
+      <h3 style="font-size:1.15rem;font-weight:800;margin-bottom:.3rem;">
+        <i class="fas fa-paper-plane" style="color:var(--color-primary);margin-right:.4rem;"></i>Solicitar Serviço
+      </h3>
+      <p style="font-size:.85rem;color:var(--color-gray-500);margin-bottom:1.25rem;">
+        Descreve o que precisas a <strong id="reqProviderName">este prestador</strong> — quanto mais detalhes, melhor o orçamento.
+      </p>
+      <form id="requestForm" novalidate>
+        <div class="profile-field" style="margin-bottom:1rem;">
+          <label>O que precisas? <span style="color:var(--color-primary)">*</span></label>
+          <textarea id="req_message" required maxlength="500" placeholder="Ex: Tenho uma fuga de água na cozinha, debaixo do lava-loiça…" style="min-height:110px;resize:vertical;"></textarea>
+          <small id="req_msg_counter" style="display:block;text-align:right;color:var(--color-gray-400);font-size:.75rem;margin-top:.25rem;">0/500</small>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div class="profile-field">
+            <label>Data pretendida</label>
+            <input type="date" id="req_date">
+          </div>
+          <div class="profile-field">
+            <label>Período</label>
+            <select id="req_period">
+              <option value="qualquer">Qualquer hora</option>
+              <option value="manha">De manhã</option>
+              <option value="tarde">À tarde</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn--primary" id="reqSubmitBtn" style="width:100%;justify-content:center;">
+          <i class="fas fa-paper-plane"></i> Enviar Pedido
+        </button>
+        <p style="font-size:.75rem;color:var(--color-gray-400);text-align:center;margin-top:.75rem;">
+          <i class="fas fa-info-circle"></i> O prestador responde com um orçamento. Sem compromisso.
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script src="firebase-config.js"></script>
+<script src="ao-locations.js"></script>
 <script src="script.js"></script>
 <script>
   // Stat fields and verified badge are populated via ProfilePage.render override

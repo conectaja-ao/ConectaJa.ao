@@ -665,30 +665,51 @@ const Toast = {
 ============================================ */
 const Search = {
   init() {
-    this.initSearchForm();
+    this.initHomeForm();
     this.initSuggestions();
+    this.initPopularTags();
   },
 
-  initSearchForm() {
-    const form = document.querySelector('.search__form, .hero__search-form');
-    if (!form) return;
+  // Formulário de pesquisa da homepage (#searchQuery/#searchLocation/#searchCategory).
+  // Nota: prestadores.html também tem um #searchForm, mas esse é gerido pela
+  // PrestadoresPage — o guarda do #searchQuery distingue as duas páginas.
+  initHomeForm() {
+    const form = document.getElementById('searchForm');
+    const qInput = document.getElementById('searchQuery');
+    if (!form || !qInput) return;
+
+    // Preenche as 18 províncias (substitui a lista parcial hardcoded)
+    const locSel = document.getElementById('searchLocation');
+    if (locSel && window.AOLocations) {
+      window.AOLocations.fillProvinces(locSel, { allOption: 'Todas as Províncias' });
+    }
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const q = form.querySelector('input[name="q"], .hero__search-input')?.value?.trim();
-      const loc = form.querySelector('select[name="location"]')?.value;
-      const cat = form.querySelector('select[name="category"]')?.value;
+      const q = qInput.value?.trim() || '';
+      const province = locSel?.value || '';
+      const cat = document.getElementById('searchCategory')?.value || '';
       const params = new URLSearchParams();
       if (q) params.set('q', q);
-      if (loc && loc !== 'all') params.set('location', loc);
+      if (province && province !== 'all') params.set('province', province);
       if (cat && cat !== 'all') params.set('category', cat);
       window.location.href = `prestadores.html?${params.toString()}`;
     });
   },
 
+  // Tags de pesquisa popular na homepage (ex.: Canalizador, Eletricista…)
+  initPopularTags() {
+    document.querySelectorAll('.tag[data-search]').forEach(tag => {
+      tag.addEventListener('click', () => {
+        const q = tag.getAttribute('data-search') || '';
+        window.location.href = `prestadores.html?q=${encodeURIComponent(q)}`;
+      });
+    });
+  },
+
   initSuggestions() {
-    const input = document.querySelector('.hero__search-input, .search__input[name="q"]');
-    const dropdown = document.querySelector('.search__suggestions');
+    const input = document.getElementById('searchQuery') || document.querySelector('.hero__search-input');
+    const dropdown = document.getElementById('searchSuggestions') || document.querySelector('.search__suggestions');
     if (!input || !dropdown) return;
 
     const suggestions = [
@@ -698,26 +719,30 @@ const Search = {
       'Informático', 'Chef', 'Segurança', 'Motorista', 'Pedreiro'
     ];
 
+    // O CSS mostra/esconde via a classe .active (display:none por defeito)
+    const show = () => { dropdown.hidden = false; dropdown.classList.add('active'); };
+    const hide = () => { dropdown.hidden = true; dropdown.classList.remove('active'); };
+
     input.addEventListener('input', () => {
       const val = input.value.toLowerCase().trim();
-      if (val.length < 2) { dropdown.hidden = true; return; }
+      if (val.length < 2) { hide(); return; }
       const matches = suggestions.filter(s => s.toLowerCase().includes(val)).slice(0, 6);
-      if (!matches.length) { dropdown.hidden = true; return; }
+      if (!matches.length) { hide(); return; }
       dropdown.innerHTML = matches.map(m =>
         `<div class="suggestion-item" role="option"><i class="fas fa-search"></i> ${m}</div>`
       ).join('');
-      dropdown.hidden = false;
+      show();
       dropdown.querySelectorAll('.suggestion-item').forEach(item => {
         item.addEventListener('click', () => {
           input.value = item.textContent.trim();
-          dropdown.hidden = true;
+          hide();
         });
       });
     });
 
     document.addEventListener('click', e => {
       if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.hidden = true;
+        hide();
       }
     });
   },
@@ -837,6 +862,8 @@ const Auth = {
         phone: '',
         location: '',
         photoURL: '',
+        // Programa de indicações: uid de quem convidou (link ?ref=uid)
+        referredBy: localStorage.getItem('cj_ref') || '',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
@@ -1097,6 +1124,7 @@ const Auth = {
       phone: fbUser.phoneNumber || '',
       location: '',
       photoURL: fbUser.photoURL || '',
+      referredBy: localStorage.getItem('cj_ref') || '',
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
@@ -1240,7 +1268,7 @@ const Orders = {
       const snap = await window.firebaseDb.collection('orders')
         .where('clientId',   '==', clientId)
         .where('providerId', '==', providerId)
-        .where('status', 'in', ['pending', 'accepted'])
+        .where('status', 'in', ['pending', 'accepted', 'in_progress'])
         .limit(1)
         .get();
       return !snap.empty;
@@ -1262,12 +1290,30 @@ const Orders = {
       clientId:       user.uid,
       clientName:     user.name,
       clientPhone:    clientProfile.phone    || '',
-      clientLocation: clientProfile.location || '',
+      // Etiqueta legível + campos estruturados, para o prestador
+      // saber onde o cliente está (bairro, município, província)
+      clientLocation:     (clientProfile.province || clientProfile.municipality || clientProfile.neighborhood || clientProfile.location)
+                            ? locationText(clientProfile) : '',
+      clientProvince:     clientProfile.province     || clientProfile.location || '',
+      clientMunicipality: clientProfile.municipality || '',
+      clientNeighborhood: clientProfile.neighborhood || '',
+      clientLat: typeof clientProfile.lat === 'number' ? clientProfile.lat : null,
+      clientLng: typeof clientProfile.lng === 'number' ? clientProfile.lng : null,
       clientPhotoURL: clientProfile.photoURL || '',
       providerId:     data.providerId,
       providerName:   data.providerName,
       category:       data.category,
       message:        data.message || '',
+      // Agendamento pedido pelo cliente
+      scheduledDate:   data.scheduledDate   || '',
+      scheduledPeriod: data.scheduledPeriod || '',
+      // Orçamento — preenchido pelo prestador ao aceitar
+      quote:     null,
+      quoteNote: '',
+      // Pagamento Seguro (escrow manual): none → held (admin confirma
+      // receção) → released (admin liberta ao prestador após conclusão)
+      paymentStatus: 'none',
+      paymentRef:    '',
       status:         'pending',
       createdAt:      firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt:      firebase.firestore.FieldValue.serverTimestamp(),
@@ -1303,15 +1349,71 @@ const Orders = {
     }
   },
 
-  async updateStatus(orderId, status, prevStatus) {
+  async updateStatus(orderId, status, prevStatus, extra = {}) {
     if (!window.firebaseDb) return;
     await window.firebaseDb.collection('orders').doc(orderId).update({
       status,
+      ...extra, // ex.: { quote, quoteNote } ao aceitar com orçamento
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
     if (status === 'completed' && prevStatus !== 'completed') {
       Stats.increment('completedOrders'); // fire-and-forget
     }
+  },
+
+  // Caixa de Pagamento Seguro no dashboard do cliente, conforme o estado.
+  // O fluxo é manual: o cliente paga à plataforma e envia o comprovativo;
+  // o admin marca paymentStatus 'held' e, após conclusão, 'released'.
+  paymentBoxHTML(o) {
+    if (!o.quote) return '';
+    const amount = Number(o.quote).toLocaleString('pt-AO');
+
+    if (o.paymentStatus === 'held') {
+      return `
+        <div style="margin-top:.75rem;padding:.8rem 1rem;background:rgba(42,157,143,.08);border:1.5px solid rgba(42,157,143,.3);border-radius:.875rem;font-size:.83rem;color:var(--color-gray-700);line-height:1.55;">
+          <strong style="color:var(--color-accent);"><i class="fas fa-shield-alt"></i> Pagamento retido em segurança</strong><br>
+          Os ${amount} Kz estão guardados pela Conecta Já e só são entregues ao prestador quando o trabalho estiver concluído.
+        </div>`;
+    }
+    if (o.paymentStatus === 'released') {
+      return `
+        <div style="margin-top:.75rem;padding:.8rem 1rem;background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.3);border-radius:.875rem;font-size:.83rem;color:var(--color-gray-700);">
+          <strong style="color:#059669;"><i class="fas fa-check-double"></i> Pagamento entregue ao prestador</strong>
+        </div>`;
+    }
+    // paymentStatus 'none' — oferecer o Pagamento Seguro enquanto o
+    // trabalho está aceite ou em curso
+    if (o.status !== 'accepted' && o.status !== 'in_progress') return '';
+    const waMsg = encodeURIComponent(
+      `Olá! Quero usar o Pagamento Seguro da Conecta Já.\n\nPedido: ${o.id}\nPrestador: ${o.providerName || ''}\nValor: ${amount} Kz\n\nEnvio em seguida o comprovativo do Multicaixa Express.`
+    );
+    return `
+      <div style="margin-top:.75rem;padding:.8rem 1rem;background:rgba(59,130,246,.06);border:1.5px solid rgba(59,130,246,.25);border-radius:.875rem;font-size:.83rem;color:var(--color-gray-700);line-height:1.6;">
+        <strong style="color:#2563eb;"><i class="fas fa-shield-alt"></i> Pagamento Seguro</strong> <span style="font-size:.75rem;color:var(--color-gray-400);">(recomendado)</span><br>
+        Envia <strong>${amount} Kz</strong> por Multicaixa Express para <strong>${PLATFORM_PAY.expressNumber}</strong>.
+        Ficam retidos e só são entregues ao prestador quando confirmares a conclusão.
+        <div style="margin-top:.6rem;">
+          <a href="https://wa.me/${PLATFORM_PAY.adminWhatsApp}?text=${waMsg}" target="_blank" rel="noopener"
+            style="display:inline-flex;align-items:center;gap:.45rem;padding:.5rem .9rem;background:#25D366;color:white;border-radius:.7rem;font-size:.8rem;font-weight:700;text-decoration:none;">
+            <i class="fab fa-whatsapp"></i> Enviar comprovativo
+          </a>
+        </div>
+      </div>`;
+  },
+
+  // Etiquetas do agendamento (período do dia pedido pelo cliente)
+  periodLabel(period) {
+    const map = { manha: 'de manhã', tarde: 'à tarde', qualquer: 'qualquer hora' };
+    return map[period] || '';
+  },
+
+  // Data agendada legível (ex.: "15/07/2026 · de manhã")
+  scheduleLabel(o) {
+    if (!o || !o.scheduledDate) return '';
+    const d = new Date(o.scheduledDate + 'T00:00:00');
+    const dateStr = isNaN(d) ? o.scheduledDate : d.toLocaleDateString('pt-AO');
+    const per = this.periodLabel(o.scheduledPeriod);
+    return per ? `${dateStr} · ${per}` : dateStr;
   },
 
   getStatuses() {
@@ -1525,6 +1627,161 @@ const Upload = {
 };
 
 /* ============================================
+   LOCATION + VERIFICATION HELPERS
+============================================ */
+// Etiqueta de localização legível a partir de um registo de prestador.
+// Usa os campos novos (province/municipality/neighborhood) com fallback
+// ao campo antigo `location`. Funciona mesmo sem o ao-locations.js carregado.
+function locationText(rec) {
+  if (window.AOLocations) return window.AOLocations.composeLabel(rec);
+  if (rec && rec.location) return String(rec.location).replace(/\b\w/g, c => c.toUpperCase());
+  return 'Angola';
+}
+
+// Normaliza slugs de categoria (dados antigos usam grafias divergentes,
+// ex.: o perfil gravava "electricidade" e os filtros usam "eletricidade").
+function normalizeCategory(cat) {
+  const c = String(cat || '').toLowerCase().trim();
+  const aliases = { electricidade: 'eletricidade', electricista: 'eletricidade' };
+  return aliases[c] || c;
+}
+
+// Pesquisa inteligente: mapeia palavras do dia-a-dia para categorias.
+// Ex.: "tenho uma fuga de água" encontra canalizadores.
+const SEARCH_SYNONYMS = {
+  canalizacao: ['fuga', 'agua', 'cano', 'torneira', 'sanita', 'esgoto', 'autoclismo', 'canalizador', 'canalizacao'],
+  eletricidade: ['luz', 'tomada', 'curto', 'quadro eletrico', 'energia', 'eletricista', 'electricista', 'gerador', 'disjuntor', 'lampada', 'instalacao eletrica'],
+  pintura: ['pintar', 'tinta', 'parede', 'pintor', 'reboco'],
+  limpeza: ['limpar', 'limpeza', 'faxina', 'lavagem', 'desinfeccao'],
+  mecanica: ['carro', 'motor', 'travoes', 'oficina', 'mecanico', 'viatura', 'bateria', 'pneu'],
+  fotografia: ['fotografo', 'fotos', 'filmagem', 'video', 'sessao fotografica'],
+  jardinagem: ['jardim', 'relva', 'arvores', 'jardineiro', 'poda'],
+  carpintaria: ['movel', 'moveis', 'madeira', 'porta', 'armario', 'carpinteiro', 'roupeiro'],
+  informatica: ['computador', 'laptop', 'wifi', 'internet', 'impressora', 'informatico', 'software', 'telemovel'],
+  construcao: ['obra', 'pedreiro', 'cimento', 'muro', 'construcao', 'bloco', 'telhado'],
+  beleza: ['cabelo', 'unhas', 'maquilhagem', 'trancas', 'salao', 'barbeiro', 'manicure'],
+  saude: ['massagem', 'fisioterapia', 'enfermeiro', 'cuidador'],
+  eventos: ['festa', 'casamento', 'catering', 'decoracao', 'dj', 'aniversario'],
+  seguranca: ['guarda', 'vigilante', 'seguranca'],
+};
+
+// Deteta a categoria a partir de uma frase de pesquisa (sem acentos).
+function categoryFromQuery(q) {
+  if (!q) return null;
+  const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const text = norm(q);
+  for (const [cat, words] of Object.entries(SEARCH_SYNONYMS)) {
+    if (words.some(w => text.includes(w))) return cat;
+  }
+  return null;
+}
+
+// Níveis de verificação (fundação para confiança em camadas):
+//   0 = não verificado
+//   1 = contacto verificado
+//   2 = identidade verificada (BI/Passaporte) — equivale ao antigo `verified`
+//   3 = Conecta Já Pro (verificação reforçada / selo de ouro)
+const VERIF_LEVELS = {
+  1: { label: 'Contacto verificado', icon: 'fa-phone-alt', color: '#2563eb', bg: 'rgba(37,99,235,.1)', bd: 'rgba(37,99,235,.3)' },
+  2: { label: 'Identidade verificada', icon: 'fa-check-circle', color: 'var(--color-accent)', bg: 'rgba(42,157,143,.1)', bd: 'rgba(42,157,143,.3)' },
+  3: { label: 'Conecta Já Pro', icon: 'fa-shield-alt', color: '#b45309', bg: 'rgba(245,158,11,.12)', bd: 'rgba(245,158,11,.35)' },
+};
+
+// Deriva o nível a partir do registo (retrocompatível com o booleano `verified`).
+function verificationLevelOf(d) {
+  const lvl = Number(d && d.verificationLevel);
+  if (Number.isFinite(lvl) && lvl >= 0) return Math.min(lvl, 3);
+  return (d && d.verified) ? 2 : 0;
+}
+
+// Badge inline para cards/perfil. Mostra apenas níveis >= 1.
+function verificationBadgeHTML(level) {
+  const v = VERIF_LEVELS[level];
+  if (!v) return '';
+  return `<span class="verif-badge verif-badge--l${level}" style="display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .6rem;background:${v.bg};border:1px solid ${v.bd};border-radius:50px;font-size:.7rem;font-weight:700;color:${v.color};"><i class="fas ${v.icon}"></i> ${v.label}</span>`;
+}
+
+/* ============================================
+   PLANOS & PAGAMENTOS — configuração da plataforma
+============================================ */
+// Valores editáveis num só sítio. A ativação do Premium e a confirmação
+// de pagamentos são manuais (WhatsApp + Firebase Console), tal como a
+// verificação de identidade — migra para gateway automático mais tarde.
+const PLATFORM_PAY = {
+  adminWhatsApp: '244931482577',
+  expressNumber: '931 482 577',      // Multicaixa Express da plataforma
+  premiumPrice: 5000,                // Kz / mês — plano Destaque
+};
+
+// Prestador Premium ("Destaque")? plan==='premium' e dentro da validade.
+// planUntil aceita Timestamp do Firestore ou string ISO (ex.: "2026-08-01").
+function isPremium(d) {
+  if (!d || d.plan !== 'premium') return false;
+  const until = d.planUntil;
+  if (!until) return true; // sem validade definida = ativo
+  const date = until.toDate ? until.toDate() : new Date(until);
+  return !isNaN(date) && date.getTime() >= Date.now();
+}
+
+// Selo dourado "Destaque" para cards e perfil.
+function premiumBadgeHTML() {
+  return '<span class="premium-badge" style="display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .6rem;background:linear-gradient(135deg,rgba(251,191,36,.18),rgba(245,158,11,.18));border:1px solid rgba(245,158,11,.45);border-radius:50px;font-size:.7rem;font-weight:800;color:#b45309;"><i class="fas fa-crown"></i> Destaque</span>';
+}
+
+/* ============================================
+   GEO — geolocalização e distâncias
+============================================ */
+const Geo = {
+  _userPos: null, // { lat, lng } da última localização do utilizador nesta sessão
+
+  // Distância em km entre dois pontos (fórmula de Haversine).
+  distanceKm(lat1, lng1, lat2, lng2) {
+    if ([lat1, lng1, lat2, lng2].some(v => typeof v !== 'number' || isNaN(v))) return null;
+    const R = 6371; // raio da Terra em km
+    const toRad = d => d * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a = Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  },
+
+  // Etiqueta amigável: <1 km em metros, senão em km.
+  formatDistance(km) {
+    if (km == null || isNaN(km)) return '';
+    if (km < 1) return `${Math.round(km * 1000)} m`;
+    if (km < 10) return `${km.toFixed(1)} km`;
+    return `${Math.round(km)} km`;
+  },
+
+  // Coordenadas válidas?
+  hasCoords(rec) {
+    return rec && typeof rec.lat === 'number' && typeof rec.lng === 'number' &&
+      !(rec.lat === 0 && rec.lng === 0);
+  },
+
+  // Obtém a posição atual do utilizador (Promise). Cacheada na sessão.
+  getCurrentPosition({ timeout = 10000 } = {}) {
+    return new Promise((resolve, reject) => {
+      if (!('geolocation' in navigator)) {
+        reject(new Error('unsupported'));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          this._userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          resolve(this._userPos);
+        },
+        err => reject(err),
+        { enableHighAccuracy: true, timeout, maximumAge: 60000 }
+      );
+    });
+  },
+
+  getUserPos() { return this._userPos; },
+};
+
+/* ============================================
    PROVIDERS DATA
 ============================================ */
 const Providers = {
@@ -1543,8 +1800,13 @@ const Providers = {
           id: doc.id,
           uid: doc.id,
           name: d.name || 'Prestador',
-          category: d.category || 'outro',
+          category: normalizeCategory(d.category) || 'outro',
           location: (d.location || 'luanda').toLowerCase(),
+          province: (d.province || d.location || '').toLowerCase(),
+          municipality: (d.municipality || '').toLowerCase(),
+          neighborhood: d.neighborhood || '',
+          lat: typeof d.lat === 'number' ? d.lat : null,
+          lng: typeof d.lng === 'number' ? d.lng : null,
           rating: Number(d.rating) || 0,
           reviews: Number(d.reviews) || 0,
           price: Number(d.price) || 0,
@@ -1552,9 +1814,13 @@ const Providers = {
           phone: d.phone || '',
           avatar: d.photoURL || null,
           verified: d.verified || false,
+          verificationLevel: verificationLevelOf(d),
+          premium: isPremium(d),
           available: d.availability !== false,
         };
-      }).sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
+      }).sort((a, b) =>
+        // Premium (Destaque) primeiro; depois avaliação e nº de reviews
+        (b.premium - a.premium) || (b.rating - a.rating) || (b.reviews - a.reviews));
       return this._cache;
     } catch (err) {
       console.warn('Firestore indisponível:', err.message);
@@ -1567,15 +1833,25 @@ const Providers = {
 
   getById(id) { return this.getAll().find(p => String(p.id) === String(id)); },
 
-  search({ q = '', location = 'all', category = 'all' } = {}) {
+  search({ q = '', province = 'all', municipality = 'all', location = 'all', category = 'all' } = {}) {
+    // `province` é o filtro novo; `location` mantém-se como alias do antigo.
+    const prov = (province && province !== 'all') ? province : (location !== 'all' ? location : 'all');
+    const ql = q.toLowerCase();
+    // Pesquisa inteligente: "fuga de água" também encontra canalizadores
+    const smartCat = categoryFromQuery(q);
     return this.getAll().filter(p => {
       const matchQ = !q ||
-        p.name.toLowerCase().includes(q.toLowerCase()) ||
-        (p.category || '').toLowerCase().includes(q.toLowerCase()) ||
-        (p.bio || '').toLowerCase().includes(q.toLowerCase());
-      const matchLoc = location === 'all' || !location || p.location === location;
+        p.name.toLowerCase().includes(ql) ||
+        (p.category || '').toLowerCase().includes(ql) ||
+        (p.neighborhood || '').toLowerCase().includes(ql) ||
+        (p.bio || '').toLowerCase().includes(ql) ||
+        (smartCat && p.category === smartCat);
+      const matchProv = prov === 'all' || !prov ||
+        p.province === prov || p.location === prov;
+      const matchMun = municipality === 'all' || !municipality ||
+        p.municipality === municipality;
       const matchCat = category === 'all' || !category || p.category === category;
-      return matchQ && matchLoc && matchCat;
+      return matchQ && matchProv && matchMun && matchCat;
     });
   },
 };
@@ -1596,26 +1872,50 @@ const PrestadoresPage = {
         </div>`;
     }
 
+    this.setupLocationFilters();
     await Providers.fetchAll();
     this.bindFilters();
     this.renderFromURL();
   },
 
+  // Popula os selects de Província/Município e liga-os em cascata.
+  setupLocationFilters() {
+    if (!window.AOLocations) return;
+    const provSel = document.querySelector('select[name="province"]');
+    const munSel = document.querySelector('select[name="municipality"]');
+    if (provSel) {
+      window.AOLocations.fillProvinces(provSel, { allOption: 'Todas as províncias' });
+    }
+    if (provSel && munSel) {
+      window.AOLocations.fillMunicipalities(munSel, 'all', { allOption: 'Todos os municípios' });
+      window.AOLocations.bindCascade(provSel, munSel, { allOption: 'Todos os municípios' });
+    }
+  },
+
   renderFromURL() {
     const params = new URLSearchParams(window.location.search);
     const q = params.get('q') || '';
-    const location = params.get('location') || 'all';
+    // `province` é o novo parâmetro; `location` mantém-se para links antigos.
+    const province = params.get('province') || params.get('location') || 'all';
+    const municipality = params.get('municipality') || 'all';
     const category = params.get('category') || 'all';
 
-    const searchInput = document.querySelector('.search__input[name="q"]');
-    const locationSelect = document.querySelector('select[name="location"]');
+    const searchInput = document.querySelector('input[name="q"]');
+    const provinceSelect = document.querySelector('select[name="province"]');
+    const municipalitySelect = document.querySelector('select[name="municipality"]');
     const categorySelect = document.querySelector('select[name="category"]');
 
     if (searchInput && q) searchInput.value = q;
-    if (locationSelect && location !== 'all') locationSelect.value = location;
+    if (provinceSelect && province !== 'all') provinceSelect.value = province;
+    // Repõe os municípios da província escolhida antes de aplicar o valor.
+    if (provinceSelect && municipalitySelect && window.AOLocations) {
+      window.AOLocations.fillMunicipalities(municipalitySelect, province, {
+        allOption: 'Todos os municípios', selected: municipality !== 'all' ? municipality : undefined,
+      });
+    }
     if (categorySelect && category !== 'all') categorySelect.value = category;
 
-    this.render({ q, location, category });
+    this.render({ q, province, municipality, category });
   },
 
   bindFilters() {
@@ -1624,10 +1924,12 @@ const PrestadoresPage = {
       form.addEventListener('submit', e => {
         e.preventDefault();
         const q = form.querySelector('input[name="q"]')?.value?.trim() || '';
-        const location = form.querySelector('select[name="location"]')?.value || 'all';
+        const province = form.querySelector('select[name="province"]')?.value || 'all';
+        const municipality = form.querySelector('select[name="municipality"]')?.value || 'all';
         const category = form.querySelector('select[name="category"]')?.value || 'all';
-        this.render({ q, location, category });
-        history.replaceState(null, '', `?q=${q}&location=${location}&category=${category}`);
+        this.render({ q, province, municipality, category });
+        const qs = new URLSearchParams({ q, province, municipality, category });
+        history.replaceState(null, '', `?${qs.toString()}`);
       });
     }
 
@@ -1642,7 +1944,68 @@ const PrestadoresPage = {
 
     const sortSelect = document.querySelector('[name="sort"]');
     if (sortSelect) {
-      sortSelect.addEventListener('change', () => this.applySort(sortSelect.value));
+      sortSelect.addEventListener('change', () => {
+        // Ordenar por distância exige a localização do utilizador
+        if (sortSelect.value === 'distance' && !Geo.getUserPos()) { this.handleNearMe(); return; }
+        this.applySort(sortSelect.value);
+      });
+    }
+
+    // Botão "Perto de mim"
+    const nearMeBtn = document.getElementById('nearMeBtn');
+    if (nearMeBtn) nearMeBtn.addEventListener('click', () => this.handleNearMe());
+
+    // Alternador Lista / Mapa
+    const listBtn = document.getElementById('listViewBtn');
+    const mapBtn = document.getElementById('mapViewBtn');
+    if (listBtn) listBtn.addEventListener('click', () => this.setView('list'));
+    if (mapBtn) mapBtn.addEventListener('click', () => this.setView('map'));
+  },
+
+  // Obtém a localização do utilizador e re-ordena por proximidade.
+  async handleNearMe() {
+    const btn = document.getElementById('nearMeBtn');
+    const orig = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A localizar…'; }
+    try {
+      await Geo.getCurrentPosition();
+      const sortSel = document.querySelector('[name="sort"]');
+      if (sortSel) sortSel.value = 'distance';
+      // Re-renderiza para os cards mostrarem a distância, depois ordena
+      this.render(this._lastFilters || {});
+      this.applySort('distance');
+      if (this._view === 'map') MapView.refresh(this._currentList);
+      Toast.success('Localização obtida! A ordenar por proximidade.');
+    } catch (err) {
+      const msg = err && err.code === 1
+        ? 'Permissão de localização negada. Ativa-a no navegador.'
+        : err && err.message === 'unsupported'
+          ? 'O teu navegador não suporta geolocalização.'
+          : 'Não foi possível obter a localização. Tenta novamente.';
+      Toast.error(msg);
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+    }
+  },
+
+  // Alterna entre a vista de lista e a vista de mapa.
+  setView(view) {
+    this._view = view;
+    const grid = document.getElementById('providersGrid');
+    const map = document.getElementById('providersMap');
+    const listBtn = document.getElementById('listViewBtn');
+    const mapBtn = document.getElementById('mapViewBtn');
+    if (view === 'map') {
+      if (grid) grid.style.display = 'none';
+      if (map) map.style.display = 'block';
+      listBtn?.classList.remove('active');
+      mapBtn?.classList.add('active');
+      MapView.show(this._currentList || Providers.getAll());
+    } else {
+      if (grid) grid.style.display = '';
+      if (map) map.style.display = 'none';
+      mapBtn?.classList.remove('active');
+      listBtn?.classList.add('active');
     }
   },
 
@@ -1650,7 +2013,9 @@ const PrestadoresPage = {
     const grid = document.querySelector('.providers-grid');
     if (!grid) return;
 
+    this._lastFilters = filters;
     const providers = Providers.search(filters);
+    this._currentList = providers;
     const count = document.querySelector('.providers-count');
     if (count) {
       count.textContent = `${providers.length} prestador${providers.length !== 1 ? 'es' : ''} encontrado${providers.length !== 1 ? 's' : ''}`;
@@ -1685,6 +2050,19 @@ const PrestadoresPage = {
       });
     });
     ScrollReveal.init();
+    if (this._view === 'map') MapView.refresh(this._currentList);
+  },
+
+  // Distância do utilizador a um prestador (HTML), se aplicável.
+  distanceBadge(p) {
+    const u = Geo.getUserPos();
+    if (!u || !Geo.hasCoords(p)) return '';
+    const km = Geo.distanceKm(u.lat, u.lng, p.lat, p.lng);
+    if (km == null) return '';
+    const near = km <= 10;
+    const color = near ? 'var(--color-accent)' : 'var(--color-gray-500)';
+    const bg = near ? 'rgba(42,157,143,.1)' : 'var(--color-gray-100)';
+    return `<span class="provider-distance" style="display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .55rem;background:${bg};border-radius:50px;font-size:.72rem;font-weight:700;color:${color};margin-top:.4rem;"><i class="fas fa-location-arrow"></i> ${near ? 'Perto de ti · ' : ''}${Geo.formatDistance(km)}</span>`;
   },
 
   cardHTML(p) {
@@ -1693,21 +2071,23 @@ const PrestadoresPage = {
     const availBadge = p.available
       ? '<span class="provider-badge provider-badge--available"><i class="fas fa-circle"></i> Disponível</span>'
       : '<span class="provider-badge provider-badge--busy"><i class="fas fa-circle"></i> Ocupado</span>';
-    const verifiedBadge = p.verified
-      ? '<span style="display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .6rem;background:rgba(42,157,143,.1);border:1px solid rgba(42,157,143,.3);border-radius:50px;font-size:.7rem;font-weight:700;color:var(--color-accent);margin-bottom:.4rem;"><i class="fas fa-check-circle"></i> Verificado</span>'
-      : '';
+    const verifiedBadge = verificationBadgeHTML(p.verificationLevel);
+    const premBadge = p.premium ? premiumBadgeHTML() : '';
+    const distBadge = this.distanceBadge(p);
+    const premStyle = p.premium ? ' style="border:1.5px solid rgba(245,158,11,.45);box-shadow:0 4px 20px rgba(245,158,11,.12);"' : '';
 
     return `
-      <article class="provider-card reveal" data-id="${esc(p.id)}" role="button" tabindex="0" aria-label="Ver perfil de ${esc(p.name)}">
+      <article class="provider-card reveal" data-id="${esc(p.id)}" role="button" tabindex="0" aria-label="Ver perfil de ${esc(p.name)}"${premStyle}>
         <div class="provider-card__header">
           <div class="provider-avatar">${p.avatar ? `<img src="${esc(p.avatar)}" alt="${esc(p.name)}">` : `<span>${initials}</span>`}</div>
           ${availBadge}
         </div>
         <div class="provider-card__body">
-          ${verifiedBadge ? `<div>${verifiedBadge}</div>` : ''}
+          ${(premBadge || verifiedBadge) ? `<div style="margin-bottom:.4rem;display:flex;gap:.35rem;flex-wrap:wrap;">${premBadge}${verifiedBadge}</div>` : ''}
           <h3>${esc(p.name)}</h3>
           <p class="provider-category"><i class="fas fa-tag"></i> ${esc(this.categoryLabel(p.category))}</p>
-          <p class="provider-location"><i class="fas fa-map-marker-alt"></i> ${esc(this.locationLabel(p.location))}</p>
+          <p class="provider-location"><i class="fas fa-map-marker-alt"></i> ${esc(locationText(p))}</p>
+          ${distBadge ? `<div>${distBadge}</div>` : ''}
           <div class="provider-rating">
             <span class="stars">${stars}</span>
             <span class="rating-value">${esc(String(p.rating))}</span>
@@ -1729,8 +2109,10 @@ const PrestadoresPage = {
       limpeza: 'Limpeza', mecanica: 'Mecânico', fotografia: 'Fotógrafo',
       jardinagem: 'Jardineiro', design: 'Designer', carpintaria: 'Carpinteiro',
       informatica: 'Informático', seguranca: 'Segurança', chef: 'Chef',
+      construcao: 'Construção', beleza: 'Beleza & Estética',
+      saude: 'Saúde & Bem-estar', eventos: 'Eventos', outro: 'Outro',
     };
-    return map[cat] || cat;
+    return map[normalizeCategory(cat)] || cat;
   },
 
   locationLabel(loc) {
@@ -1745,6 +2127,8 @@ const PrestadoresPage = {
     const grid = document.querySelector('.providers-grid');
     if (!grid) return;
     const cards = Array.from(grid.querySelectorAll('.provider-card'));
+    const u = Geo.getUserPos();
+    const distOf = p => (u && Geo.hasCoords(p)) ? Geo.distanceKm(u.lat, u.lng, p.lat, p.lng) : Infinity;
     cards.sort((a, b) => {
       const pA = Providers.getById(a.getAttribute('data-id'));
       const pB = Providers.getById(b.getAttribute('data-id'));
@@ -1753,9 +2137,108 @@ const PrestadoresPage = {
       if (sort === 'price_asc') return pA.price - pB.price;
       if (sort === 'price_desc') return pB.price - pA.price;
       if (sort === 'reviews') return pB.reviews - pA.reviews;
+      if (sort === 'distance') return distOf(pA) - distOf(pB);
       return 0;
     });
     cards.forEach(card => grid.appendChild(card));
+  },
+};
+
+/* ============================================
+   MAP VIEW (Leaflet + OpenStreetMap)
+============================================ */
+const MapView = {
+  _map: null,
+  _markers: [],
+
+  _ensure() {
+    if (this._map) return this._map;
+    if (typeof L === 'undefined') return null; // Leaflet não carregado
+    const el = document.getElementById('providersMap');
+    if (!el) return null;
+    // Vista inicial: Angola
+    this._map = L.map(el, { scrollWheelZoom: true }).setView([-11.2, 17.87], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(this._map);
+    return this._map;
+  },
+
+  show(list) {
+    const map = this._ensure();
+    if (!map) { Toast.error('Mapa indisponível de momento.'); return; }
+    // O contentor estava oculto — recalcula o tamanho após ficar visível
+    setTimeout(() => map.invalidateSize(), 80);
+    this.refresh(list);
+  },
+
+  // Desvio determinístico por id (para pins aproximados no mesmo
+  // centro não ficarem empilhados). Escala em graus (~0.01 ≈ 1 km).
+  _jitter(id, scale) {
+    let h = 0;
+    const s = String(id);
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    const a = (h % 1000) / 500 - 1;          // [-1, 1]
+    const b = ((h >> 10) % 1000) / 500 - 1;  // [-1, 1]
+    return [a * scale, b * scale];
+  },
+
+  // Posição de um prestador no mapa: GPS exato → sede do município →
+  // sede da província. Assim TODOS os prestadores aparecem no mapa.
+  _positionOf(p) {
+    if (Geo.hasCoords(p)) return { lat: p.lat, lng: p.lng, approx: null };
+    if (!window.AOLocations) return null;
+    const c = window.AOLocations.approxCoords({
+      province: p.province || p.location,
+      municipality: p.municipality,
+    });
+    if (!c) return null;
+    const scale = c.level === 'municipality' ? 0.012 : 0.05;
+    const [dLat, dLng] = this._jitter(p.id, scale);
+    return { lat: c.lat + dLat, lng: c.lng + dLng, approx: c.level };
+  },
+
+  refresh(list) {
+    const map = this._ensure();
+    if (!map) return;
+    this._markers.forEach(m => map.removeLayer(m));
+    this._markers = [];
+    const bounds = [];
+    (list || []).forEach(p => {
+      const pos = this._positionOf(p);
+      if (!pos) return;
+      // Premium (Destaque): círculo dourado maior. Exato: marcador normal.
+      // Aproximado: círculo laranja.
+      const marker = p.premium
+        ? L.circleMarker([pos.lat, pos.lng], { radius: 11, color: '#fff', weight: 2, fillColor: '#F59E0B', fillOpacity: .95 })
+        : pos.approx
+          ? L.circleMarker([pos.lat, pos.lng], { radius: 8, color: '#fff', weight: 1.5, fillColor: '#F4A261', fillOpacity: .85 })
+          : L.marker([pos.lat, pos.lng]);
+      marker.addTo(map);
+      marker.bindPopup(
+        `<strong>${esc(p.name)}</strong>` +
+        (p.premium ? ' <span style="color:#b45309;font-weight:800;font-size:.8em;">★ Destaque</span>' : '') +
+        `<br>${esc(PrestadoresPage.categoryLabel(p.category))}` +
+        `<br>${esc(locationText(p))}` +
+        (pos.approx ? '<br><em style="font-size:.8em;color:#b45309;">Localização aproximada</em>' : '') +
+        `<br><a href="perfil-prestador.html?id=${esc(p.id)}">Ver perfil →</a>`
+      );
+      this._markers.push(marker);
+      bounds.push([pos.lat, pos.lng]);
+    });
+    // Marcador da posição do utilizador
+    const u = Geo.getUserPos();
+    if (u) {
+      const um = L.circleMarker([u.lat, u.lng], {
+        radius: 9, color: '#fff', weight: 2, fillColor: '#E63946', fillOpacity: 1,
+      }).addTo(map);
+      um.bindPopup('Estás aqui');
+      this._markers.push(um);
+      bounds.push([u.lat, u.lng]);
+    }
+    if (bounds.length === 1) map.setView(bounds[0], 14);
+    else if (bounds.length > 1) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
   },
 };
 
@@ -1785,8 +2268,13 @@ const ProfilePage = {
         id: doc.id,
         uid: doc.id,
         name: d.name || 'Prestador',
-        category: d.category || 'outro',
+        category: normalizeCategory(d.category) || 'outro',
         location: d.location || '',
+        province: (d.province || d.location || '').toLowerCase(),
+        municipality: (d.municipality || '').toLowerCase(),
+        neighborhood: d.neighborhood || '',
+        lat: typeof d.lat === 'number' ? d.lat : null,
+        lng: typeof d.lng === 'number' ? d.lng : null,
         rating: Number(d.rating) || 0,
         reviews: Number(d.reviews) || 0,
         price: Number(d.price) || 0,
@@ -1794,6 +2282,8 @@ const ProfilePage = {
         phone: d.phone || '',
         avatar: d.photoURL || null,
         verified: d.verified || false,
+        verificationLevel: verificationLevelOf(d),
+        premium: isPremium(d),
         available: d.availability !== false,
         portfolio: Array.isArray(d.portfolio) ? d.portfolio : [],
         instagram: d.instagram || '',
@@ -1821,7 +2311,7 @@ const ProfilePage = {
     const fields = {
       'profile-name': p.name,
       'profile-category': PrestadoresPage.categoryLabel(p.category),
-      'profile-location': PrestadoresPage.locationLabel(p.location),
+      'profile-location': locationText(p),
       'profile-bio': p.bio,
       'profile-price': `AOA ${p.price.toLocaleString('pt-AO')}`,
       'profile-reviews-count': `${p.reviews} avaliações`,
@@ -1853,6 +2343,30 @@ const ProfilePage = {
     if (availEl) {
       availEl.className = `availability-badge ${p.available ? 'available' : 'busy'}`;
       availEl.innerHTML = `<i class="fas fa-circle"></i> ${p.available ? 'Disponível' : 'Ocupado'}`;
+    }
+
+    // Selo de verificação (por nível) junto ao nome
+    const verifEl = document.getElementById('profile-verified');
+    if (verifEl) {
+      const v = VERIF_LEVELS[p.verificationLevel];
+      if (v) {
+        verifEl.style.display = '';
+        verifEl.innerHTML = `<i class="fas ${v.icon}"></i> ${v.label}`;
+      } else {
+        verifEl.style.display = 'none';
+      }
+      // Selo Destaque (Premium) ao lado do de verificação
+      let premEl = document.getElementById('profile-premium');
+      if (p.premium) {
+        if (!premEl) {
+          premEl = document.createElement('span');
+          premEl.id = 'profile-premium';
+          verifEl.parentNode.insertBefore(premEl, verifEl);
+        }
+        premEl.innerHTML = premiumBadgeHTML();
+      } else if (premEl) {
+        premEl.remove();
+      }
     }
 
     const socialEl = document.getElementById('profile-social');
@@ -1934,37 +2448,102 @@ const ProfilePage = {
       });
     }
 
-    btnRequest?.addEventListener('click', async () => {
+    // Partilhar o perfil (Web Share nativo; fallback: WhatsApp)
+    const btnShare = document.getElementById('btn-share');
+    if (btnShare && !btnShare._bound) {
+      btnShare._bound = true;
+      btnShare.addEventListener('click', async () => {
+        const url = `${location.origin}${location.pathname.replace(/[^/]*$/, '')}perfil-prestador.html?id=${encodeURIComponent(p.uid || p.id)}`;
+        const text = `Conhece ${p.name} — ${PrestadoresPage.categoryLabel(p.category)} na Conecta Já!`;
+        if (navigator.share) {
+          try { await navigator.share({ title: p.name, text, url }); return; }
+          catch (_) { /* utilizador cancelou — cai para o WhatsApp */ }
+        }
+        window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`, '_blank', 'noopener');
+      });
+    }
+
+    // Abre o modal de pedido (descrição + data pretendida + período)
+    btnRequest?.addEventListener('click', () => {
       if (!Auth.isLoggedIn()) {
         Toast.warning('Precisas de fazer login para fazer um pedido.');
         Modal.open('loginModal');
         return;
       }
-      const btn = document.getElementById('btn-request');
-      const orig = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar…';
-      try {
-        const order = await Orders.create({
-          providerId:   p.uid || p.id,
-          providerName: p.name,
-          category:     p.category,
-        });
-        Toast.success(`Pedido ${order.id} enviado! O prestador irá responder em breve.`);
-        btn.innerHTML = '<i class="fas fa-clock"></i> Pedido já enviado';
-        // button stays disabled — order is now active
-      } catch (e) {
-        if (e.message === 'duplicate-order') {
-          Toast.warning('Já tens um pedido activo com este prestador. Aguarda a resposta.');
-          btn.innerHTML = '<i class="fas fa-clock"></i> Pedido já enviado';
-          // stays disabled
-        } else {
-          Toast.error('Erro ao enviar pedido. Tenta novamente.');
-          btn.innerHTML = orig;
-          btn.disabled = false;
-        }
-      }
+      const modal = document.getElementById('requestModal');
+      if (!modal) return;
+      const nameEl = document.getElementById('reqProviderName');
+      if (nameEl) nameEl.textContent = p.name;
+      // Data mínima = hoje
+      const dateEl = document.getElementById('req_date');
+      if (dateEl) dateEl.min = new Date().toISOString().split('T')[0];
+      modal.style.display = 'flex';
+      document.getElementById('req_message')?.focus();
     });
+
+    // Contador de caracteres da descrição
+    const reqMsg = document.getElementById('req_message');
+    const reqCounter = document.getElementById('req_msg_counter');
+    if (reqMsg && reqCounter && !reqMsg._counterBound) {
+      reqMsg.addEventListener('input', () => {
+        reqCounter.textContent = `${reqMsg.value.length}/500`;
+      });
+      reqMsg._counterBound = true;
+    }
+
+    // Submissão do pedido
+    const reqForm = document.getElementById('requestForm');
+    if (reqForm && !reqForm._bound) {
+      reqForm._bound = true;
+      reqForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const message = document.getElementById('req_message')?.value?.trim() || '';
+        const scheduledDate = document.getElementById('req_date')?.value || '';
+        const scheduledPeriod = document.getElementById('req_period')?.value || 'qualquer';
+
+        if (message.length < 10) {
+          Toast.error('Descreve o que precisas (mínimo 10 caracteres).');
+          return;
+        }
+
+        const submitBtn = document.getElementById('reqSubmitBtn');
+        const origSubmit = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar…';
+        try {
+          const order = await Orders.create({
+            providerId:   p.uid || p.id,
+            providerName: p.name,
+            category:     p.category,
+            message,
+            scheduledDate,
+            scheduledPeriod,
+          });
+          document.getElementById('requestModal').style.display = 'none';
+          reqForm.reset();
+          if (reqCounter) reqCounter.textContent = '0/500';
+          Toast.success(`Pedido ${order.id} enviado! O prestador vai responder com um orçamento.`);
+          if (btnRequest) {
+            btnRequest.disabled = true;
+            btnRequest.innerHTML = '<i class="fas fa-clock"></i> Pedido já enviado';
+          }
+        } catch (err) {
+          if (err.message === 'duplicate-order') {
+            Toast.warning('Já tens um pedido activo com este prestador. Aguarda a resposta.');
+            document.getElementById('requestModal').style.display = 'none';
+            if (btnRequest) {
+              btnRequest.disabled = true;
+              btnRequest.innerHTML = '<i class="fas fa-clock"></i> Pedido já enviado';
+            }
+          } else {
+            Toast.error('Erro ao enviar pedido. Tenta novamente.');
+          }
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = origSubmit;
+        }
+      });
+    }
   },
 
   async renderReviews(p) {
@@ -2301,9 +2880,12 @@ const DashboardClient = {
             if (prev && prev !== o.status) {
               // Status changed — notify client
               const msgs = {
-                accepted:  `O teu pedido foi aceite por ${o.providerName || 'o prestador'}! Aguarda o contacto.`,
+                accepted:  o.quote
+                  ? `${o.providerName || 'O prestador'} aceitou o teu pedido com orçamento de ${Number(o.quote).toLocaleString('pt-AO')} Kz!`
+                  : `O teu pedido foi aceite por ${o.providerName || 'o prestador'}! Aguarda o contacto.`,
+                in_progress: `${o.providerName || 'O prestador'} iniciou o trabalho!`,
                 cancelled: `O teu pedido foi recusado por ${o.providerName || 'o prestador'}.`,
-                completed: `O teu pedido com ${o.providerName || 'o prestador'} foi marcado como concluído.`,
+                completed: `Trabalho concluído por ${o.providerName || 'o prestador'}! Avalia a tua experiência.`,
               };
               if (msgs[o.status]) {
                 Toast[o.status === 'cancelled' ? 'warning' : 'success'](msgs[o.status]);
@@ -2332,7 +2914,18 @@ const DashboardClient = {
             </div>
             <p><strong>Prestador:</strong> ${esc(o.providerName || '—')}</p>
             <p><strong>Serviço:</strong> ${esc(PrestadoresPage.categoryLabel(o.category))}</p>
+            ${o.message ? `<p><strong>Descrição:</strong> ${esc(o.message.length > 90 ? o.message.substring(0, 90) + '…' : o.message)}</p>` : ''}
+            ${o.scheduledDate ? `<p><strong>Quando:</strong> <i class="fas fa-calendar-alt" style="color:var(--color-primary);font-size:.8em;"></i> ${esc(Orders.scheduleLabel(o))}</p>` : ''}
+            ${o.quote ? `<p><strong>Orçamento:</strong> <span style="color:var(--color-accent);font-weight:800;">${Number(o.quote).toLocaleString('pt-AO')} Kz</span>${o.quoteNote ? ` <span style="color:var(--color-gray-500);font-size:.85em;">(${esc(o.quoteNote)})</span>` : ''}</p>` : ''}
             <p class="order-date">${new Date(o.createdAt).toLocaleDateString('pt-AO')}</p>
+            ${Orders.paymentBoxHTML(o)}
+            ${o.status === 'completed' ? `
+              <div style="margin-top:.75rem;">
+                <a href="perfil-prestador.html?id=${esc(o.providerId)}#reviews" class="btn btn--outline btn--sm">
+                  <i class="fas fa-star" style="color:#FBBF24;"></i> Avaliar Prestador
+                </a>
+              </div>
+            ` : ''}
           </div>
         `).join('');
       }, () => {
@@ -2356,7 +2949,62 @@ const DashboardProvider = {
       this.renderWelcome(user);
       this.renderIncomingOrders(user);
       this.renderStats(user);
+      this.renderPlan(user);
     });
+  },
+
+  // Painel "O teu Plano" — Free vs Destaque (Premium).
+  // Ativação manual: prestador paga e envia comprovativo por WhatsApp;
+  // admin define plan='premium' + planUntil no Firebase Console.
+  async renderPlan(user) {
+    const el = document.getElementById('plan-panel-body');
+    if (!el) return;
+
+    let d = {};
+    try {
+      if (window.firebaseDb) {
+        const doc = await window.firebaseDb.collection('providers').doc(user.uid).get();
+        if (doc.exists) d = doc.data();
+      }
+    } catch (_) {}
+
+    if (isPremium(d)) {
+      const until = d.planUntil
+        ? (d.planUntil.toDate ? d.planUntil.toDate() : new Date(d.planUntil))
+        : null;
+      const untilStr = until && !isNaN(until) ? until.toLocaleDateString('pt-AO') : '';
+      el.innerHTML = `
+        <div style="padding:1.1rem 1.2rem;background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(245,158,11,.12));border:1.5px solid rgba(245,158,11,.4);border-radius:1.1rem;">
+          <div style="display:flex;align-items:center;gap:.6rem;font-weight:800;color:#b45309;margin-bottom:.4rem;">
+            <i class="fas fa-crown"></i> Plano Destaque ativo
+          </div>
+          <p style="font-size:.85rem;color:var(--color-gray-600);margin:0;line-height:1.6;">
+            Apareces no <strong>topo das pesquisas</strong>, com selo dourado e pin destacado no mapa.
+            ${untilStr ? `<br>Válido até <strong>${untilStr}</strong>.` : ''}
+          </p>
+        </div>`;
+      return;
+    }
+
+    const waMsg = encodeURIComponent(
+      `Olá! Quero ativar o plano Destaque (Premium) na Conecta Já.\n\nNome: ${user.name}\nEmail: ${user.email}\n\nAguardo os dados para pagamento (${PLATFORM_PAY.premiumPrice.toLocaleString('pt-AO')} Kz/mês).`
+    );
+    el.innerHTML = `
+      <p style="font-size:.85rem;color:var(--color-gray-600);margin:0 0 .9rem;line-height:1.6;">
+        Estás no plano <strong>Gratuito</strong>. Com o <strong style="color:#b45309;">Destaque</strong> apareces primeiro e ganhas mais clientes:
+      </p>
+      <ul style="list-style:none;padding:0;margin:0 0 1rem;display:flex;flex-direction:column;gap:.45rem;font-size:.83rem;color:var(--color-gray-700);">
+        <li><i class="fas fa-check" style="color:var(--color-accent);margin-right:.4rem;"></i> Topo dos resultados de pesquisa</li>
+        <li><i class="fas fa-check" style="color:var(--color-accent);margin-right:.4rem;"></i> Selo dourado <strong>Destaque</strong> no perfil</li>
+        <li><i class="fas fa-check" style="color:var(--color-accent);margin-right:.4rem;"></i> Pin destacado no mapa</li>
+      </ul>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
+        <div style="font-weight:900;font-size:1.15rem;color:var(--color-gray-900);">${PLATFORM_PAY.premiumPrice.toLocaleString('pt-AO')} Kz<span style="font-size:.75rem;font-weight:600;color:var(--color-gray-400);">/mês</span></div>
+        <a href="https://wa.me/${PLATFORM_PAY.adminWhatsApp}?text=${waMsg}" target="_blank" rel="noopener"
+          class="btn btn--primary btn--sm" style="background:linear-gradient(135deg,#F59E0B,#d97706);border-color:#d97706;">
+          <i class="fas fa-crown"></i> Ativar Destaque
+        </a>
+      </div>`;
   },
 
   renderWelcome(user) {
@@ -2439,6 +3087,12 @@ const DashboardProvider = {
             </div>
             <p><strong>Cliente:</strong> ${esc(o.clientName || '—')}</p>
             <p><strong>Serviço:</strong> ${esc(PrestadoresPage.categoryLabel(o.category))}</p>
+            ${o.message ? `<p><strong>Descrição:</strong> ${esc(o.message)}</p>` : ''}
+            ${o.scheduledDate ? `<p><strong>Quando:</strong> <i class="fas fa-calendar-alt" style="color:var(--color-primary);font-size:.8em;"></i> ${esc(Orders.scheduleLabel(o))}</p>` : ''}
+            ${o.clientLocation ? `<p><strong>Local:</strong> <i class="fas fa-map-marker-alt" style="color:var(--color-primary);font-size:.8em;"></i> ${esc(o.clientLocation)}</p>` : ''}
+            ${o.quote ? `<p><strong>Orçamento enviado:</strong> <span style="color:var(--color-accent);font-weight:800;">${Number(o.quote).toLocaleString('pt-AO')} Kz</span></p>` : ''}
+            ${o.paymentStatus === 'held' ? `<p style="color:var(--color-accent);font-weight:700;font-size:.83rem;"><i class="fas fa-shield-alt"></i> Pagamento Seguro retido — recebes ao concluir</p>` : ''}
+            ${o.paymentStatus === 'released' ? `<p style="color:#059669;font-weight:700;font-size:.83rem;"><i class="fas fa-check-double"></i> Pagamento recebido via Conecta Já</p>` : ''}
             <p class="order-date">${new Date(o.createdAt).toLocaleDateString('pt-AO')}</p>
             <div class="order-actions" style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;">
               ${o.status === 'pending' ? `
@@ -2449,11 +3103,41 @@ const DashboardProvider = {
                   <i class="fas fa-times"></i> Recusar
                 </button>
               ` : ''}
+              ${o.status === 'accepted' ? `
+                <button class="btn btn--primary btn--sm" data-action="start" data-order="${esc(o.id)}">
+                  <i class="fas fa-play"></i> Iniciar Trabalho
+                </button>
+              ` : ''}
+              ${o.status === 'in_progress' ? `
+                <button class="btn btn--primary btn--sm" data-action="complete" data-order="${esc(o.id)}">
+                  <i class="fas fa-flag-checkered"></i> Marcar Concluído
+                </button>
+              ` : ''}
               <button class="btn btn--ghost btn--sm" data-action="view-client"
                 data-order="${esc(o.id)}"
                 data-order-status="${esc(o.status)}">
                 <i class="fas fa-user-circle"></i> Ver Cliente
               </button>
+            </div>
+            <!-- Mini-form de orçamento (aparece ao clicar Aceitar) -->
+            <div class="quote-form" id="quote-form-${esc(o.id)}" style="display:none;margin-top:.75rem;padding:.875rem;background:rgba(42,157,143,.06);border:1.5px solid rgba(42,157,143,.25);border-radius:.875rem;">
+              <p style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--color-gray-800);">
+                <i class="fas fa-coins" style="color:var(--color-accent);"></i> Enviar orçamento ao cliente <span style="font-weight:400;color:var(--color-gray-400);">(opcional)</span>
+              </p>
+              <div style="display:flex;flex-direction:column;gap:.5rem;">
+                <input type="text" inputmode="numeric" class="quote-input" placeholder="Valor em Kz — ex: 15000"
+                  style="width:100%;padding:.6rem .8rem;border:1.5px solid var(--color-gray-200);border-radius:.7rem;font-family:inherit;font-size:.875rem;background:var(--color-gray-50);color:var(--color-gray-900);">
+                <input type="text" class="quote-note" maxlength="120" placeholder="Nota — ex: inclui material"
+                  style="width:100%;padding:.6rem .8rem;border:1.5px solid var(--color-gray-200);border-radius:.7rem;font-family:inherit;font-size:.875rem;background:var(--color-gray-50);color:var(--color-gray-900);">
+                <div style="display:flex;gap:.5rem;">
+                  <button class="btn btn--primary btn--sm" data-action="confirm-accept" data-order="${esc(o.id)}" style="flex:1;">
+                    <i class="fas fa-check"></i> Aceitar Pedido
+                  </button>
+                  <button class="btn btn--outline btn--sm" data-action="hide-quote" data-order="${esc(o.id)}">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         `).join('');
@@ -2469,12 +3153,41 @@ const DashboardProvider = {
               return;
             }
 
+            // "Aceitar" abre o mini-form de orçamento (não muda o estado ainda)
+            if (action === 'accept') {
+              const qf = document.getElementById(`quote-form-${id}`);
+              if (qf) { qf.style.display = 'block'; qf.querySelector('.quote-input')?.focus(); }
+              return;
+            }
+            if (action === 'hide-quote') {
+              const qf = document.getElementById(`quote-form-${id}`);
+              if (qf) qf.style.display = 'none';
+              return;
+            }
+
             btn.disabled = true;
-            const newStatus = action === 'accept' ? 'accepted' : 'cancelled';
-            await Orders.updateStatus(id, newStatus);
-            Toast[action === 'accept' ? 'success' : 'info'](
-              action === 'accept' ? 'Pedido aceite! Podes agora contactar o cliente.' : 'Pedido recusado.'
-            );
+            const prev = DashboardProvider._ordersCache[id]?.status;
+
+            if (action === 'confirm-accept') {
+              // Lê o orçamento (opcional) do mini-form
+              const qf = document.getElementById(`quote-form-${id}`);
+              const rawQuote = qf?.querySelector('.quote-input')?.value?.replace(/[^\d]/g, '') || '';
+              const quote = rawQuote ? parseInt(rawQuote, 10) : null;
+              const quoteNote = qf?.querySelector('.quote-note')?.value?.trim() || '';
+              await Orders.updateStatus(id, 'accepted', prev, { quote, quoteNote });
+              Toast.success(quote
+                ? `Pedido aceite com orçamento de ${quote.toLocaleString('pt-AO')} Kz!`
+                : 'Pedido aceite! Podes agora contactar o cliente.');
+            } else if (action === 'start') {
+              await Orders.updateStatus(id, 'in_progress', prev);
+              Toast.success('Trabalho iniciado! O cliente foi notificado.');
+            } else if (action === 'complete') {
+              await Orders.updateStatus(id, 'completed', prev);
+              Toast.success('Trabalho concluído! O cliente pode agora avaliar-te.');
+            } else { // cancel
+              await Orders.updateStatus(id, 'cancelled', prev);
+              Toast.info('Pedido recusado.');
+            }
             // onSnapshot re-renders automatically — no manual reload needed
             this.renderStats(user);
           });
@@ -2500,6 +3213,11 @@ const DashboardProvider = {
       name:     order.clientName     || 'Cliente',
       phone:    order.clientPhone    || '',
       location: order.clientLocation || '',
+      province:     order.clientProvince     || '',
+      municipality: order.clientMunicipality || '',
+      neighborhood: order.clientNeighborhood || '',
+      lat: typeof order.clientLat === 'number' ? order.clientLat : null,
+      lng: typeof order.clientLng === 'number' ? order.clientLng : null,
       photoURL: order.clientPhotoURL || null,
     };
 
@@ -2514,10 +3232,20 @@ const DashboardProvider = {
           c.name     = d.name     || c.name;
           c.phone    = d.phone    || c.phone;
           c.location = d.location || c.location;
+          c.province     = d.province     || c.province;
+          c.municipality = d.municipality || c.municipality;
+          c.neighborhood = d.neighborhood || c.neighborhood;
+          if (typeof d.lat === 'number' && typeof d.lng === 'number') { c.lat = d.lat; c.lng = d.lng; }
           c.photoURL = d.photoURL || c.photoURL;
         }
       }
     } catch (_) { /* rules may restrict cross-user read — order data already used above */ }
+
+    // Etiqueta composta (bairro, município, província) com fallback ao texto antigo
+    const locLabel = (c.province || c.municipality || c.neighborhood)
+      ? locationText(c)
+      : c.location;
+    const hasGps = typeof c.lat === 'number' && typeof c.lng === 'number';
 
     const initial     = (c.name || 'C').charAt(0).toUpperCase();
     const canContact  = order.status === 'accepted';
@@ -2532,15 +3260,20 @@ const DashboardProvider = {
         <span style="display:inline-block;background:rgba(230,57,70,.1);color:var(--color-primary);padding:.2rem .75rem;border-radius:50px;font-size:.75rem;font-weight:700;">Cliente</span>
       </div>
 
-      ${c.location ? `
+      ${locLabel ? `
       <div style="margin:0 1.5rem;padding:.875rem 1rem;background:var(--color-gray-50);border-radius:1rem;display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
         <div style="width:34px;height:34px;border-radius:.625rem;background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <i class="fas fa-map-marker-alt" style="color:white;font-size:.85rem;"></i>
         </div>
-        <div>
+        <div style="flex:1;min-width:0;">
           <div style="font-size:.7rem;font-weight:700;color:var(--color-gray-400);text-transform:uppercase;letter-spacing:.05em;">Localização</div>
-          <div style="font-size:.9rem;font-weight:700;color:var(--color-gray-800);">${esc(c.location)}</div>
+          <div style="font-size:.9rem;font-weight:700;color:var(--color-gray-800);">${esc(locLabel)}</div>
         </div>
+        ${hasGps ? `
+        <a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank" rel="noopener"
+          style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .8rem;background:var(--color-accent);color:white;border-radius:.75rem;font-size:.78rem;font-weight:700;text-decoration:none;flex-shrink:0;">
+          <i class="fas fa-map-location-dot"></i> Ver no mapa
+        </a>` : ''}
       </div>` : ''}
 
       <div style="padding:.25rem 1.5rem 1.75rem;">
@@ -3429,7 +4162,53 @@ const Profile = {
       this._bindPasswordForm(user);
       this._bindAvatarUpload(user);
       this._bindPortfolioUpload(user);
+      this._bindGeoCapture(user);
     });
+  },
+
+  // Botão "Usar a minha localização" — captura lat/lng via navigator.geolocation.
+  _bindGeoCapture(user) {
+    const btn = document.getElementById('btnUseLocation');
+    const status = document.getElementById('geoStatus');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A obter…';
+      if (status) { status.style.color = 'var(--color-gray-500)'; status.innerHTML = ''; }
+      try {
+        const pos = await Geo.getCurrentPosition();
+        const latEl = document.getElementById('prof_lat');
+        const lngEl = document.getElementById('prof_lng');
+        if (latEl) latEl.value = pos.lat;
+        if (lngEl) lngEl.value = pos.lng;
+        this._renderGeoStatus(pos.lat, pos.lng);
+        Toast.success('Localização captada! Clica em "Guardar Alterações" para confirmar.');
+      } catch (err) {
+        const msg = err && err.code === 1
+          ? 'Permissão de localização negada. Ativa-a no navegador e tenta de novo.'
+          : err && err.message === 'unsupported'
+            ? 'O teu navegador não suporta geolocalização.'
+            : 'Não foi possível obter a localização. Tenta novamente.';
+        if (status) { status.style.color = 'var(--color-primary)'; status.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${msg}`; }
+        Toast.error(msg);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+      }
+    });
+  },
+
+  _renderGeoStatus(lat, lng) {
+    const status = document.getElementById('geoStatus');
+    if (!status) return;
+    if (typeof lat === 'number' && typeof lng === 'number') {
+      status.style.color = 'var(--color-accent)';
+      status.innerHTML = `<i class="fas fa-circle-check"></i> Localização definida (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+    } else {
+      status.style.color = 'var(--color-gray-400)';
+      status.innerHTML = '<i class="fas fa-circle-info"></i> Sem localização definida';
+    }
   },
 
   async _compressImage(file) {
@@ -3531,9 +4310,9 @@ const Profile = {
       'prof_name': user.name || '',
       'prof_email': user.email || '',
       'prof_phone': p.phone || '',
-      'prof_location': p.location || '',
+      'prof_neighborhood': p.neighborhood || '',
       'prof_bio': p.bio || '',
-      'prof_category': p.category || '',
+      'prof_category': normalizeCategory(p.category) || '',
       'prof_price': p.price || '',
       'prof_photo_url': safePhotoURL,
       'prof_instagram': p.instagram || '',
@@ -3544,6 +4323,41 @@ const Profile = {
       const el = document.getElementById(id);
       if (el) el.value = val;
     });
+
+    // Localização estruturada: Província → Município (em cascata)
+    const provSel = document.getElementById('prof_province');
+    const munSel = document.getElementById('prof_municipality');
+    if (provSel && window.AOLocations) {
+      const province = (p.province || p.location || '').toLowerCase();
+      window.AOLocations.fillProvinces(provSel, { placeholder: 'Selecciona a província', selected: province });
+      if (munSel) {
+        window.AOLocations.fillMunicipalities(munSel, province, {
+          placeholder: 'Selecciona o município',
+          selected: (p.municipality || '').toLowerCase(),
+        });
+        // Liga uma única vez para repor os municípios ao mudar de província
+        if (!provSel._cascadeBound) {
+          window.AOLocations.bindCascade(provSel, munSel, { placeholder: 'Selecciona o município' });
+          provSel._cascadeBound = true;
+        }
+      }
+    }
+
+    // Coordenadas guardadas (mapa)
+    const latEl = document.getElementById('prof_lat');
+    const lngEl = document.getElementById('prof_lng');
+    const hasCoords = typeof p.lat === 'number' && typeof p.lng === 'number';
+    if (latEl) latEl.value = hasCoords ? p.lat : '';
+    if (lngEl) lngEl.value = hasCoords ? p.lng : '';
+    this._renderGeoStatus(hasCoords ? p.lat : null, hasCoords ? p.lng : null);
+    // Prestadores: aparecem no mapa de pesquisa.
+    // Clientes: a localização é partilhada com o prestador ao pedir serviço.
+    const geoHint = document.getElementById('geoLocationHint');
+    if (geoHint) {
+      geoHint.textContent = user.type === 'provider'
+        ? 'Aparece no mapa de pesquisa e mostra a distância aos clientes. Faz isto no local onde atendes.'
+        : 'Partilhada com o prestador quando solicitas um serviço, para ele saber onde estás.';
+    }
 
     // Availability toggle
     const avail = document.getElementById('prof_availability');
@@ -3570,7 +4384,15 @@ const Profile = {
 
       const name = document.getElementById('prof_name')?.value?.trim() || user.name;
       const phone = document.getElementById('prof_phone')?.value?.trim() || '';
-      const location = document.getElementById('prof_location')?.value?.trim() || '';
+      const province = document.getElementById('prof_province')?.value?.trim() || '';
+      const municipality = document.getElementById('prof_municipality')?.value?.trim() || '';
+      const neighborhood = document.getElementById('prof_neighborhood')?.value?.trim() || '';
+      const latRaw = document.getElementById('prof_lat')?.value;
+      const lngRaw = document.getElementById('prof_lng')?.value;
+      const lat = latRaw !== '' && latRaw != null && !isNaN(parseFloat(latRaw)) ? parseFloat(latRaw) : null;
+      const lng = lngRaw !== '' && lngRaw != null && !isNaN(parseFloat(lngRaw)) ? parseFloat(lngRaw) : null;
+      // Mantém `location` alinhado com a província para retrocompatibilidade
+      const location = province;
       const bio = document.getElementById('prof_bio')?.value?.trim() || '';
       const category = document.getElementById('prof_category')?.value || '';
       const price = document.getElementById('prof_price')?.value?.trim() || '';
@@ -3583,7 +4405,7 @@ const Profile = {
       const limits = [
         [name, 80, 'Nome muito longo (máx. 80 caracteres).'],
         [phone, 20, 'Telefone muito longo (máx. 20 caracteres).'],
-        [location, 100, 'Localização muito longa (máx. 100 caracteres).'],
+        [neighborhood, 80, 'Bairro/zona muito longo (máx. 80 caracteres).'],
         [bio, 500, 'Biografia muito longa (máx. 500 caracteres).'],
         [price, 30, 'Preço muito longo (máx. 30 caracteres).'],
       ];
@@ -3615,7 +4437,7 @@ const Profile = {
         const portfolio = (portfolioGrid?._portfolio || []).slice(0, 8);
 
         // Save to localStorage (includes base64 for local display)
-        this.save(user.uid, { phone, location, bio, category, price, photoURL: finalPhotoURL, availability, portfolio, instagram, facebook, x });
+        this.save(user.uid, { phone, location, province, municipality, neighborhood, lat, lng, bio, category, price, photoURL: finalPhotoURL, availability, portfolio, instagram, facebook, x });
 
         // Save to Firestore for ALL users so providers can read client contact info
         if (window.firebaseDb) {
@@ -3627,9 +4449,13 @@ const Profile = {
             type: user.type,
             phone,
             location: location.toLowerCase(),
+            province: province.toLowerCase(),
+            municipality: municipality.toLowerCase(),
+            neighborhood,
             photoURL: firestorePhotoURL,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           };
+          if (lat != null && lng != null) { firestoreData.lat = lat; firestoreData.lng = lng; }
           if (user.type === 'provider') {
             const priceNum = parseFloat((price || '').replace(/[^\d,.]/, '').replace(',', '.')) || 0;
             Object.assign(firestoreData, { bio, category, price: priceNum, portfolio, availability, instagram, facebook, x });
@@ -3750,6 +4576,78 @@ const Profile = {
 };
 
 /* ============================================
+   REFERRAL — programa de indicações
+============================================ */
+const Referral = {
+  init() {
+    const el = document.getElementById('referral-card-body');
+    if (!el) return;
+    Auth.onReady(user => {
+      if (!user) return;
+      this._render(user, el);
+    });
+  },
+
+  link(uid) {
+    // Link para a homepage com o uid de quem convida
+    const base = `${location.origin}${location.pathname.replace(/[^/]*$/, '')}`;
+    return `${base}index.html?ref=${encodeURIComponent(uid)}`;
+  },
+
+  async _render(user, el) {
+    const link = this.link(user.uid);
+    const waText = encodeURIComponent(
+      `Junta-te à Conecta Já — a plataforma de serviços de Angola! Regista-te com o meu link:\n${link}`
+    );
+    const rewardText = user.type === 'provider'
+      ? 'Por cada <strong>3 amigos</strong> que se registarem com o teu link, ganhas <strong>1 semana de Destaque grátis</strong>.'
+      : 'Convida amigos e ajuda a comunidade a crescer — os teus convites ficam registados para vantagens futuras.';
+
+    el.innerHTML = `
+      <p style="font-size:.85rem;color:var(--color-gray-600);margin:0 0 .75rem;line-height:1.6;">${rewardText}</p>
+      <div style="display:flex;gap:.5rem;margin-bottom:.75rem;">
+        <input type="text" readonly value="${esc(link)}" id="referralLinkInput"
+          style="flex:1;min-width:0;padding:.6rem .8rem;border:1.5px solid var(--color-gray-200);border-radius:.7rem;font-size:.78rem;background:var(--color-gray-50);color:var(--color-gray-600);font-family:inherit;">
+        <button class="btn btn--outline btn--sm" id="referralCopyBtn" title="Copiar link" style="flex-shrink:0;">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+      <a href="https://wa.me/?text=${waText}" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem;background:#25D366;color:white;border-radius:.8rem;font-size:.875rem;font-weight:700;text-decoration:none;">
+        <i class="fab fa-whatsapp" style="font-size:1.1rem;"></i> Convidar pelo WhatsApp
+      </a>
+      <p id="referralCount" style="font-size:.78rem;color:var(--color-gray-400);text-align:center;margin:.6rem 0 0;"></p>`;
+
+    document.getElementById('referralCopyBtn')?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(link);
+        Toast.success('Link copiado!');
+      } catch (_) {
+        const inp = document.getElementById('referralLinkInput');
+        inp?.select();
+        document.execCommand('copy');
+        Toast.success('Link copiado!');
+      }
+    });
+
+    // Quantas pessoas já se registaram com o link
+    try {
+      if (window.firebaseDb) {
+        const snap = await window.firebaseDb.collection('providers')
+          .where('referredBy', '==', user.uid).get();
+        const n = snap.size;
+        const countEl = document.getElementById('referralCount');
+        if (countEl) {
+          countEl.innerHTML = n > 0
+            ? `<i class="fas fa-users" style="color:var(--color-accent);"></i> Já convidaste <strong>${n}</strong> ${n === 1 ? 'pessoa' : 'pessoas'}!`
+            : 'Ainda não convidaste ninguém — começa agora!';
+        }
+      }
+    } catch (_) { /* regras podem restringir a query — o cartão funciona na mesma */ }
+  },
+};
+
+/* ============================================
    VERIFICATION MODULE
 ============================================ */
 const Verification = {
@@ -3769,6 +4667,7 @@ const Verification = {
 
     // First check Firestore for verified flag and existing request
     let isVerified = false;
+    let level = 0;
     let req = null;
     if (window.firebaseDb) {
       try {
@@ -3776,24 +4675,60 @@ const Verification = {
           window.firebaseDb.collection('providers').doc(user.uid).get(),
           window.firebaseDb.collection('verificationRequests').doc(user.uid).get(),
         ]);
-        isVerified = provDoc.exists && provDoc.data().verified === true;
+        if (provDoc.exists) level = verificationLevelOf(provDoc.data());
+        isVerified = level >= 2;
         if (reqDoc.exists) req = reqDoc.data();
       } catch (_) {}
     }
 
+    const ladder = this._htmlLevels(level);
+
     if (isVerified) {
-      el.innerHTML = this._htmlVerified();
+      el.innerHTML = ladder + this._htmlVerified();
     } else if (!req) {
-      el.innerHTML = this._htmlIntro() + this._htmlForm();
+      el.innerHTML = ladder + this._htmlIntro() + this._htmlForm();
       this._bindForm(user);
     } else if (req.status === 'pending') {
-      el.innerHTML = this._htmlPending(req);
+      el.innerHTML = ladder + this._htmlPending(req);
     } else if (req.status === 'rejected') {
-      el.innerHTML = this._htmlRejected(req.rejectReason) + this._htmlForm();
+      el.innerHTML = ladder + this._htmlRejected(req.rejectReason) + this._htmlForm();
       this._bindForm(user);
     } else if (req.status === 'approved') {
-      el.innerHTML = this._htmlApproved();
+      el.innerHTML = ladder + this._htmlApproved();
     }
+  },
+
+  // Escada de confiança: mostra os 3 níveis e o nível atual do prestador.
+  _htmlLevels(current) {
+    const steps = [
+      { lvl: 1, icon: 'fa-phone-alt', title: 'Contacto verificado', desc: 'Telefone/WhatsApp confirmado.' },
+      { lvl: 2, icon: 'fa-id-card', title: 'Identidade verificada', desc: 'BI ou Passaporte validado pela equipa.' },
+      { lvl: 3, icon: 'fa-shield-alt', title: 'Conecta Já Pro', desc: 'Verificação reforçada — selo de ouro.' },
+    ];
+    const rows = steps.map(s => {
+      const done = current >= s.lvl;
+      const color = done ? 'var(--color-accent)' : 'var(--color-gray-400)';
+      const bg = done ? 'rgba(42,157,143,.1)' : 'var(--color-gray-100)';
+      const check = done ? '<i class="fas fa-check" style="color:var(--color-accent);"></i>' : `<span style="font-size:.7rem;font-weight:800;color:var(--color-gray-400);">${s.lvl}</span>`;
+      return `
+        <div style="display:flex;align-items:center;gap:.85rem;padding:.6rem .25rem;">
+          <div style="width:34px;height:34px;border-radius:.7rem;background:${bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas ${s.icon}" style="color:${color};font-size:.9rem;"></i></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:.85rem;color:var(--color-gray-800);">${s.title}</div>
+            <div style="font-size:.76rem;color:var(--color-gray-500);">${s.desc}</div>
+          </div>
+          <div style="width:22px;text-align:center;">${check}</div>
+        </div>`;
+    }).join('');
+    const levelName = current >= 1 && VERIF_LEVELS[current] ? VERIF_LEVELS[current].label : 'Não verificado';
+    return `
+      <div style="border:1px solid var(--color-gray-200);border-radius:1.1rem;padding:1rem 1.1rem;margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
+          <span style="font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--color-gray-500);">Níveis de Confiança</span>
+          <span style="font-size:.75rem;font-weight:700;color:var(--color-accent);">${levelName}</span>
+        </div>
+        ${rows}
+      </div>`;
   },
 
   _htmlVerified() {
@@ -3932,6 +4867,10 @@ const Verification = {
    BOOT — DOM READY
 ============================================ */
 document.addEventListener('DOMContentLoaded', () => {
+  // Programa de indicações: guarda quem convidou até o registo acontecer
+  const refUid = new URLSearchParams(window.location.search).get('ref');
+  if (refUid && /^[A-Za-z0-9_-]{6,64}$/.test(refUid)) localStorage.setItem('cj_ref', refUid);
+
   ThemeManager.init();
   Toast.init();
   App.init();
@@ -3942,10 +4881,12 @@ document.addEventListener('DOMContentLoaded', () => {
   RatingWidget.init();
   ChoiceModal.init();
   StatsSync.init();
+  Search.init();
   PrestadoresPage.init();
   ProfilePage.init();
   Profile.init();
   Verification.init();
+  Referral.init();
   DashboardClient.init();
   DashboardProvider.init();
   FAQPage.init();

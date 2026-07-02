@@ -28,6 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="global.css">
   <style>
@@ -37,7 +38,8 @@
     /* Search bar */
     .providers-search { padding: 2.5rem 0; background: white; border-bottom: 1px solid var(--color-gray-100); box-shadow: 0 2px 12px rgba(0,0,0,.04); }
     .providers-search__form { display: grid; gap: 1rem; }
-    @media (min-width: 768px) { .providers-search__form { grid-template-columns: 1fr 1fr 1fr auto; } }
+    @media (min-width: 768px) { .providers-search__form { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 1024px) { .providers-search__form { grid-template-columns: 1.4fr 1fr 1fr 1fr auto; } }
 
     .search-field { position: relative; }
     .search-field i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--color-gray-400); pointer-events: none; }
@@ -257,14 +259,14 @@
         </div>
         <div class="search-field">
           <i class="fas fa-map-marker-alt"></i>
-          <select name="location" aria-label="Localização">
-            <option value="all">Todas as cidades</option>
-            <option value="luanda">Luanda</option>
-            <option value="benguela">Benguela</option>
-            <option value="lubango">Lubango</option>
-            <option value="huambo">Huambo</option>
-            <option value="cabinda">Cabinda</option>
-            <option value="malanje">Malanje</option>
+          <select name="province" id="filterProvince" aria-label="Província">
+            <option value="all">Todas as províncias</option>
+          </select>
+        </div>
+        <div class="search-field">
+          <i class="fas fa-city"></i>
+          <select name="municipality" id="filterMunicipality" aria-label="Município">
+            <option value="all">Todos os municípios</option>
           </select>
         </div>
         <div class="search-field">
@@ -281,6 +283,12 @@
             <option value="design">Designer</option>
             <option value="carpintaria">Carpinteiro</option>
             <option value="informatica">Informático</option>
+            <option value="construcao">Construção</option>
+            <option value="beleza">Beleza &amp; Estética</option>
+            <option value="saude">Saúde &amp; Bem-estar</option>
+            <option value="eventos">Eventos</option>
+            <option value="seguranca">Segurança</option>
+            <option value="outro">Outro</option>
           </select>
         </div>
         <button type="submit" class="btn btn--primary providers-search__btn">
@@ -311,6 +319,11 @@
             <button class="filter-tag" data-category="design">Designer</button>
             <button class="filter-tag" data-category="carpintaria">Carpinteiro</button>
             <button class="filter-tag" data-category="informatica">Informático</button>
+            <button class="filter-tag" data-category="construcao">Construção</button>
+            <button class="filter-tag" data-category="beleza">Beleza</button>
+            <button class="filter-tag" data-category="saude">Saúde</button>
+            <button class="filter-tag" data-category="eventos">Eventos</button>
+            <button class="filter-tag" data-category="seguranca">Segurança</button>
           </div>
         </div>
 
@@ -318,6 +331,7 @@
           <div class="sidebar-widget__title"><i class="fas fa-sort"></i> Ordenar por</div>
           <select class="sort-select" name="sort" aria-label="Ordenar resultados">
             <option value="rating">Melhor avaliação</option>
+            <option value="distance">Mais próximos</option>
             <option value="reviews">Mais avaliações</option>
             <option value="price_asc">Menor preço</option>
             <option value="price_desc">Maior preço</option>
@@ -359,10 +373,13 @@
       <div class="providers-main">
         <div class="providers-toolbar">
           <div class="providers-count">A mostrar <strong class="providers-count-num">todos</strong> os prestadores</div>
-          <div style="display:flex;align-items:center;gap:1rem;">
+          <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+            <button class="btn btn--outline btn--sm" id="nearMeBtn">
+              <i class="fas fa-location-crosshairs"></i> Perto de mim
+            </button>
             <div class="view-toggle">
-              <button class="view-btn active" id="gridViewBtn" aria-label="Vista em grelha" title="Grelha"><i class="fas fa-th"></i></button>
-              <button class="view-btn" id="listViewBtn" aria-label="Vista em lista" title="Lista"><i class="fas fa-list"></i></button>
+              <button class="view-btn active" id="listViewBtn" aria-label="Vista em lista" title="Lista"><i class="fas fa-th-large"></i></button>
+              <button class="view-btn" id="mapViewBtn" aria-label="Vista em mapa" title="Mapa"><i class="fas fa-map-location-dot"></i></button>
             </div>
           </div>
         </div>
@@ -374,6 +391,8 @@
             <p>A carregar prestadores…</p>
           </div>
         </div>
+
+        <div id="providersMap" style="display:none;height:540px;border-radius:1.25rem;overflow:hidden;border:1px solid var(--color-gray-200);"></div>
       </div>
 
     </div>
@@ -492,6 +511,8 @@
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="ao-locations.js"></script>
 <script src="script.js"></script>
 <script>
   // Grid / List view toggle

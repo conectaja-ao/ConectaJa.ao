@@ -1,11 +1,11 @@
 /**
  * ============================================
  * CONECTA JÁ - SERVICE WORKER PWA
- * Versão: 1.1.0
+ * Versão: 1.2.0
  * ============================================
  */
 
-const CACHE_NAME = 'conectaja-v1.1.0';
+const CACHE_NAME = 'conectaja-v1.2.0';
 const OFFLINE_PAGE = '/offline.html';
 
 // Ficheiros essenciais para cache (funciona offline)
@@ -21,6 +21,7 @@ const STATIC_CACHE_URLS = [
     '/styles.css',
     '/global.css',
     '/script.js',
+    '/ao-locations.js',
     '/i18n.js',
 ];
 

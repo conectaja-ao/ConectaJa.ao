@@ -76,6 +76,7 @@
     .order-status { padding: .25rem .75rem; border-radius: 50px; font-size: .75rem; font-weight: 700; }
     .order-item--pending .order-status { background: rgba(245,158,11,.12); color: #d97706; }
     .order-item--accepted .order-status { background: rgba(42,157,143,.12); color: var(--color-accent); }
+    .order-item--in_progress .order-status { background: rgba(59,130,246,.12); color: #2563eb; }
     .order-item--completed .order-status { background: rgba(16,185,129,.12); color: #059669; }
     .order-item--cancelled .order-status { background: rgba(230,57,70,.1); color: var(--color-primary); }
     .order-item p { font-size: .875rem; color: var(--color-gray-700); margin-bottom: .2rem; }
@@ -246,6 +247,24 @@
                 <div style="font-size:.75rem;color:var(--color-gray-500);font-weight:600;">Classificação</div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="dash-panel">
+          <div class="dash-panel__header">
+            <div class="dash-panel__title"><i class="fas fa-crown" style="color:#F59E0B;"></i> O teu Plano</div>
+          </div>
+          <div class="dash-panel__body" id="plan-panel-body">
+            <p style="color:var(--color-gray-400);font-size:.875rem;"><i class="fas fa-spinner fa-spin"></i> A carregar plano…</p>
+          </div>
+        </div>
+
+        <div class="dash-panel">
+          <div class="dash-panel__header">
+            <div class="dash-panel__title"><i class="fas fa-gift" style="color:var(--color-accent);"></i> Convidar Amigos</div>
+          </div>
+          <div class="dash-panel__body" id="referral-card-body">
+            <p style="color:var(--color-gray-400);font-size:.875rem;">A carregar…</p>
           </div>
         </div>
 
