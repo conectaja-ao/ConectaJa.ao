@@ -1303,6 +1303,7 @@ const Orders = {
       providerId:     data.providerId,
       providerName:   data.providerName,
       category:       data.category,
+      categoryCustom: data.categoryCustom || '',
       message:        data.message || '',
       // Agendamento pedido pelo cliente
       scheduledDate:   data.scheduledDate   || '',
@@ -1646,6 +1647,15 @@ function normalizeCategory(cat) {
   return aliases[c] || c;
 }
 
+// Texto da categoria para mostrar: se o prestador escolheu "Outro" e
+// escreveu o serviço dele (categoryCustom), mostra esse texto.
+function categoryText(rec) {
+  if (rec && rec.categoryCustom && normalizeCategory(rec.category) === 'outro') {
+    return rec.categoryCustom;
+  }
+  return PrestadoresPage.categoryLabel(rec && rec.category);
+}
+
 // Pesquisa inteligente: mapeia palavras do dia-a-dia para categorias.
 // Ex.: "tenho uma fuga de água" encontra canalizadores.
 const SEARCH_SYNONYMS = {
@@ -1801,6 +1811,7 @@ const Providers = {
           uid: doc.id,
           name: d.name || 'Prestador',
           category: normalizeCategory(d.category) || 'outro',
+          categoryCustom: (d.categoryCustom || '').trim(),
           location: (d.location || 'luanda').toLowerCase(),
           province: (d.province || d.location || '').toLowerCase(),
           municipality: (d.municipality || '').toLowerCase(),
@@ -1843,6 +1854,7 @@ const Providers = {
       const matchQ = !q ||
         p.name.toLowerCase().includes(ql) ||
         (p.category || '').toLowerCase().includes(ql) ||
+        (p.categoryCustom || '').toLowerCase().includes(ql) ||
         (p.neighborhood || '').toLowerCase().includes(ql) ||
         (p.bio || '').toLowerCase().includes(ql) ||
         (smartCat && p.category === smartCat);
@@ -2085,7 +2097,7 @@ const PrestadoresPage = {
         <div class="provider-card__body">
           ${(premBadge || verifiedBadge) ? `<div style="margin-bottom:.4rem;display:flex;gap:.35rem;flex-wrap:wrap;">${premBadge}${verifiedBadge}</div>` : ''}
           <h3>${esc(p.name)}</h3>
-          <p class="provider-category"><i class="fas fa-tag"></i> ${esc(this.categoryLabel(p.category))}</p>
+          <p class="provider-category"><i class="fas fa-tag"></i> ${esc(categoryText(p))}</p>
           <p class="provider-location"><i class="fas fa-map-marker-alt"></i> ${esc(locationText(p))}</p>
           ${distBadge ? `<div>${distBadge}</div>` : ''}
           <div class="provider-rating">
@@ -2219,7 +2231,7 @@ const MapView = {
       marker.bindPopup(
         `<strong>${esc(p.name)}</strong>` +
         (p.premium ? ' <span style="color:#b45309;font-weight:800;font-size:.8em;">★ Destaque</span>' : '') +
-        `<br>${esc(PrestadoresPage.categoryLabel(p.category))}` +
+        `<br>${esc(categoryText(p))}` +
         `<br>${esc(locationText(p))}` +
         (pos.approx ? '<br><em style="font-size:.8em;color:#b45309;">Localização aproximada</em>' : '') +
         `<br><a href="perfil-prestador.html?id=${esc(p.id)}">Ver perfil →</a>`
@@ -2269,6 +2281,7 @@ const ProfilePage = {
         uid: doc.id,
         name: d.name || 'Prestador',
         category: normalizeCategory(d.category) || 'outro',
+        categoryCustom: (d.categoryCustom || '').trim(),
         location: d.location || '',
         province: (d.province || d.location || '').toLowerCase(),
         municipality: (d.municipality || '').toLowerCase(),
@@ -2310,7 +2323,7 @@ const ProfilePage = {
     document.title = `${p.name} — Conecta Já`;
     const fields = {
       'profile-name': p.name,
-      'profile-category': PrestadoresPage.categoryLabel(p.category),
+      'profile-category': categoryText(p),
       'profile-location': locationText(p),
       'profile-bio': p.bio,
       'profile-price': `AOA ${p.price.toLocaleString('pt-AO')}`,
@@ -2515,6 +2528,7 @@ const ProfilePage = {
             providerId:   p.uid || p.id,
             providerName: p.name,
             category:     p.category,
+            categoryCustom: p.categoryCustom || '',
             message,
             scheduledDate,
             scheduledPeriod,
@@ -2913,7 +2927,7 @@ const DashboardClient = {
               <span class="order-status order-status--${esc(o.status)}">${esc(statuses[o.status] || o.status)}</span>
             </div>
             <p><strong>Prestador:</strong> ${esc(o.providerName || '—')}</p>
-            <p><strong>Serviço:</strong> ${esc(PrestadoresPage.categoryLabel(o.category))}</p>
+            <p><strong>Serviço:</strong> ${esc(o.categoryCustom || PrestadoresPage.categoryLabel(o.category))}</p>
             ${o.message ? `<p><strong>Descrição:</strong> ${esc(o.message.length > 90 ? o.message.substring(0, 90) + '…' : o.message)}</p>` : ''}
             ${o.scheduledDate ? `<p><strong>Quando:</strong> <i class="fas fa-calendar-alt" style="color:var(--color-primary);font-size:.8em;"></i> ${esc(Orders.scheduleLabel(o))}</p>` : ''}
             ${o.quote ? `<p><strong>Orçamento:</strong> <span style="color:var(--color-accent);font-weight:800;">${Number(o.quote).toLocaleString('pt-AO')} Kz</span>${o.quoteNote ? ` <span style="color:var(--color-gray-500);font-size:.85em;">(${esc(o.quoteNote)})</span>` : ''}</p>` : ''}
@@ -3086,7 +3100,7 @@ const DashboardProvider = {
               <span class="order-status order-status--${esc(o.status)}">${esc(statuses[o.status] || o.status)}</span>
             </div>
             <p><strong>Cliente:</strong> ${esc(o.clientName || '—')}</p>
-            <p><strong>Serviço:</strong> ${esc(PrestadoresPage.categoryLabel(o.category))}</p>
+            <p><strong>Serviço:</strong> ${esc(o.categoryCustom || PrestadoresPage.categoryLabel(o.category))}</p>
             ${o.message ? `<p><strong>Descrição:</strong> ${esc(o.message)}</p>` : ''}
             ${o.scheduledDate ? `<p><strong>Quando:</strong> <i class="fas fa-calendar-alt" style="color:var(--color-primary);font-size:.8em;"></i> ${esc(Orders.scheduleLabel(o))}</p>` : ''}
             ${o.clientLocation ? `<p><strong>Local:</strong> <i class="fas fa-map-marker-alt" style="color:var(--color-primary);font-size:.8em;"></i> ${esc(o.clientLocation)}</p>` : ''}
@@ -4313,6 +4327,7 @@ const Profile = {
       'prof_neighborhood': p.neighborhood || '',
       'prof_bio': p.bio || '',
       'prof_category': normalizeCategory(p.category) || '',
+      'prof_category_custom': p.categoryCustom || '',
       'prof_price': p.price || '',
       'prof_photo_url': safePhotoURL,
       'prof_instagram': p.instagram || '',
@@ -4359,6 +4374,23 @@ const Profile = {
         : 'Partilhada com o prestador quando solicitas um serviço, para ele saber onde estás.';
     }
 
+    // Campo "escreve o teu serviço" — visível só quando a categoria é "Outro"
+    const catSel = document.getElementById('prof_category');
+    const catCustom = document.getElementById('prof_category_custom');
+    if (catSel && catCustom) {
+      const toggleCustom = () => {
+        catCustom.style.display = catSel.value === 'outro' ? 'block' : 'none';
+      };
+      toggleCustom();
+      if (!catSel._customBound) {
+        catSel.addEventListener('change', () => {
+          toggleCustom();
+          if (catSel.value === 'outro') catCustom.focus();
+        });
+        catSel._customBound = true;
+      }
+    }
+
     // Availability toggle
     const avail = document.getElementById('prof_availability');
     if (avail) avail.checked = p.availability !== false;
@@ -4395,6 +4427,10 @@ const Profile = {
       const location = province;
       const bio = document.getElementById('prof_bio')?.value?.trim() || '';
       const category = document.getElementById('prof_category')?.value || '';
+      // Serviço personalizado — só é relevante quando a categoria é "Outro"
+      const categoryCustom = category === 'outro'
+        ? (document.getElementById('prof_category_custom')?.value?.trim() || '')
+        : '';
       const price = document.getElementById('prof_price')?.value?.trim() || '';
       const photoURL = document.getElementById('prof_photo_url')?.value?.trim() || '';
       const availability = document.getElementById('prof_availability')?.checked !== false;
@@ -4406,6 +4442,7 @@ const Profile = {
         [name, 80, 'Nome muito longo (máx. 80 caracteres).'],
         [phone, 20, 'Telefone muito longo (máx. 20 caracteres).'],
         [neighborhood, 80, 'Bairro/zona muito longo (máx. 80 caracteres).'],
+        [categoryCustom, 40, 'Nome do serviço muito longo (máx. 40 caracteres).'],
         [bio, 500, 'Biografia muito longa (máx. 500 caracteres).'],
         [price, 30, 'Preço muito longo (máx. 30 caracteres).'],
       ];
@@ -4437,7 +4474,7 @@ const Profile = {
         const portfolio = (portfolioGrid?._portfolio || []).slice(0, 8);
 
         // Save to localStorage (includes base64 for local display)
-        this.save(user.uid, { phone, location, province, municipality, neighborhood, lat, lng, bio, category, price, photoURL: finalPhotoURL, availability, portfolio, instagram, facebook, x });
+        this.save(user.uid, { phone, location, province, municipality, neighborhood, lat, lng, bio, category, categoryCustom, price, photoURL: finalPhotoURL, availability, portfolio, instagram, facebook, x });
 
         // Save to Firestore for ALL users so providers can read client contact info
         if (window.firebaseDb) {
@@ -4458,7 +4495,7 @@ const Profile = {
           if (lat != null && lng != null) { firestoreData.lat = lat; firestoreData.lng = lng; }
           if (user.type === 'provider') {
             const priceNum = parseFloat((price || '').replace(/[^\d,.]/, '').replace(',', '.')) || 0;
-            Object.assign(firestoreData, { bio, category, price: priceNum, portfolio, availability, instagram, facebook, x });
+            Object.assign(firestoreData, { bio, category, categoryCustom, price: priceNum, portfolio, availability, instagram, facebook, x });
           }
           await window.firebaseDb.collection('providers').doc(user.uid).set(firestoreData, { merge: true });
         }
