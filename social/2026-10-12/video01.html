@@ -241,7 +241,10 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;c
 #grain{position:absolute;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 #hint{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);font:500 13px Inter;color:rgba(255,255,255,.45);letter-spacing:.04em}
-.render #hint{display:none}
+#play{position:fixed;left:50%;bottom:44px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:12px 22px 12px 16px;border:0;border-radius:999px;
+  background:var(--grad-d);color:#fff;font:700 15px Inter;cursor:pointer;box-shadow:0 12px 30px -8px rgba(230,57,70,.6)}
+#play svg{width:20px;height:20px}
+.render #hint,.render #play{display:none}
 </style>
 </head>
 <body>
@@ -550,7 +553,9 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;c
   <div id="flash"></div>
   <div id="grain"></div>
 </div>
-<div id="hint">Clica para recomeçar</div>
+<div id="hint">Clica no vídeo para recomeçar</div>
+<button id="play" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Ver com som</button>
+<audio id="snd" src="video01-audio.mp3" preload="auto"></audio>
 
 <script>
 (function(){
@@ -662,10 +667,15 @@ SLAMS.forEach(s => echo($(s)));
 gsap.set(['.dot','.ring','.part','.flood','.slam','.fw .disp','#fan-title','#p-text','.p-foot','.p-brand','#end-badge','#end-tag','#end-chips','#end-contact'], {xPercent:-50, yPercent:-50});
 gsap.set('.copy', {yPercent:-50});
 
+/* som: cada movimento regista o seu efeito (window.__cues), sintetizado depois em sincronia exacta */
+const SFX = [];
+const cue = (t, type, o={}) => { SFX.push(Object.assign({t:+t.toFixed(4), type}, o)); };
+function panOf(el){ const r = el.getBoundingClientRect(), s = stage.getBoundingClientRect(); return +Math.max(-1, Math.min(1, ((r.left + r.width/2 - s.left)/s.width)*2 - 1)).toFixed(2); }
+
 /* utilitários */
 const fmt = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-function counter(tl, el, to, t, dur, pre=''){ const o={v:0}; tl.fromTo(o,{v:0},{v:to,duration:dur,ease:'power2.out',onUpdate:()=>{el.textContent = pre + fmt(o.v);}}, t); }
-function typeText(tl, el, text, t, dur){ const o={v:0}; tl.fromTo(o,{v:0},{v:1,duration:dur,ease:'none',onUpdate:()=>{el.textContent = text.slice(0, Math.round(o.v*text.length));}}, t); }
+function counter(tl, el, to, t, dur, pre='', g=.22){ cue(t,'counter',{d:dur, n:Math.min(26, to), g, p:panOf(el)}); const o={v:0}; tl.fromTo(o,{v:0},{v:to,duration:dur,ease:'power2.out',onUpdate:()=>{el.textContent = pre + fmt(o.v);}}, t); }
+function typeText(tl, el, text, t, dur){ cue(t,'type',{d:dur, n:text.length, p:panOf(el)}); const o={v:0}; tl.fromTo(o,{v:0},{v:1,duration:dur,ease:'none',onUpdate:()=>{el.textContent = text.slice(0, Math.round(o.v*text.length));}}, t); }
 function show(tl, sel, t){ tl.set(sel,{autoAlpha:1},t); }
 function hide(tl, sel, t){ tl.set(sel,{autoAlpha:0},t); }
 
@@ -674,6 +684,12 @@ function slamIn(tl, sel, t, o={}){
   const el = $(sel), axis = o.axis || 'x', d = o.d ?? -1600, dur = o.dur || .55, b = o.blur || 70;
   const m = mblur(el), from = {}, to = {};
   from[axis] = d; to[axis] = 0;
+  if (o.sfx !== false){
+    const g = o.g || 1;
+    if (axis === 'x') cue(t-.12, 'whoosh', {d:.36, pk:.4, p0:Math.sign(d)*.95, p1:0, f0:500, f1:2600, g:.75*g});
+    else cue(t-.12, 'whoosh', {d:.36, pk:.4, p0:0, p1:0, f0:d<0? 2600:400, f1:d<0? 700:2400, g:.75*g});
+    cue(t+.03, 'slam', {g, big:o.big||0});
+  }
   tl.set(el, {filter:m.url, autoAlpha:1}, t);
   tl.fromTo(el, {...from}, {...to, duration:dur, ease:'expo.out'}, t);
   tl.fromTo(m.g, {attr:{stdDeviation: axis==='x' ? `${b} 0` : `0 ${b}`}}, {attr:{stdDeviation:'0 0'}, duration:dur*.75, ease:'power3.out'}, t);
@@ -686,6 +702,7 @@ function slamIn(tl, sel, t, o={}){
 function slamOut(tl, sel, t, o={}){
   const el = $(sel), axis = o.axis || 'x', d = o.d ?? 2000, dur = o.dur || .38, b = o.blur || 90;
   const m = mblur(el), to = {}; to[axis] = d;
+  if (o.sfx !== false) cue(t, 'whoosh', {d:dur+.08, pk:.85, p0:0, p1:Math.sign(d)*.95, f0:600, f1:3200, g:.6*(o.g||1)});
   tl.set(el, {filter:m.url}, t);
   tl.to(el, {...to, duration:dur, ease:'expo.in'}, t);
   tl.to(m.g, {attr:{stdDeviation: axis==='x' ? `${b} 0` : `0 ${b}`}, duration:dur, ease:'expo.in'}, t);
@@ -696,12 +713,15 @@ function slamOut(tl, sel, t, o={}){
 }
 // palavras do título a subir com blur
 function words(tl, sel, t, stg=.07){
+  $$(sel).forEach((w,i) => cue(t + i*stg + .05, 'blip', {g:.16, f:620 + i*70, p:panOf(w)}));
   tl.fromTo(sel, {y:70, autoAlpha:0, filter:'blur(14px)'}, {y:0, autoAlpha:1, filter:'blur(0px)', duration:.75, ease:'power3.out', stagger:stg}, t);
 }
 // cartões a saltar de dentro do dispositivo
 function popCards(tl, scope, origin, t, stg=.2){
   $$(scope + ' .card').forEach((c,i) => {
-    const cx = c.offsetLeft + c.offsetWidth/2, cy = c.offsetTop + c.offsetHeight/2;
+    const cx = c.offsetLeft + c.offsetWidth/2, cy = c.offsetTop + c.offsetHeight/2, p = panOf(c);
+    cue(t + i*stg - .03, 'whoosh', {d:.3, pk:.3, p0:p*.3, p1:p, f0:900, f1:3000, g:.32});
+    cue(t + i*stg + .06, 'pop', {g:.6, f:520 + i*110, p});
     tl.fromTo(c, {x:origin[0]-cx, y:origin[1]-cy, scale:.2, autoAlpha:0, rotation:(i%2? 8:-8)},
       {x:0, y:0, scale:1, autoAlpha:1, rotation:0, duration:.85, ease:'back.out(1.6)'}, t + i*stg);
     tl.to(c, {y:(i%2? 12:-12), duration:1.6, ease:'sine.inOut', yoyo:true, repeat:1}, t + i*stg + .85);
@@ -725,6 +745,12 @@ function build(){
     tl.fromTo(p, {x:0, y:0, scale:1, autoAlpha:1}, {x:Math.cos(a)*r, y:Math.sin(a)*r, scale:0, autoAlpha:0, duration:.7+rnd()*.5, ease:'power3.out'}, 1.62);
   });
   tl.fromTo('.flood', {scale:.04}, {scale:1, duration:.68, ease:'expo.in'}, 1.62);
+  cue(.2,'bloop',{g:.8}); cue(.3,'riser',{d:1.32, g:.5});
+  cue(.85,'heart',{g:1}); cue(1.12,'heart',{g:.75});
+  cue(1.42,'suck',{d:.2, g:.45});
+  cue(1.62,'boom',{g:1, size:1.25}); cue(1.64,'sparkle',{d:.9, g:.45, n:22});
+  cue(1.72,'suck',{d:.58, g:.75});
+  cue(2.3,'scene',{n:'drop'});
 
   /* ---------- S2 · 2.3–5.6 · TENS UMA IDEIA? / NÓS TORNAMO-LA REAL. ---------- */
   show(tl,'#s2',2.3); hide(tl,'#s1',2.34);
@@ -737,14 +763,26 @@ function build(){
   slamOut(tl,'#s2-l2',3.6,{d:-2100});
   tl.set('#s2b', {autoAlpha:1}, 3.62);
   tl.fromTo('#s2b', {xPercent:100}, {xPercent:0, duration:.34, ease:'expo.inOut'}, 3.5);
+  cue(3.46,'whoosh',{d:.44, pk:.55, p0:.95, p1:-.5, f0:300, f1:2200, g:.85});
   slamIn(tl,'#s2-l3',3.86,{axis:'y', d:-700, blur:60});
   slamIn(tl,'#s2-l4',4.04,{axis:'y', d:900, blur:90, dur:.6});
+  cue(4.07,'boom',{g:.75, size:.8});
   tl.fromTo('#s2-l4', {backgroundPosition:'0% 50%'}, {backgroundPosition:'100% 50%', duration:1.4, ease:'none'}, 4.04);
   tl.fromTo(['#s2-l3','#s2-l4'], {scale:1}, {scale:1.06, duration:1.4, ease:'none'}, 4.0);
   tl.to('#s2', {scale:1.25, filter:'blur(30px)', autoAlpha:0, duration:.42, ease:'power2.in'}, 5.25);
+  cue(5.12,'suck',{d:.43, g:.6});
 
   /* ---------- S3 · 5.6–12.0 · SITES ---------- */
   const T3 = 5.55;
+  cue(T3,'scene',{n:'sites'}); cue(T3,'hit',{g:.55});
+  cue(T3+.05,'whoosh',{d:.55, pk:.18, p0:.95, p1:.45, f0:350, f1:1700, g:.65});
+  cue(T3+1.6,'sparkle',{d:.55, g:.3, n:10, p:.45});
+  ['.s-nav','.s-eye','.s-h','.s-p','.s-ctas'].forEach((q,i) => cue(T3+1.6+(i? .1+.08*(i-1):0), 'blip', {g:.2, f:760+i*90, p:.45}));
+  cue(T3+1.84,'pop',{g:.45, f:420, p:.6});
+  $$('.s-tile').forEach((el,i) => cue(T3+2.04+i*.08,'pop',{g:.35, f:700+i*120, p:panOf(el)}));
+  cue(T3+2.3,'pop',{g:.35, f:1100, p:.75});
+  cue(T3+4.95,'whoosh',{d:.45, pk:.8, p0:0, p1:0, f0:800, f1:3000, g:.35});
+  cue(T3+4.95,'suck',{d:1.0, g:.8});
   hide(tl,'#s2',T3+.15);
   tl.fromTo('#s3', {autoAlpha:0, scale:1.1, filter:'blur(24px)'}, {autoAlpha:1, scale:1, filter:'blur(0px)', duration:.6, ease:'power3.out'}, T3);
   tl.fromTo('#s3 .glow', {x:0, y:0}, {x:(i)=> i? -160:120, y:(i)=> i? 80:-60, duration:6.4, ease:'sine.inOut'}, T3);
@@ -774,6 +812,18 @@ function build(){
 
   /* ---------- S4 · 12.0–18.4 · APPS ---------- */
   const T4 = 11.95;
+  cue(T4-.4,'scene',{n:'apps'}); cue(T4-.4,'hit',{g:.65});
+  cue(T4+.02,'whoosh',{d:.6, pk:.15, p0:-.33, p1:-.33, f0:260, f1:1600, g:.7});
+  cue(T4+.62,'blip',{g:.18, f:800, p:-.33}); cue(T4+.7,'blip',{g:.18, f:900, p:-.33});
+  cue(T4+.8,'pop',{g:.4, f:460, p:-.33}); cue(T4+.92,'blip',{g:.16, f:640, p:-.33});
+  [0,1,2,3].forEach(i => cue(T4+1.03+i*.07,'pop',{g:.3, f:760+i*130, p:-.36+(i%2)*.08}));
+  cue(T4+2.05,'tap',{g:.7, p:-.4});
+  cue(T4+2.27,'ding',{g:.6, p:-.62, notes:[1318.5, 1760]});
+  cue(T4+2.47,'cash',{g:.65, p:-.12});
+  cue(T4+2.66,'sparkle',{d:.5, g:.35, n:9, p:-.6});
+  cue(T4+5.05,'whoosh',{d:.45, pk:.8, p0:0, p1:0, f0:800, f1:3000, g:.35});
+  cue(T4+5.05,'suck',{d:1.0, g:.85});
+  cue(T4+6.06,'flash',{g:1});
   hide(tl,'#s3',T4+.25);
   tl.fromTo('#s4', {autoAlpha:0, scale:.92, filter:'blur(26px)'}, {autoAlpha:1, scale:1, filter:'blur(0px)', duration:.7, ease:'power3.out'}, T4-.45);
   tl.fromTo('#s4 .glow', {x:0, y:0}, {x:(i)=>[140,-120,-200][i], y:(i)=>[60,-80,120][i], duration:6.4, ease:'sine.inOut'}, T4);
@@ -799,6 +849,15 @@ function build(){
 
   /* ---------- S5 · 18.4–24.8 · SOFTWARE ---------- */
   const T5 = 18.1;
+  cue(T5-.04,'scene',{n:'software'});
+  cue(T5+.04,'whoosh',{d:.65, pk:.2, p0:.45, p1:.45, f0:220, f1:1300, g:.55});
+  [0,1,2].forEach(i => cue(T5+.72+i*.08,'blip',{g:.2, f:880+i*110, p:.2+i*.15}));
+  const PENT = [440, 523.25, 587.33, 659.25, 783.99, 880, 1046.5];
+  $$('.bars b').forEach((b,i) => cue(T5+1.03+i*.06,'pluck',{g:.42, f:PENT[i], p:panOf(b)}));
+  cue(T5+1.45,'zip',{d:1.1, g:.28, p:.2});
+  $$('#dpts circle').forEach((c,i) => cue(T5+1.55+i*.13,'tick',{g:.22, f:2200+i*120, p:-.05+i*.05}));
+  $$('.inv').forEach((r,i) => cue(T5+1.22+i*.08,'tick',{g:.13, f:1400, p:panOf(r)}));
+  cue(T5+5.92,'whoosh',{d:.62, pk:.78, p0:.2, p1:-1, f0:280, f1:3400, g:1});
   show(tl,'#s5',T5);
   tl.to('#flash', {opacity:0, duration:.45, ease:'power2.out'}, T5);
   tl.fromTo('#s5 .glow', {x:0, y:0}, {x:(i)=> i? -150:-90, y:(i)=> i? -60:120, duration:6.6, ease:'sine.inOut'}, T5);
@@ -809,8 +868,8 @@ function build(){
   tl.fromTo('#s5 .sub', {y:30, autoAlpha:0}, {y:0, autoAlpha:1, duration:.7, ease:'power3.out'}, T5+1.05);
   tl.fromTo('.kpi', {y:30, autoAlpha:0}, {y:0, autoAlpha:1, duration:.5, ease:'power3.out', stagger:.08}, T5+.7);
   counter(tl, $('#k1'), 1250000, T5+.8, 1.6);
-  counter(tl, $('#k2'), 284, T5+.9, 1.5);
-  counter(tl, $('#k3'), 1932, T5+1.0, 1.5);
+  counter(tl, $('#k2'), 284, T5+.9, 1.5, '', .1);
+  counter(tl, $('#k3'), 1932, T5+1.0, 1.5, '', .08);
   tl.fromTo('.bars b', {scaleY:0}, {scaleY:1, duration:.7, ease:'back.out(1.5)', stagger:.06}, T5+1.0);
   const dl = $('#dline'), L = dl.getTotalLength();
   tl.fromTo(dl, {strokeDasharray:L, strokeDashoffset:L}, {strokeDashoffset:0, duration:1.1, ease:'power2.inOut'}, T5+1.45);
@@ -826,6 +885,15 @@ function build(){
 
   /* ---------- S6 · 24.6–31.0 · REDES SOCIAIS ---------- */
   const T6 = 24.55;
+  cue(T6-.1,'whoosh',{d:.45, pk:.15, p0:1, p1:0, f0:400, f1:2600, g:.75});
+  cue(T6-.05,'scene',{n:'social'}); cue(T6-.02,'hit',{g:.55});
+  cue(T6+1.3,'whoosh',{d:.75, pk:.5, p0:0, p1:0, f0:1600, f1:600, g:.38});
+  cue(T6+1.45,'whoosh',{d:.5, pk:.2, p0:0, p1:0, f0:300, f1:1500, g:.6});
+  cue(T6+1.45,'spin',{d:1.5, a0:-720, a1:-12, ease:'expo.out', g:.75});
+  cue(T6+1.72,'hit',{g:.35});
+  cue(T6+2.75,'suck',{d:.7, g:.4});
+  cue(T6+3.55,'whoosh',{d:.65, pk:.45, p0:0, p1:0, f0:1500, f1:500, g:.32});
+  cue(T6+3.55,'spin',{d:1.6, a0:0, a1:348, ease:'power3.inOut', g:.6});
   const m6 = mblur($('#s6'));
   tl.set('#s6', {filter:m6.url, autoAlpha:1}, T6-.05);
   tl.fromTo('#s6', {x:1920}, {x:0, duration:.5, ease:'expo.out'}, T6-.05);
@@ -852,9 +920,10 @@ function build(){
   tl.to('#post3d', {rotationY:372, duration:1.2, ease:'sine.inOut'}, T6+5.15);
   // cartões à volta do produto
   popCards(tl,'#s6',[960,575],T6+3.95,.16);
-  counter(tl, $('#foll'), 2300, T6+4.45, 1.4, '+');
+  counter(tl, $('#foll'), 2300, T6+4.45, 1.4, '+', .16);
   $$('.heart').forEach((h,i) => {
     const t0 = T6 + 3.9 + i*.17;
+    cue(t0+.06,'bubble',{g:.3, f:900 + (i*137)%700, p:+((parseFloat(h.style.left)+20)/960-1).toFixed(2)});
     tl.fromTo(h, {y:0, x:0, scale:.3, autoAlpha:0}, {y:-(520+rnd()*260), x:(rnd()-.5)*220, scale:1, autoAlpha:1, duration:1.7, ease:'power1.out'}, t0);
     tl.to(h, {autoAlpha:0, duration:.5}, t0+1.2);
   });
@@ -864,6 +933,8 @@ function build(){
   show(tl,'#s7',T7); hide(tl,'#s6',T7+.02);
   ['#fw1','#fw2','#fw3','#fw4'].forEach((id,i) => {
     const t = T7 + i*.42, d = $(id + ' .disp'), m = mblur(d);
+    cue(t-.09,'whoosh',{d:.2, pk:.7, p0:i%2? 0:(i? .8:-.8), p1:0, f0:600, f1:3000, g:.55});
+    cue(t,'slam',{g:1, big:1}); cue(t,'stab',{i});
     show(tl,id,t); if (i) hide(tl,['#fw1','#fw2','#fw3'][i-1],t+.02);
     tl.set(d, {filter:m.url}, t);
     tl.fromTo(d, {scale:i%2? .55:1.7}, {scale:1, duration:.36, ease:'expo.out'}, t);
@@ -871,6 +942,11 @@ function build(){
     tl.to(d, {scale:i%2? 1.06:.96, duration:.42, ease:'none'}, t+.36);
   });
   const TF = T7 + 1.75;
+  cue(T7,'scene',{n:'words'}); cue(TF,'scene',{n:'fan'});
+  cue(TF,'whoosh',{d:.6, pk:.2, p0:0, p1:0, f0:300, f1:1800, g:.55});
+  [[2,0],[1,.05],[3,.05],[0,.1],[4,.1]].forEach(([k,dt]) => cue(TF+dt+.04,'flick',{g:.45, p:(k-2)*.3}));
+  cue(TF+1.45,'suck',{d:.45, g:.8});
+  cue(TF+2.0,'flash',{g:.85});
   show(tl,'#fan',TF); hide(tl,'#fw4',TF+.02);
   tl.fromTo('#fan-title', {y:-40, autoAlpha:0, filter:'blur(12px)'}, {y:0, autoAlpha:1, filter:'blur(0px)', duration:.6, ease:'power3.out'}, TF+.1);
   const fanR = [-30,-15,0,15,30];
@@ -882,6 +958,18 @@ function build(){
 
   /* ---------- S8 · 35.0–39.4 · VAMOS CONVERSAR? (pêndulo) ---------- */
   const T8 = 34.85;
+  cue(T8-.1,'scene',{n:'talk'});
+  cue(T8+.05,'fall',{d:.6, g:.45}); cue(T8+.64,'twang',{g:.75}); cue(T8+.64,'hit',{g:.35});
+  {
+    const kf = [[-34,26,.62],[26,-17,.58],[-17,10,.54],[10,-5,.5],[-5,2,.46],[2,0,.44]];
+    let ts = T8+.05;
+    const panA = a => +(-Math.sin(a*Math.PI/180)*820/960).toFixed(2);
+    kf.forEach(([a,b,dd]) => { cue(ts,'swing',{d:dd, g:Math.min(1, Math.abs(b-a)/60), p0:panA(a), p1:panA(b)}); ts += dd; });
+  }
+  const SC = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.5, 1567.98, 1760];
+  $$('#p-l1 .ch').forEach((c,i) => cue(T8+.45+i*.045,'pop',{g:.32, f:SC[i], p:panOf(c)}));
+  $$('#p-l2 .ch').forEach((c,i) => cue(T8+.65+i*.04,'pop',{g:.3, f:SC[i]*.75, p:panOf(c)}));
+  cue(T8+.12,'blip',{g:.18, f:700}); cue(T8+1.52,'blip',{g:.18, f:980});
   show(tl,'#s8',T8); hide(tl,'#s7',T8+.02);
   tl.to('#flash', {opacity:0, duration:.4, ease:'power2.out'}, T8);
   tl.fromTo('.p-brand', {y:-30, autoAlpha:0}, {y:0, autoAlpha:1, duration:.6, ease:'power3.out'}, T8+.1);
@@ -900,6 +988,13 @@ function build(){
 
   /* ---------- S9 · 39.4–44.4 · logo + tagline ---------- */
   const T9 = 38.95;
+  cue(T9,'whoosh',{d:.95, pk:.55, p0:0, p1:0, f0:200, f1:2200, g:.75});
+  cue(T9+.45,'scene',{n:'end'}); cue(T9+.45,'boom',{g:.85, size:1.1});
+  cue(T9+.95,'sting',{g:1});
+  $$('#end-tag .w').forEach((w,i) => cue(T9+.85+i*.09,'blip',{g:.16, f:700+i*80, p:panOf(w)}));
+  cue(T9+1.18,'pop',{g:.55, f:900, p:.35}); cue(T9+1.2,'sparkle',{d:.6, g:.4, n:12, p:.35});
+  $$('#end-chips .chip').forEach((c,i) => cue(T9+1.43+i*.08,'pop',{g:.28, f:820+i*140, p:panOf(c)}));
+  cue(T9+1.9,'blip',{g:.18, f:1200});
   show(tl,'#s9',T9);
   tl.fromTo('#s9', {clipPath:'circle(0px at 960px 860px)'}, {clipPath:'circle(2300px at 960px 860px)', duration:.95, ease:'expo.inOut'}, T9);
   hide(tl,'#s8',T9+.95);
@@ -918,11 +1013,21 @@ function build(){
 Promise.all([document.fonts.ready, document.fonts.load('900 100px Poppins'), document.fonts.load('800 100px Poppins'), document.fonts.load('600 20px Inter')]).then(() => {
   gradLetters(); trendLine();
   const tl = build();
-  window.__tl = tl; window.__dur = tl.duration(); window.__ready = true;
+  window.__tl = tl; window.__dur = tl.duration(); window.__cues = SFX.sort((a,b) => a.t - b.t); window.__ready = true;
   if (!RENDER){
+    // sem som: anima sozinho em loop. Com som: o relógio do áudio conduz o timeline (sincronia exacta).
+    const snd = $('#snd'); let withSound = false, loop;
+    const restart = () => {
+      loop && loop.kill();
+      if (withSound){ tl.pause(0); snd.currentTime = 0; snd.play().catch(() => { withSound = false; tl.restart(); }); }
+      else tl.restart();
+    };
+    gsap.ticker.add(() => { if (withSound && !snd.paused) tl.time(Math.min(snd.currentTime, tl.duration())); });
+    snd.addEventListener('ended', () => { loop = gsap.delayedCall(1.2, restart); });
+    tl.eventCallback('onComplete', () => { if (!withSound) loop = gsap.delayedCall(1.2, restart); });
+    $('#play').addEventListener('click', () => { withSound = true; $('#play').style.display = 'none'; restart(); });
+    stage.addEventListener('click', restart);
     tl.play();
-    tl.eventCallback('onComplete', () => gsap.delayedCall(1.2, () => tl.restart()));
-    stage.addEventListener('click', () => tl.restart());
   }
 });
 })();
