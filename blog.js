@@ -14,26 +14,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Todos os artigos (18 artigos - 6 por página)
     const allArticles = [
         // Página 1 (artigos 1-6)
-        { id: 1, icon: 'search', category: 'Guias', date: '30 Abril 2026', time: '5 min', title: 'Como Encontrar Profissionais Confiáveis em Angola', excerpt: 'Descubra as melhores estratégias para identificar e contratar prestadores de serviços de qualidade.', author: 'Equipa Conecta Já' },
+        { id: 1, icon: 'magnifying-glass', category: 'Guias', date: '30 Abril 2026', time: '5 min', title: 'Como Encontrar Profissionais Confiáveis em Angola', excerpt: 'Descubra as melhores estratégias para identificar e contratar prestadores de serviços de qualidade.', author: 'Equipa Conecta Já' },
         { id: 2, icon: 'laptop', category: 'Tecnologia', date: '12 Jan 2026', time: '4 min', title: 'Vantagens de Usar Plataformas Digitais de Serviços', excerpt: 'Entenda por que plataformas digitais como o Conecta Já estão revolucionando o mercado de serviços.', author: 'Fernandes Caxinda' },
-        { id: 3, icon: 'money-bill-wave', category: 'Prestadores', date: '10 Jan 2026', time: '6 min', title: 'Como Aumentar Sua Renda Sendo Prestador de Serviços', excerpt: 'Estratégias comprovadas para prestadores aumentarem seus ganhos e expandir negócio.', author: 'Alcides Ngunza' },
-        { id: 4, icon: 'shield-alt', category: 'Segurança', date: '8 Jan 2026', time: '5 min', title: 'Dicas para Contratar Serviços com Segurança', excerpt: 'Proteja-se contra fraudes e garanta serviços de qualidade com este checklist completo.', author: 'Equipa Conecta Já' },
-        { id: 5, icon: 'chart-line', category: 'Tendências', date: '5 Jan 2026', time: '7 min', title: 'Os Serviços Mais Procurados em Angola em 2026', excerpt: 'Análise completa das tendências do mercado angolano de serviços e oportunidades.', author: 'Equipa Conecta Já' },
-        { id: 6, icon: 'home', category: 'Dicas', date: '2 Jan 2026', time: '5 min', title: 'Manutenção da Casa: Quando Chamar um Profissional', excerpt: 'Saiba quando contratar especialista e quando você mesmo pode resolver problemas.', author: 'Equipa Conecta Já' },
+        { id: 3, icon: 'money-wavy', category: 'Prestadores', date: '10 Jan 2026', time: '6 min', title: 'Como Aumentar Sua Renda Sendo Prestador de Serviços', excerpt: 'Estratégias comprovadas para prestadores aumentarem seus ganhos e expandir negócio.', author: 'Alcides Ngunza' },
+        { id: 4, icon: 'shield-check', category: 'Segurança', date: '8 Jan 2026', time: '5 min', title: 'Dicas para Contratar Serviços com Segurança', excerpt: 'Proteja-se contra fraudes e garanta serviços de qualidade com este checklist completo.', author: 'Equipa Conecta Já' },
+        { id: 5, icon: 'chart-line-up', category: 'Tendências', date: '5 Jan 2026', time: '7 min', title: 'Os Serviços Mais Procurados em Angola em 2026', excerpt: 'Análise completa das tendências do mercado angolano de serviços e oportunidades.', author: 'Equipa Conecta Já' },
+        { id: 6, icon: 'house', category: 'Dicas', date: '2 Jan 2026', time: '5 min', title: 'Manutenção da Casa: Quando Chamar um Profissional', excerpt: 'Saiba quando contratar especialista e quando você mesmo pode resolver problemas.', author: 'Equipa Conecta Já' },
         
         // Página 2 (artigos 7-12)
         { id: 7, icon: 'paint-brush', category: 'Dicas', date: '29 Abril 2026', time: '6 min', title: 'Como Escolher as Cores Certas para Pintar Sua Casa', excerpt: 'Guia completo de cores, psicologia das cores e tendências de design de interiores.', author: 'Maria Silva' },
         { id: 8, icon: 'graduation-cap', category: 'Educação', date: '25 Dez 2025', time: '5 min', title: 'Benefícios de Ter um Professor Particular', excerpt: 'Entenda como aulas particulares podem transformar o desempenho académico.', author: 'João Santos' },
         { id: 9, icon: 'truck', category: 'Transporte', date: '22 Dez 2025', time: '4 min', title: 'Guia para Contratar Serviços de Mudança em Luanda', excerpt: 'Tudo que precisa saber antes de contratar uma empresa de mudanças.', author: 'Pedro Costa' },
-        { id: 10, icon: 'utensils', category: 'Eventos', date: '20 Dez 2025', time: '7 min', title: 'Como Organizar Eventos Perfeitos com Profissionais', excerpt: 'Do catering à decoração: guia completo para eventos inesquecíveis.', author: 'Ana Lopes' },
-        { id: 11, icon: 'tools', category: 'Manutenção', date: '18 Dez 2025', time: '5 min', title: 'Checklist de Manutenção Preventiva para Sua Casa', excerpt: 'Evite problemas futuros com este guia de manutenção mensal e anual.', author: 'Equipa Conecta Já' },
+        { id: 10, icon: 'fork-knife', category: 'Eventos', date: '20 Dez 2025', time: '7 min', title: 'Como Organizar Eventos Perfeitos com Profissionais', excerpt: 'Do catering à decoração: guia completo para eventos inesquecíveis.', author: 'Ana Lopes' },
+        { id: 11, icon: 'toolbox', category: 'Manutenção', date: '18 Dez 2025', time: '5 min', title: 'Checklist de Manutenção Preventiva para Sua Casa', excerpt: 'Evite problemas futuros com este guia de manutenção mensal e anual.', author: 'Equipa Conecta Já' },
         { id: 12, icon: 'lightbulb', category: 'Tecnologia', date: '15 Dez 2025', time: '6 min', title: 'Automação Residencial: Vale a Pena em Angola?', excerpt: 'Descubra custos, benefícios e melhores sistemas de casa inteligente.', author: 'Carlos Tech' },
         
         // Página 3 (artigos 13-18)
         { id: 13, icon: 'user-tie', category: 'Carreira', date: '12 Dez 2025', time: '8 min', title: 'Como Se Tornar um Prestador de Sucesso', excerpt: 'Da certificação ao marketing: passo a passo para construir carreira sólida.', author: 'Roberto Mendes' },
         { id: 14, icon: 'star', category: 'Dicas', date: '10 Dez 2025', time: '4 min', title: 'Como Deixar Avaliações Úteis no Conecta Já', excerpt: 'Ajude outros clientes e prestadores com avaliações honestas e detalhadas.', author: 'Equipa Conecta Já' },
         { id: 15, icon: 'wrench', category: 'Manutenção', date: '8 Dez 2025', time: '5 min', title: 'Problemas Comuns de Canalização e Como Evitá-los', excerpt: 'Previna vazamentos, entupimentos e outros problemas hidráulicos.', author: 'José Canalizador' },
-        { id: 16, icon: 'bolt', category: 'Segurança', date: '5 Dez 2025', time: '6 min', title: 'Segurança Elétrica: Sinais de Perigo em Casa', excerpt: 'Identifique riscos elétricos e saiba quando chamar um eletricista urgentemente.', author: 'Manuel Eletricista' },
+        { id: 16, icon: 'lightning', category: 'Segurança', date: '5 Dez 2025', time: '6 min', title: 'Segurança Elétrica: Sinais de Perigo em Casa', excerpt: 'Identifique riscos elétricos e saiba quando chamar um eletricista urgentemente.', author: 'Manuel Eletricista' },
         { id: 17, icon: 'heart', category: 'Bem-estar', date: '2 Dez 2025', time: '5 min', title: 'Benefícios de Ter uma Casa Limpa e Organizada', excerpt: 'Como limpeza profissional melhora saúde mental e produtividade.', author: 'Lídia Limpeza' },
         { id: 18, icon: 'chart-bar', category: 'Negócios', date: '28 Nov 2025', time: '7 min', title: 'O Futuro dos Serviços Digitais em Angola', excerpt: 'Previsões e tendências para os próximos 5 anos no mercado angolano.', author: 'Equipa Conecta Já' }
     ];
@@ -66,15 +66,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 <article class="blog-card" data-article-id="${article.id}">
                     <div class="blog-card__thumb blog-card__thumb--${thumbClass}">
                         <span class="blog-card__cat">${article.category}</span>
-                        <i class="fas fa-${article.icon}"></i>
+                        <i class="ph ph-${article.icon}"></i>
                     </div>
                     <div class="blog-card__body">
                         <h3 class="blog-card__title">${article.title}</h3>
                         <p class="blog-card__excerpt">${article.excerpt}</p>
                         <div class="blog-card__footer">
-                            <span class="blog-card__meta"><i class="fas fa-clock"></i> ${article.time}</span>
+                            <span class="blog-card__meta"><i class="ph ph-clock"></i> ${article.time}</span>
                             <button type="button" class="blog-card__read blog-card__link" data-article="${article.id}">
-                                Ler mais <i class="fas fa-arrow-right"></i>
+                                Ler mais <i class="ph ph-arrow-right"></i>
                             </button>
                         </div>
                     </div>
@@ -2093,8 +2093,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span class="article-modal__category">${article.category}</span>
                     <h1 class="article-modal__title">${article.title}</h1>
                     <div class="article-modal__meta">
-                        <span><i class="far fa-calendar"></i> ${article.date}</span>
-                        <span><i class="fas fa-user"></i> ${article.author}</span>
+                        <span><i class="ph ph-calendar-blank"></i> ${article.date}</span>
+                        <span><i class="ph ph-user"></i> ${article.author}</span>
                     </div>
                     <div class="article-modal__body">
                         ${article.content}

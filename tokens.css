@@ -1,0 +1,323 @@
+/* ============================================================
+   CONECTA JÁ — DESIGN TOKENS  v1
+   Fonte única de verdade para cores, tipografia, espaço, raios,
+   sombras e movimento. Sem seletores de componentes: pode ser
+   copiado tal e qual para a app (fase 2 do redesign).
+
+   Cores da marca (medidas no logótipo/cartaz oficial — não alterar):
+     laranja   #FD6802  → --orange-500   (cor principal: "Já", títulos, botões)
+     marinho   #050D27  → --navy-950     (wordmark "Conecta", texto sobre laranja)
+     damasco   #F4A261  → --apricot-400  (gradiente do hexágono)
+     teal      #2A9D8F  → --teal-500     (fim do gradiente do hexágono)
+     vermelho  #E63946  → --red-500      (só o ponto central do logo: estado "ao vivo")
+   As escalas à volta foram geradas em OKLCH a partir destas âncoras.
+   ============================================================ */
+
+:root {
+  /* ── Primitivos: marca ─────────────────────────────────── */
+  --red-50:  #FFF4F3;
+  --red-100: #FEE4E2;
+  --red-200: #FEC8C4;
+  --red-300: #FFA19D;
+  --red-400: #FE6C6D;
+  --red-500: #E63946;
+  --red-600: #C81E33;
+  --red-700: #A70C25;
+  --red-800: #810E1D;
+  --red-900: #591519;
+  --red-950: #2F1817;
+
+  /* laranja da marca: "Já" e títulos do cartaz oficial (#FD6802) */
+  --orange-50:  #FEF4F0;
+  --orange-100: #FFE9DF;
+  --orange-200: #FED4C2;
+  --orange-300: #FFB89A;
+  --orange-400: #FE9667;
+  --orange-500: #FD6802;
+  --orange-600: #D25502;
+  --orange-700: #A94300;
+  --orange-800: #813101;
+  --orange-900: #5C2100;
+  --orange-950: #2E1911;
+
+  /* marinho do wordmark "Conecta" no cartaz oficial */
+  --navy-950: #050D27;
+
+  --apricot-50:  #FFF5ED;
+  --apricot-100: #FFEADB;
+  --apricot-200: #FED6BA;
+  --apricot-300: #FFBD8B;
+  --apricot-400: #F4A261;
+  --apricot-500: #D48647;
+  --apricot-600: #B36D32;
+  --apricot-700: #915623;
+  --apricot-800: #6D411B;
+  --apricot-900: #4A2E17;
+  --apricot-950: #281D14;
+
+  --teal-50:  #EAFBF8;
+  --teal-100: #C9F7EF;
+  --teal-200: #A3E9DD;
+  --teal-300: #7CD4C6;
+  --teal-400: #54BAAC;
+  --teal-500: #2A9D8F;
+  --teal-600: #028478;
+  --teal-700: #026B60;
+  --teal-800: #03534A;
+  --teal-900: #0F3A35;
+  --teal-950: #152220;
+
+  /* ── Primitivos: neutros com subtom quente ─────────────── */
+  --neutral-0:   #FFFFFF;
+  --neutral-25:  #FCFBF9;
+  --neutral-50:  #F7F5F2;
+  --neutral-100: #EFECE8;
+  --neutral-200: #E2DED8;
+  --neutral-300: #CDC7BF;
+  --neutral-400: #A69E94;
+  --neutral-500: #7B7369;
+  --neutral-600: #5B544C;
+  --neutral-700: #423C36;
+  --neutral-800: #2A2622;
+  --neutral-900: #1B1815;
+  --neutral-950: #100E0C;
+
+  /* ── Primitivos: estados ───────────────────────────────── */
+  --success-50: #ECFDF3;  --success-500: #12B76A;  --success-700: #027A48;
+  --warning-50: #FFFAEB;  --warning-500: #F79009;  --warning-700: #B54708;
+  --error-50:   #FEF3F2;  --error-500:   #F04438;  --error-700:   #B42318;
+  --info-50:    #EFF8FF;  --info-500:    #2E90FA;  --info-700:    #175CD3;
+
+  /* ── Semânticos (tema claro) ───────────────────────────── */
+  --bg:            var(--neutral-25);
+  --bg-subtle:     var(--neutral-50);
+  --surface:       var(--neutral-0);
+  --surface-2:     var(--neutral-50);
+  --surface-sunken:var(--neutral-100);
+  --border:        var(--neutral-200);
+  --border-strong: var(--neutral-300);
+  --text:          var(--neutral-900);
+  --text-muted:    var(--neutral-600);
+  --text-subtle:   var(--neutral-500);
+  --text-on-brand: #FFFFFF;
+
+  --brand:         var(--orange-500);   /* marca: preenchimentos, logo, botão primário */
+  --brand-hover:   var(--orange-400);
+  --brand-ink:     var(--navy-950);     /* texto sobre --brand: 6,5:1 (branco só dá 2,9:1) */
+  --brand-gradient: linear-gradient(135deg, var(--orange-500) 0%, var(--orange-400) 100%);
+  --brand-navy:    var(--navy-950);     /* cor do wordmark "Conecta" */
+  --dot:           var(--red-500);      /* ponto vermelho do logo: indicador "ao vivo" */
+  /* Laranja como TEXTO (links, etiquetas, ícones pequenos) em fundo claro:
+     #FD6802 dá só 2,8:1; o 700 (#A94300) dá 5,8:1. A cor da marca continua a ser o 500. */
+  --brand-strong:  var(--orange-700);
+  --brand-stronger:var(--orange-800);
+  --brand-soft:    var(--orange-50);
+  --brand-soft-2:  var(--orange-100);
+  --accent:        var(--teal-500);
+  --accent-text:   var(--teal-700);  /* teal como texto precisa de mais contraste */
+  --accent-soft:   var(--teal-50);
+  --warm:          var(--apricot-400);
+  --warm-text:     var(--apricot-700);
+  --warm-soft:     var(--apricot-50);
+
+  --focus-ring: 0 0 0 3px rgba(253, 104, 2, 0.35);
+  --overlay:    rgba(16, 14, 12, 0.56);
+
+  /* ── Tipografia ────────────────────────────────────────── */
+  --font-display: 'Bricolage Grotesque', 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body:    'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --text-xs:   0.75rem;                                   /* 12 */
+  --text-sm:   0.875rem;                                  /* 14 */
+  --text-base: 1rem;                                      /* 16 */
+  --text-md:   1.125rem;                                  /* 18 */
+  --text-lg:   1.25rem;                                   /* 20 */
+  --text-xl:   1.5rem;                                    /* 24 */
+  --text-2xl:  clamp(1.75rem, 1.45rem + 1.1vw, 2.25rem);  /* 28–36 */
+  --text-3xl:  clamp(2.25rem, 1.7rem + 2.2vw, 3.25rem);   /* 36–52 */
+  --text-4xl:  clamp(2.75rem, 1.9rem + 3.6vw, 4.5rem);    /* 44–72 */
+  --text-5xl:  clamp(3rem, 1.9rem + 5vw, 5.5rem);         /* 48–88 */
+
+  --leading-tight: 1.05;
+  --leading-snug:  1.25;
+  --leading-body:  1.6;
+  --tracking-display: -0.035em;
+  --tracking-tight:   -0.015em;
+  --tracking-caps:     0.08em;
+
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semi:    600;
+  --weight-bold:    700;
+  --weight-black:   800;
+
+  /* ── Espaço: grelha de 8px (passos de 4px só para ajuste fino) ── */
+  --space-1:  0.25rem;   /*   4 */
+  --space-2:  0.5rem;    /*   8 */
+  --space-3:  0.75rem;   /*  12 */
+  --space-4:  1rem;      /*  16 */
+  --space-5:  1.25rem;   /*  20 */
+  --space-6:  1.5rem;    /*  24 */
+  --space-8:  2rem;      /*  32 */
+  --space-10: 2.5rem;    /*  40 */
+  --space-12: 3rem;      /*  48 */
+  --space-16: 4rem;      /*  64 */
+  --space-20: 5rem;      /*  80 */
+  --space-24: 6rem;      /*  96 */
+  --space-32: 8rem;      /* 128 */
+  --section-y: clamp(4.5rem, 3rem + 6vw, 8rem);
+
+  /* ── Raios ─────────────────────────────────────────────── */
+  --radius-xs:   6px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-2xl:  32px;
+  --radius-full: 999px;
+
+  /* ── Sombras: 3 níveis, tingidas de quente ─────────────── */
+  --shadow-1: 0 1px 2px rgba(27, 24, 21, 0.06), 0 1px 1px rgba(27, 24, 21, 0.04);
+  --shadow-2: 0 6px 16px -4px rgba(27, 24, 21, 0.10), 0 2px 4px -2px rgba(27, 24, 21, 0.06);
+  --shadow-3: 0 28px 56px -16px rgba(27, 24, 21, 0.22), 0 10px 20px -10px rgba(27, 24, 21, 0.10);
+
+  /* ── Movimento ─────────────────────────────────────────── */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+
+  /* ── Layout ────────────────────────────────────────────── */
+  --container:        1200px;
+  --container-narrow: 760px;
+  --gutter:           clamp(1rem, 0.6rem + 1.8vw, 2rem);
+  --header-height:    72px;
+
+  /* ── Camadas ───────────────────────────────────────────── */
+  --z-sticky: 900;
+  --z-header: 1000;
+  --z-overlay: 2000;
+  --z-modal: 2100;
+  --z-toast: 3000;
+
+  color-scheme: light;
+}
+
+/* ── Tema escuro: mesmos nomes, valores trocados ───────────── */
+[data-theme="dark"] {
+  --bg:            var(--neutral-950);
+  --bg-subtle:     #15120F;
+  --surface:       var(--neutral-900);
+  --surface-2:     #221E1A;
+  --surface-sunken:#0B0A08;
+  --border:        #322D28;
+  --border-strong: #443E37;
+  --text:          var(--neutral-50);
+  --text-muted:    var(--neutral-300);
+  --text-subtle:   var(--neutral-400);
+
+  --brand-strong:  var(--orange-400);  /* em fundo escuro o laranja claro tem contraste */
+  --brand-stronger:var(--orange-300);
+  --brand-soft:    rgba(253, 104, 2, 0.14);
+  --brand-soft-2:  rgba(253, 104, 2, 0.22);
+  --accent-text:   var(--teal-300);
+  --accent-soft:   rgba(42, 157, 143, 0.16);
+  --warm-text:     var(--apricot-300);
+  --warm-soft:     rgba(244, 162, 97, 0.14);
+
+  --overlay: rgba(0, 0, 0, 0.68);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-2: 0 8px 20px -6px rgba(0, 0, 0, 0.6), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-3: 0 30px 60px -18px rgba(0, 0, 0, 0.75), 0 10px 20px -10px rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
+
+/* ============================================================
+   PONTE PARA O CSS LEGADO
+   styles.css / global.css e centenas de estilos inline usam estes
+   nomes. Apontá-los para os tokens novos faz o site inteiro adoptar
+   o sistema sem reescrever cada página. Remover quando o legado sair.
+   ============================================================ */
+:root {
+  /* A marca é laranja: o "primary" legado passa do vermelho para o laranja #FD6802 */
+  --color-primary:        var(--orange-500);
+  --color-primary-dark:   var(--orange-700);
+  --color-primary-light:  var(--orange-400);
+  --color-secondary:      var(--apricot-400);
+  --color-secondary-dark: #E76F51;
+  --color-accent:         var(--teal-500);
+  --color-accent-light:   #3BC4B4;
+
+  --color-success: var(--success-500);
+  --color-warning: var(--warning-500);
+  --color-error:   var(--error-500);
+  --color-info:    var(--info-500);
+
+  --color-white:    var(--neutral-0);
+  --color-gray-50:  var(--neutral-50);
+  --color-gray-100: var(--neutral-50);
+  --color-gray-200: var(--neutral-200);
+  --color-gray-300: var(--neutral-300);
+  --color-gray-400: var(--neutral-400);
+  --color-gray-500: var(--neutral-500);
+  --color-gray-600: var(--neutral-600);
+  --color-gray-700: var(--neutral-700);
+  --color-gray-800: var(--neutral-800);
+  --color-gray-900: var(--neutral-900);
+  --color-black:    var(--neutral-950);
+
+  /* Gradiente da marca: laranja em dois tons. Antes estava
+     escrito à mão em 22 sítios; agora há um só ponto de controlo. */
+  --gradient-primary: var(--brand-gradient);
+  --gradient-dark:    linear-gradient(135deg, var(--neutral-900) 0%, var(--neutral-800) 100%);
+  --gradient-hero:    radial-gradient(1200px 500px at 85% -10%, rgba(253, 104, 2, 0.08), transparent 60%);
+
+  --font-primary:   var(--font-display);
+  --font-secondary: var(--font-body);
+  --font-xs:   var(--text-xs);
+  --font-sm:   var(--text-sm);
+  --font-base: var(--text-base);
+  --font-lg:   var(--text-md);
+  --font-xl:   var(--text-xl);
+  --font-2xl:  var(--text-2xl);
+  --font-3xl:  var(--text-3xl);
+  --font-4xl:  var(--text-4xl);
+  --font-5xl:  var(--text-5xl);
+
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+
+  --shadow-sm:   var(--shadow-1);
+  --shadow-md:   var(--shadow-2);
+  --shadow-lg:   var(--shadow-2);
+  --shadow-xl:   var(--shadow-3);
+  --shadow-2xl:  var(--shadow-3);
+  --shadow-glow: var(--shadow-2);
+}
+
+/* No tema escuro o legado inverte a escala de cinzentos (o "white" é o
+   fundo e o "black" é o texto). Mantém-se a inversão, agora em tons quentes. */
+[data-theme="dark"] {
+  --color-white:    var(--neutral-900);
+  --color-gray-50:  var(--neutral-950);
+  --color-gray-100: #221E1A;
+  --color-gray-200: #322D28;
+  --color-gray-300: #443E37;
+  --color-gray-400: var(--neutral-600);
+  --color-gray-500: var(--neutral-400);
+  --color-gray-600: var(--neutral-300);
+  --color-gray-700: var(--neutral-200);
+  --color-gray-800: var(--neutral-100);
+  --color-gray-900: var(--neutral-50);
+  --color-black:    var(--neutral-25);
+
+  --gradient-hero: radial-gradient(1200px 500px at 85% -10%, rgba(253, 104, 2, 0.14), transparent 60%);
+  --shadow-sm:   var(--shadow-1);
+  --shadow-md:   var(--shadow-2);
+  --shadow-lg:   var(--shadow-2);
+  --shadow-xl:   var(--shadow-3);
+  --shadow-2xl:  var(--shadow-3);
+  --shadow-glow: var(--shadow-2);
+}

@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-96x96.png" type="image/png" sizes="96x96">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <title>Encontrar Prestadores — Conecta Já</title>
   <meta name="description" content="Encontra prestadores de serviços verificados em Angola. Canalizadores, electricistas, pintores, designers e muito mais.">
   <!-- SEO -->
@@ -26,11 +30,13 @@
   <meta name="twitter:image" content="https://conectaja-ao.github.io/ConectaJa.ao/icons/icon-192x192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Manrope:wght@400..800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="tokens.css">
   <style>
     /* ── Prestadores page styles ── */
     .providers-page { background: var(--color-gray-50); min-height: 100vh; }
@@ -52,7 +58,7 @@
     }
     .search-field input:focus, .search-field select:focus {
       outline: none; border-color: var(--color-primary);
-      background: white; box-shadow: 0 0 0 4px rgba(230,57,70,.08);
+      background: white; box-shadow: 0 0 0 4px rgba(253, 104, 2,.08);
     }
     .providers-search__btn { display: flex; align-items: center; justify-content: center; gap: .5rem; white-space: nowrap; }
 
@@ -67,7 +73,7 @@
       border: 1px solid var(--color-gray-100);
     }
     .sidebar-widget__title { font-size: 1rem; font-weight: 800; margin-bottom: 1.25rem; color: var(--color-gray-900); display: flex; align-items: center; gap: .5rem; }
-    .sidebar-widget__title i { color: var(--color-primary); }
+    .sidebar-widget__title i { color: var(--brand-strong); }
 
     .filter-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
     .filter-tag {
@@ -76,7 +82,7 @@
       font-size: .85rem; font-weight: 600; color: var(--color-gray-600);
       cursor: pointer; transition: all .2s;
     }
-    .filter-tag:hover { border-color: var(--color-primary); color: var(--color-primary); }
+    .filter-tag:hover { border-color: var(--color-primary); color: var(--brand-strong); }
     .filter-tag.active { background: var(--color-primary); border-color: var(--color-primary); color: white; }
 
     .sort-select {
@@ -112,7 +118,7 @@
       border: 1px solid var(--color-gray-100); margin-bottom: 1.5rem;
     }
     .providers-count { font-size: .975rem; font-weight: 700; color: var(--color-gray-700); }
-    .providers-count strong { color: var(--color-primary); }
+    .providers-count strong { color: var(--brand-strong); }
     .view-toggle { display: flex; gap: .25rem; }
     .view-btn {
       width: 36px; height: 36px; border-radius: .5rem;
@@ -133,7 +139,7 @@
       transition: all .3s cubic-bezier(.16,1,.3,1);
       display: flex; flex-direction: column;
     }
-    .provider-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px rgba(0,0,0,.1); border-color: rgba(230,57,70,.2); }
+    .provider-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px rgba(0,0,0,.1); border-color: rgba(253, 104, 2,.2); }
     .provider-card:focus { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 
     .provider-card__header {
@@ -142,17 +148,17 @@
     }
     .provider-avatar {
       width: 68px; height: 68px; border-radius: 1rem; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      background: var(--gradient-primary);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.5rem; font-weight: 900; color: white;
-      box-shadow: 0 4px 16px rgba(230,57,70,.25);
+      box-shadow: 0 4px 16px rgba(253, 104, 2,.25);
     }
     .provider-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 1rem; }
 
     .provider-badge { padding: .25rem .75rem; border-radius: 50px; font-size: .75rem; font-weight: 700; display: inline-flex; align-items: center; gap: .3rem; }
     .provider-badge--available { background: rgba(42,157,143,.12); color: var(--color-accent); }
     .provider-badge--available i { font-size: .5rem; }
-    .provider-badge--busy { background: rgba(230,57,70,.1); color: var(--color-primary); }
+    .provider-badge--busy { background: rgba(253, 104, 2,.1); color: var(--brand-strong); }
     .provider-badge--busy i { font-size: .5rem; }
 
     .provider-card__body { padding: 1.25rem 1.5rem; flex: 1; }
@@ -198,6 +204,9 @@
   </style>
   <script>!function(){var t=localStorage.getItem('cj-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}();</script>
   <script>if(localStorage.getItem('cj-lang')==='en')document.documentElement.style.opacity='0';</script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#FD6802">
+  <link rel="stylesheet" href="components.css">
 </head>
 <body class="providers-page">
 
@@ -208,10 +217,7 @@
   <div class="container">
     <div class="navbar__wrapper">
       <a href="index.html" class="navbar__logo">
-        <svg class="logo__icon" viewBox="0 0 40 40" fill="none">
-          <path d="M20 0L40 10V30L20 40L0 30V10L20 0Z" fill="currentColor"/>
-          <circle cx="20" cy="20" r="8" fill="white"/>
-        </svg>
+        <svg class="logo__icon" viewBox="0 0 40 40" fill="none" aria-hidden="true"><defs><linearGradient id="cjLogo14" x1="2" y1="2" x2="38" y2="38" gradientUnits="userSpaceOnUse"><stop stop-color="#EB5B47"/><stop offset=".55" stop-color="#F4A261"/><stop offset="1" stop-color="#4F9D86"/></linearGradient></defs><path d="M20 0L37.32 10V30L20 40L2.68 30V10Z" fill="url(#cjLogo14)"/><circle cx="20" cy="20" r="10.1" fill="#fff"/><circle cx="20" cy="20" r="7.6" fill="#E63946"/></svg>
         <span class="logo__text">Conecta<span class="logo__accent">Já</span></span>
       </a>
       <ul class="navbar__menu" id="navMenu" role="list">
@@ -228,20 +234,19 @@
       </div>
       <div class="lang-toggle-wrapper" id="langWrapper">
         <button class="lang-toggle" id="langToggle" aria-label="Mudar idioma" aria-expanded="false" title="Mudar idioma">
-          <span class="lang-flag">🇵🇹</span>
+          <i class="ph ph-globe lang-globe" aria-hidden="true"></i>
           <span class="lang-code">PT</span>
-          <i class="fas fa-chevron-down lang-arrow"></i>
         </button>
         <div class="lang-menu" id="langMenu">
-          <button class="lang-option" data-set-lang="pt">🇵🇹 Português</button>
-          <button class="lang-option" data-set-lang="en">🇬🇧 English</button>
+          <button class="lang-option" data-set-lang="pt">Português</button>
+          <button class="lang-option" data-set-lang="en">English</button>
         </div>
       </div>
       <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema" title="Modo escuro">
-        <i class="fas fa-moon"></i>
+        <i class="ph ph-moon"></i>
       </button>
       <button class="navbar__toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
-        <i class="fas fa-bars"></i>
+        <i class="ph ph-list"></i>
       </button>
     </div>
   </div>
@@ -254,23 +259,23 @@
     <div class="container">
       <form class="providers-search__form search__form" id="searchForm">
         <div class="search-field">
-          <i class="fas fa-search"></i>
+          <i class="ph ph-magnifying-glass"></i>
           <input type="text" name="q" placeholder="Que serviço precisas?" aria-label="Pesquisar serviço" autocomplete="off">
         </div>
         <div class="search-field">
-          <i class="fas fa-map-marker-alt"></i>
+          <i class="ph ph-map-pin"></i>
           <select name="province" id="filterProvince" aria-label="Província">
             <option value="all">Todas as províncias</option>
           </select>
         </div>
         <div class="search-field">
-          <i class="fas fa-city"></i>
+          <i class="ph ph-buildings"></i>
           <select name="municipality" id="filterMunicipality" aria-label="Município">
             <option value="all">Todos os municípios</option>
           </select>
         </div>
         <div class="search-field">
-          <i class="fas fa-th-list"></i>
+          <i class="ph ph-list-bullets"></i>
           <select name="category" aria-label="Categoria">
             <option value="all">Todas as categorias</option>
             <option value="canalizacao">Canalizador</option>
@@ -292,7 +297,7 @@
           </select>
         </div>
         <button type="submit" class="btn btn--primary providers-search__btn">
-          <i class="fas fa-search"></i> Pesquisar
+          <i class="ph ph-magnifying-glass"></i> Pesquisar
         </button>
       </form>
     </div>
@@ -306,7 +311,7 @@
       <aside class="providers-sidebar">
 
         <div class="sidebar-widget">
-          <div class="sidebar-widget__title"><i class="fas fa-tag"></i> Categorias</div>
+          <div class="sidebar-widget__title"><i class="ph ph-tag"></i> Categorias</div>
           <div class="filter-tags">
             <button class="filter-tag active" data-category="all">Todos</button>
             <button class="filter-tag" data-category="canalizacao">Canalizador</button>
@@ -328,7 +333,7 @@
         </div>
 
         <div class="sidebar-widget">
-          <div class="sidebar-widget__title"><i class="fas fa-sort"></i> Ordenar por</div>
+          <div class="sidebar-widget__title"><i class="ph ph-sort-ascending"></i> Ordenar por</div>
           <select class="sort-select" name="sort" aria-label="Ordenar resultados">
             <option value="rating">Melhor avaliação</option>
             <option value="distance">Mais próximos</option>
@@ -339,7 +344,7 @@
         </div>
 
         <div class="sidebar-widget">
-          <div class="sidebar-widget__title"><i class="fas fa-sliders-h"></i> Filtros</div>
+          <div class="sidebar-widget__title"><i class="ph ph-sliders-horizontal"></i> Filtros</div>
           <div class="availability-toggle">
             <div class="toggle-row">
               <span class="toggle-label">Apenas disponíveis</span>
@@ -358,12 +363,12 @@
           </div>
         </div>
 
-        <div class="sidebar-widget" style="background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));border:none;color:white;text-align:center;">
-          <i class="fas fa-briefcase" style="font-size:2.5rem;margin-bottom:1rem;display:block;opacity:.9;"></i>
+        <div class="sidebar-widget" style="background:var(--gradient-primary);border:none;color:white;text-align:center;">
+          <i class="ph ph-briefcase" style="font-size:2.5rem;margin-bottom:1rem;display:block;opacity:.9;"></i>
           <h4 style="font-size:1.1rem;font-weight:800;margin-bottom:.5rem;">És prestador?</h4>
           <p style="font-size:.875rem;opacity:.85;margin-bottom:1.25rem;line-height:1.6;">Regista-te gratuitamente e começa a receber clientes hoje.</p>
           <button class="btn btn--white btn--sm" style="width:100%;justify-content:center;" data-open-choice>
-            <i class="fas fa-plus"></i> Registar-me
+            <i class="ph ph-plus"></i> Registar-me
           </button>
         </div>
 
@@ -375,11 +380,11 @@
           <div class="providers-count">A mostrar <strong class="providers-count-num">todos</strong> os prestadores</div>
           <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
             <button class="btn btn--outline btn--sm" id="nearMeBtn">
-              <i class="fas fa-location-crosshairs"></i> Perto de mim
+              <i class="ph ph-crosshair"></i> Perto de mim
             </button>
             <div class="view-toggle">
-              <button class="view-btn active" id="listViewBtn" aria-label="Vista em lista" title="Lista"><i class="fas fa-th-large"></i></button>
-              <button class="view-btn" id="mapViewBtn" aria-label="Vista em mapa" title="Mapa"><i class="fas fa-map-location-dot"></i></button>
+              <button class="view-btn active" id="listViewBtn" aria-label="Vista em lista" title="Lista"><i class="ph ph-squares-four"></i></button>
+              <button class="view-btn" id="mapViewBtn" aria-label="Vista em mapa" title="Mapa"><i class="ph ph-map-trifold"></i></button>
             </div>
           </div>
         </div>
@@ -387,7 +392,7 @@
         <div class="providers-grid" id="providersGrid">
           <!-- Rendered by script.js PrestadoresPage.render() -->
           <div style="grid-column:1/-1;text-align:center;padding:4rem 2rem;color:var(--color-gray-400);">
-            <i class="fas fa-spinner fa-spin" style="font-size:2.5rem;margin-bottom:1rem;display:block;"></i>
+            <i class="ph ph-spinner-gap fa-spin" style="font-size:2.5rem;margin-bottom:1rem;display:block;"></i>
             <p>A carregar prestadores…</p>
           </div>
         </div>
@@ -405,10 +410,7 @@
         <div class="footer-main">
             <div class="footer-column footer-column--brand">
                 <a href="index.html" class="footer__logo">
-                    <svg class="logo__icon" viewBox="0 0 40 40" fill="none">
-                        <path d="M20 0L40 10V30L20 40L0 30V10L20 0Z" fill="currentColor"/>
-                        <circle cx="20" cy="20" r="8" fill="white"/>
-                    </svg>
+                    <svg class="logo__icon" viewBox="0 0 40 40" fill="none" aria-hidden="true"><defs><linearGradient id="cjLogo15" x1="2" y1="2" x2="38" y2="38" gradientUnits="userSpaceOnUse"><stop stop-color="#EB5B47"/><stop offset=".55" stop-color="#F4A261"/><stop offset="1" stop-color="#4F9D86"/></linearGradient></defs><path d="M20 0L37.32 10V30L20 40L2.68 30V10Z" fill="url(#cjLogo15)"/><circle cx="20" cy="20" r="10.1" fill="#fff"/><circle cx="20" cy="20" r="7.6" fill="#E63946"/></svg>
                     <span class="logo__text">Conecta<span class="logo__accent">Já</span></span>
                 </a>
                 <p class="footer__description">
@@ -416,13 +418,13 @@
                 </p>
                 <div class="footer__social">
                     <a href="https://web.facebook.com/profile.php?id=61589032370272" target="_blank" class="social-link" aria-label="Facebook">
-                        <i class="fab fa-facebook-f"></i>
+                        <i class="ph ph-facebook-logo"></i>
                     </a>
                     <a href="https://www.instagram.com/conecta__ja" target="_blank" class="social-link" aria-label="Instagram">
-                        <i class="fab fa-instagram"></i>
+                        <i class="ph ph-instagram-logo"></i>
                     </a>
-                    <a href="https://wa.me/244931482577" target="_blank" class="social-link" aria-label="WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
+                    <a href="https://wa.me/244937879654" target="_blank" class="social-link" aria-label="WhatsApp">
+                        <i class="ph ph-whatsapp-logo"></i>
                     </a>
                 </div>
             </div>
@@ -464,19 +466,19 @@
                 <h4 class="footer-column__title">Contacto</h4>
                 <ul class="footer-contact">
                     <li>
-                        <i class="fas fa-envelope"></i>
+                        <i class="ph ph-envelope-simple"></i>
                         <a href="mailto:conectaja.ao@gmail.com">conectaja.ao@gmail.com</a>
                     </li>
                     <li>
-                        <i class="fas fa-phone"></i>
-                        <a href="tel:+244931482577">+244 931 482 577</a>
+                        <i class="ph ph-phone"></i>
+                        <a href="tel:+244937879654">+244 937 879 654</a>
                     </li>
                     <li>
-                        <i class="fas fa-map-marker-alt"></i>
+                        <i class="ph ph-map-pin"></i>
                         <span>Luanda, Angola</span>
                     </li>
                     <li>
-                        <i class="fas fa-clock"></i>
+                        <i class="ph ph-clock"></i>
                         <span>Atendimento 24/7</span>
                     </li>
                 </ul>
@@ -494,14 +496,14 @@
     </div>
 </footer>
 
-<a href="https://wa.me/244931482577?text=Olá!%20Preciso%20de%20ajuda%20com%20o%20Conecta%20Já"
+<a href="https://wa.me/244937879654?text=Olá!%20Preciso%20de%20ajuda%20com%20o%20Conecta%20Já"
    target="_blank" class="whatsapp-float" aria-label="WhatsApp">
-    <i class="fab fa-whatsapp"></i>
+    <i class="ph ph-whatsapp-logo"></i>
     <span class="wa-tooltip">Fala connosco</span>
 </a>
 
 <button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
-    <i class="fas fa-chevron-up"></i>
+    <i class="ph ph-caret-up"></i>
 </button>
 
 <script src="i18n.js"></script>

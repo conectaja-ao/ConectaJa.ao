@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-96x96.png" type="image/png" sizes="96x96">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <title>Bisno — Conecta Já</title>
   <meta name="description" content="Publica o teu pedido, oferta ou oportunidade e entra em contacto com quem pode ajudar.">
   <meta name="robots" content="index, follow">
@@ -16,10 +20,12 @@
   <meta property="og:image" content="https://conectaja-ao.github.io/ConectaJa.ao/icons/icon-192x192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Manrope:wght@400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="tokens.css">
   <style>
     /* ── Bisno page ── */
     .bisno-page { background: var(--color-gray-50); min-height: 100vh; }
@@ -28,7 +34,7 @@
     .bisno-hero {
       padding: 9rem 0 4rem;
       background: linear-gradient(135deg,
-        rgba(230,57,70,.06) 0%,
+        rgba(253, 104, 2,.06) 0%,
         rgba(244,162,97,.06) 50%,
         rgba(42,157,143,.04) 100%);
       text-align: center;
@@ -38,7 +44,7 @@
     .bisno-hero::before {
       content:'';
       position:absolute; width:500px; height:500px;
-      background:radial-gradient(circle,rgba(230,57,70,.08) 0%,transparent 70%);
+      background:radial-gradient(circle,rgba(253, 104, 2,.08) 0%,transparent 70%);
       top:-180px; right:-80px; border-radius:50%;
       animation:blobPulse 8s ease-in-out infinite;
     }
@@ -53,15 +59,15 @@
     .bisno-hero__badge {
       display:inline-flex; align-items:center; gap:.5rem;
       padding:.5rem 1.25rem; border-radius:50px;
-      background:rgba(230,57,70,.1); border:1px solid rgba(230,57,70,.2);
-      color:var(--color-primary); font-size:.875rem; font-weight:700;
+      background:rgba(253, 104, 2,.1); border:1px solid rgba(253, 104, 2,.2);
+      color: var(--brand-strong); font-size:.875rem; font-weight:700;
       margin-bottom:1.5rem;
     }
     .bisno-hero__title {
       font-size:clamp(2.2rem,5vw,3.5rem); font-weight:900; line-height:1.1;
       color:var(--color-gray-900); margin-bottom:1rem;
     }
-    .bisno-hero__title span { color:var(--color-primary); }
+    .bisno-hero__title span { color: var(--brand-strong); }
     .bisno-hero__sub {
       font-size:1.1rem; color:var(--color-gray-600); max-width:520px; margin:0 auto;
     }
@@ -112,7 +118,7 @@
       min-height:110px; color:var(--color-gray-900); background:var(--color-gray-50);
       transition:all .2s; outline:none;
     }
-    .compose-textarea:focus { border-color:var(--color-primary); background:#fff; box-shadow:0 0 0 3px rgba(230,57,70,.08); }
+    .compose-textarea:focus { border-color:var(--color-primary); background:#fff; box-shadow:0 0 0 3px rgba(253, 104, 2,.08); }
     .compose-cats {
       display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1rem;
     }
@@ -121,7 +127,7 @@
       font-size:.8rem; font-weight:700; color:var(--color-gray-600);
       cursor:pointer; transition:all .2s; background:none;
     }
-    .compose-cat:hover { border-color:var(--color-primary); color:var(--color-primary); }
+    .compose-cat:hover { border-color:var(--color-primary); color: var(--brand-strong); }
     .compose-cat.selected { background:var(--color-primary); border-color:var(--color-primary); color:#fff; }
 
     .compose-footer {
@@ -134,7 +140,7 @@
       background:none; font-size:.875rem; font-weight:600; color:var(--color-gray-600);
       cursor:pointer; transition:all .2s;
     }
-    .compose-img-btn:hover { border-color:var(--color-primary); color:var(--color-primary); }
+    .compose-img-btn:hover { border-color:var(--color-primary); color: var(--brand-strong); }
     .compose-img-preview {
       margin-top:1rem; position:relative; display:inline-block;
     }
@@ -149,14 +155,14 @@
       cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.75rem;
     }
     .char-count { font-size:.78rem; color:var(--color-gray-400); }
-    .char-count.warn { color:#e63946; }
+    .char-count.warn { color:#FD6802; }
     .btn-post {
       display:inline-flex; align-items:center; gap:.5rem;
       padding:.65rem 1.75rem; border-radius:.875rem;
       background:var(--color-primary); color:#fff; border:none;
       font-weight:800; font-size:.9rem; cursor:pointer; transition:all .2s;
     }
-    .btn-post:hover { background:var(--color-primary-dark,#c1121f); transform:translateY(-1px); }
+    .btn-post:hover { background:var(--color-primary-dark,#A94300); transform:translateY(-1px); }
     .btn-post:disabled { opacity:.5; cursor:not-allowed; transform:none; }
 
     /* ── Login nudge ── */
@@ -166,7 +172,7 @@
       padding:2rem; text-align:center;
       box-shadow:0 4px 24px rgba(0,0,0,.05);
     }
-    .login-nudge i { font-size:2rem; color:var(--color-primary); margin-bottom:1rem; display:block; }
+    .login-nudge i { font-size:2rem; color: var(--brand-strong); margin-bottom:1rem; display:block; }
     .login-nudge p { color:var(--color-gray-600); margin-bottom:1.25rem; }
 
     /* ── Filters ── */
@@ -179,7 +185,7 @@
       font-size:.82rem; font-weight:700; color:var(--color-gray-600);
       cursor:pointer; transition:all .2s;
     }
-    .filter-chip:hover { border-color:var(--color-primary); color:var(--color-primary); }
+    .filter-chip:hover { border-color:var(--color-primary); color: var(--brand-strong); }
     .filter-chip.active { background:var(--color-primary); border-color:var(--color-primary); color:#fff; }
 
     /* ── Post card ── */
@@ -239,8 +245,8 @@
       color:var(--color-gray-700); transition:background .15s;
     }
     .post-menu__item:hover { background:var(--color-gray-50); }
-    .post-menu__item--danger { color:#e63946; }
-    .post-menu__item--danger:hover { background:rgba(230,57,70,.06); }
+    .post-menu__item--danger { color:#FD6802; }
+    .post-menu__item--danger:hover { background:rgba(253, 104, 2,.06); }
 
     .post-card__text {
       padding:1rem 1.5rem;
@@ -273,7 +279,7 @@
       font-size:.82rem; font-weight:800; cursor:pointer; transition:all .2s;
       text-decoration:none;
     }
-    .btn-contact:hover { background:var(--color-primary-dark,#c1121f); transform:translateY(-1px); }
+    .btn-contact:hover { background:var(--color-primary-dark,#A94300); transform:translateY(-1px); }
 
     /* ── Empty / loading ── */
     .bisno-empty {
@@ -352,7 +358,7 @@
       padding:.1rem .3rem; border-radius:.3rem;
       transition:all .15s; margin-left:auto; line-height:1;
     }
-    .cmt-del-btn:hover { color:#e63946; background:rgba(230,57,70,.08); }
+    .cmt-del-btn:hover { color:#FD6802; background:rgba(253, 104, 2,.08); }
     .cmt-text {
       font-size:.875rem; color:var(--color-gray-700); line-height:1.5;
       word-break:break-word; background:#fff; border-radius:.75rem;
@@ -377,21 +383,21 @@
       background:#fff; outline:none; transition:all .2s;
       min-width:0;
     }
-    .cmt-input:focus { border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(230,57,70,.08); }
+    .cmt-input:focus { border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(253, 104, 2,.08); }
     .cmt-send-btn {
       width:34px; height:34px; border-radius:50%; flex-shrink:0;
       background:var(--color-primary); color:#fff; border:none;
       display:flex; align-items:center; justify-content:center;
       cursor:pointer; transition:all .2s; font-size:.8rem;
     }
-    .cmt-send-btn:hover { background:var(--color-primary-dark,#c1121f); transform:scale(1.08); }
+    .cmt-send-btn:hover { background:var(--color-primary-dark,#A94300); transform:scale(1.08); }
     .cmt-send-btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
     .cmt-login-nudge {
       padding:.875rem 1.25rem; font-size:.83rem;
       color:var(--color-gray-500); border-top:1px solid var(--color-gray-100);
       text-align:center;
     }
-    .cmt-login-nudge span { color:var(--color-primary); cursor:pointer; font-weight:700; }
+    .cmt-login-nudge span { color: var(--brand-strong); cursor:pointer; font-weight:700; }
     /* toggle button no footer */
     .cmt-toggle {
       display:inline-flex; align-items:center; gap:.35rem;
@@ -400,8 +406,8 @@
       padding:.3rem .65rem; border-radius:.5rem;
       transition:all .2s; font-family:inherit;
     }
-    .cmt-toggle:hover { color:var(--color-primary); background:rgba(230,57,70,.07); }
-    .cmt-toggle--active { color:var(--color-primary); }
+    .cmt-toggle:hover { color: var(--brand-strong); background:rgba(253, 104, 2,.07); }
+    .cmt-toggle--active { color: var(--brand-strong); }
 
     /* ── Modal de edição ── */
     #editModal {
@@ -420,7 +426,7 @@
       font-size:1.1rem; font-weight:900; margin-bottom:1.25rem;
       display:flex; align-items:center; gap:.5rem;
     }
-    .edit-box__title i { color:var(--color-primary); }
+    .edit-box__title i { color: var(--brand-strong); }
     .edit-box textarea {
       width:100%; border:1.5px solid var(--color-gray-200);
       border-radius:1rem; padding:1rem; font-size:.975rem;
@@ -428,7 +434,7 @@
       color:var(--color-gray-900); background:var(--color-gray-50);
       outline:none; transition:all .2s;
     }
-    .edit-box textarea:focus { border-color:var(--color-primary); background:#fff; box-shadow:0 0 0 3px rgba(230,57,70,.08); }
+    .edit-box textarea:focus { border-color:var(--color-primary); background:#fff; box-shadow:0 0 0 3px rgba(253, 104, 2,.08); }
     .edit-box__cats {
       display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1rem; margin-bottom:1.5rem;
     }
@@ -439,7 +445,7 @@
       background:var(--color-primary); color:#fff; border:none;
       font-weight:800; font-size:.9rem; cursor:pointer; transition:all .2s;
     }
-    .btn-save:hover { background:var(--color-primary-dark,#c1121f); }
+    .btn-save:hover { background:var(--color-primary-dark,#A94300); }
     .btn-save:disabled { opacity:.5; cursor:not-allowed; }
     .btn-cancel-edit {
       display:inline-flex; align-items:center; gap:.4rem;
@@ -480,7 +486,7 @@
       font-size:.875rem; font-family:inherit; background:#fff; outline:none;
       color:var(--color-gray-900); transition:all .2s; min-width:0;
     }
-    .compose-loc-input:focus { border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(230,57,70,.08); }
+    .compose-loc-input:focus { border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(253, 104, 2,.08); }
 
     /* ── Location badge on card ── */
     .post-loc-badge {
@@ -496,7 +502,7 @@
       cursor:pointer; outline:none; transition:all .2s; font-family:inherit;
     }
     .loc-select:focus,
-    .loc-select:hover { border-color:var(--color-primary); color:var(--color-primary); }
+    .loc-select:hover { border-color:var(--color-primary); color: var(--brand-strong); }
 
     /* ── Share button (WhatsApp) ── */
     .share-btn {
@@ -516,7 +522,7 @@
       padding:.3rem .45rem; border-radius:.5rem; transition:all .2s;
       line-height:1;
     }
-    .report-btn:hover { color:#e63946; background:rgba(230,57,70,.07); }
+    .report-btn:hover { color:#FD6802; background:rgba(253, 104, 2,.07); }
 
     /* ── Report modal ── */
     #reportModal {
@@ -534,7 +540,7 @@
       font-size:1.05rem; font-weight:900; margin-bottom:.4rem;
       display:flex; align-items:center; gap:.5rem;
     }
-    .report-box__title i { color:#e63946; }
+    .report-box__title i { color:#FD6802; }
     .report-box__desc {
       color:var(--color-gray-500); font-size:.85rem; margin-bottom:1.25rem;
     }
@@ -547,16 +553,16 @@
       font-weight:600; color:var(--color-gray-700);
       cursor:pointer; transition:all .15s; text-align:left; width:100%;
     }
-    .report-reason:hover { border-color:var(--color-primary); color:var(--color-primary); background:rgba(230,57,70,.04); }
-    .report-reason.selected { border-color:#e63946; background:rgba(230,57,70,.07); color:#e63946; }
+    .report-reason:hover { border-color:var(--color-primary); color: var(--brand-strong); background:rgba(253, 104, 2,.04); }
+    .report-reason.selected { border-color:#FD6802; background:rgba(253, 104, 2,.07); color:#FD6802; }
     .report-box__actions { display:flex; gap:.75rem; justify-content:flex-end; }
     .btn-report-submit {
       display:inline-flex; align-items:center; gap:.4rem;
       padding:.65rem 1.5rem; border-radius:.875rem;
-      background:#e63946; color:#fff; border:none;
+      background:#FD6802; color:#fff; border:none;
       font-weight:800; font-size:.9rem; cursor:pointer; transition:all .2s;
     }
-    .btn-report-submit:hover { background:#c1121f; }
+    .btn-report-submit:hover { background:#A94300; }
     .btn-report-submit:disabled { opacity:.5; cursor:not-allowed; }
 
     /* ── Search ── */
@@ -574,7 +580,7 @@
       color:var(--color-gray-900); transition:all .2s;
     }
     .bisno-search__input:focus {
-      border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(230,57,70,.08);
+      border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(253, 104, 2,.08);
     }
     .bisno-search__clear {
       position:absolute; right:1rem;
@@ -592,8 +598,8 @@
       padding:.3rem .65rem; border-radius:.5rem;
       transition:all .2s; font-family:inherit;
     }
-    .like-btn:hover { color:#e63946; background:rgba(230,57,70,.07); }
-    .like-btn--liked { color:#e63946; }
+    .like-btn:hover { color:#FD6802; background:rgba(253, 104, 2,.07); }
+    .like-btn--liked { color:#FD6802; }
     .like-btn--liked i { animation:heartPop .25s ease both; }
     @keyframes heartPop {
       0%   { transform:scale(1); }
@@ -618,6 +624,9 @@
       .btn-post { width:100%; justify-content:center; }
     }
   </style>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#FD6802">
+  <link rel="stylesheet" href="components.css">
 </head>
 <body class="bisno-page">
 
@@ -628,10 +637,7 @@
   <div class="container">
     <div class="navbar__wrapper">
       <a href="index.html" class="navbar__logo">
-        <svg class="logo__icon" viewBox="0 0 40 40" fill="none">
-          <path d="M20 0L40 10V30L20 40L0 30V10L20 0Z" fill="currentColor"/>
-          <circle cx="20" cy="20" r="8" fill="white"/>
-        </svg>
+        <svg class="logo__icon" viewBox="0 0 40 40" fill="none" aria-hidden="true"><defs><linearGradient id="cjLogo1" x1="2" y1="2" x2="38" y2="38" gradientUnits="userSpaceOnUse"><stop stop-color="#EB5B47"/><stop offset=".55" stop-color="#F4A261"/><stop offset="1" stop-color="#4F9D86"/></linearGradient></defs><path d="M20 0L37.32 10V30L20 40L2.68 30V10Z" fill="url(#cjLogo1)"/><circle cx="20" cy="20" r="10.1" fill="#fff"/><circle cx="20" cy="20" r="7.6" fill="#E63946"/></svg>
         <span class="logo__text">Conecta<span class="logo__accent">Já</span></span>
       </a>
       <ul class="navbar__menu" id="navMenu" role="list">
@@ -648,20 +654,19 @@
       </div>
       <div class="lang-toggle-wrapper" id="langWrapper">
         <button class="lang-toggle" id="langToggle" aria-label="Mudar idioma" aria-expanded="false" title="Mudar idioma">
-          <span class="lang-flag">🇵🇹</span>
+          <i class="ph ph-globe lang-globe" aria-hidden="true"></i>
           <span class="lang-code">PT</span>
-          <i class="fas fa-chevron-down lang-arrow"></i>
         </button>
         <div class="lang-menu" id="langMenu">
-          <button class="lang-option" data-set-lang="pt">🇵🇹 Português</button>
-          <button class="lang-option" data-set-lang="en">🇬🇧 English</button>
+          <button class="lang-option" data-set-lang="pt">Português</button>
+          <button class="lang-option" data-set-lang="en">English</button>
         </div>
       </div>
       <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema" title="Modo escuro">
-        <i class="fas fa-moon"></i>
+        <i class="ph ph-moon"></i>
       </button>
       <button class="navbar__toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
-        <i class="fas fa-bars"></i>
+        <i class="ph ph-list"></i>
       </button>
     </div>
   </div>
@@ -674,7 +679,7 @@
     <div class="container">
       <div class="bisno-hero__content">
         <div class="bisno-hero__badge">
-          <i class="fas fa-bolt"></i> Mural da Comunidade
+          <i class="ph ph-lightning"></i> Mural da Comunidade
         </div>
         <h1 class="bisno-hero__title">
           O teu pedido,<br><span>a resposta certa</span>
@@ -697,11 +702,11 @@
         <!-- SEARCH -->
         <div class="bisno-search">
           <div class="bisno-search__wrap">
-            <i class="fas fa-search bisno-search__icon"></i>
+            <i class="ph ph-magnifying-glass bisno-search__icon"></i>
             <input type="text" id="bisnoSearchInput" class="bisno-search__input"
                    placeholder="Pesquisar publicações…" maxlength="100" autocomplete="off">
             <button class="bisno-search__clear" id="bisnoSearchClear" style="display:none" title="Limpar">
-              <i class="fas fa-times"></i>
+              <i class="ph ph-x"></i>
             </button>
           </div>
         </div>
@@ -709,20 +714,20 @@
         <!-- FILTERS -->
         <div class="bisno-filters" id="bisnoFilters">
           <button class="filter-chip active" data-cat="all">Todos</button>
-          <button class="filter-chip" data-cat="casa"><i class="fas fa-home"></i> Casa</button>
-          <button class="filter-chip" data-cat="trabalho"><i class="fas fa-briefcase"></i> Trabalho</button>
-          <button class="filter-chip" data-cat="veiculo"><i class="fas fa-car"></i> Veículo</button>
-          <button class="filter-chip" data-cat="venda"><i class="fas fa-tag"></i> Venda</button>
-          <button class="filter-chip" data-cat="parceria"><i class="fas fa-handshake"></i> Parceria</button>
-          <button class="filter-chip" data-cat="outro"><i class="fas fa-ellipsis-h"></i> Outro</button>
+          <button class="filter-chip" data-cat="casa"><i class="ph ph-house"></i> Casa</button>
+          <button class="filter-chip" data-cat="trabalho"><i class="ph ph-briefcase"></i> Trabalho</button>
+          <button class="filter-chip" data-cat="veiculo"><i class="ph ph-car"></i> Veículo</button>
+          <button class="filter-chip" data-cat="venda"><i class="ph ph-tag"></i> Venda</button>
+          <button class="filter-chip" data-cat="parceria"><i class="ph ph-handshake"></i> Parceria</button>
+          <button class="filter-chip" data-cat="outro"><i class="ph ph-dots-three"></i> Outro</button>
           <select id="locSelect" class="loc-select" style="display:none" title="Filtrar por cidade">
-            <option value="all">📍 Todas as cidades</option>
+            <option value="all">Todas as cidades</option>
           </select>
         </div>
 
         <!-- FEED -->
         <div id="bisnoFeed">
-          <div class="bisno-spinner"><i class="fas fa-spinner fa-spin"></i></div>
+          <div class="bisno-spinner"><i class="ph ph-spinner-gap fa-spin"></i></div>
         </div>
 
       </div>
@@ -734,7 +739,7 @@
 <!-- EDIT MODAL -->
 <div id="editModal">
   <div class="edit-box">
-    <div class="edit-box__title"><i class="fas fa-pen"></i> Editar publicação</div>
+    <div class="edit-box__title"><i class="ph ph-pen"></i> Editar publicação</div>
     <textarea id="editText" maxlength="1000" rows="5"></textarea>
     <div style="display:flex;justify-content:flex-end;margin-top:.3rem">
       <span class="char-count" id="editCharCount">0 / 1000</span>
@@ -743,8 +748,8 @@
       <!-- preenchido via JS -->
     </div>
     <div class="edit-box__actions">
-      <button class="btn-cancel-edit" id="editCancelBtn"><i class="fas fa-times"></i> Cancelar</button>
-      <button class="btn-save" id="editSaveBtn"><i class="fas fa-check"></i> Guardar</button>
+      <button class="btn-cancel-edit" id="editCancelBtn"><i class="ph ph-x"></i> Cancelar</button>
+      <button class="btn-save" id="editSaveBtn"><i class="ph ph-check"></i> Guardar</button>
     </div>
   </div>
 </div>
@@ -752,18 +757,18 @@
 <!-- REPORT MODAL -->
 <div id="reportModal">
   <div class="report-box">
-    <div class="report-box__title"><i class="fas fa-flag"></i> Denunciar publicação</div>
+    <div class="report-box__title"><i class="ph ph-flag"></i> Denunciar publicação</div>
     <p class="report-box__desc">Porque queres denunciar esta publicação?</p>
     <div class="report-reasons" id="reportReasons">
-      <button class="report-reason" data-reason="spam"><i class="fas fa-ban" style="opacity:.5;width:14px"></i> Spam ou publicidade</button>
-      <button class="report-reason" data-reason="inappropriate"><i class="fas fa-exclamation-triangle" style="opacity:.5;width:14px"></i> Conteúdo inapropriado</button>
-      <button class="report-reason" data-reason="fake"><i class="fas fa-times-circle" style="opacity:.5;width:14px"></i> Informação falsa</button>
-      <button class="report-reason" data-reason="offensive"><i class="fas fa-comment-slash" style="opacity:.5;width:14px"></i> Linguagem ofensiva</button>
-      <button class="report-reason" data-reason="other"><i class="fas fa-ellipsis-h" style="opacity:.5;width:14px"></i> Outro motivo</button>
+      <button class="report-reason" data-reason="spam"><i class="ph ph-prohibit" style="opacity:.5;width:14px"></i> Spam ou publicidade</button>
+      <button class="report-reason" data-reason="inappropriate"><i class="ph ph-warning" style="opacity:.5;width:14px"></i> Conteúdo inapropriado</button>
+      <button class="report-reason" data-reason="fake"><i class="ph ph-x-circle" style="opacity:.5;width:14px"></i> Informação falsa</button>
+      <button class="report-reason" data-reason="offensive"><i class="ph ph-prohibit" style="opacity:.5;width:14px"></i> Linguagem ofensiva</button>
+      <button class="report-reason" data-reason="other"><i class="ph ph-dots-three" style="opacity:.5;width:14px"></i> Outro motivo</button>
     </div>
     <div class="report-box__actions">
-      <button class="btn-cancel-edit" id="reportCancelBtn"><i class="fas fa-times"></i> Cancelar</button>
-      <button class="btn-report-submit" id="reportSubmitBtn" disabled><i class="fas fa-flag"></i> Denunciar</button>
+      <button class="btn-cancel-edit" id="reportCancelBtn"><i class="ph ph-x"></i> Cancelar</button>
+      <button class="btn-report-submit" id="reportSubmitBtn" disabled><i class="ph ph-flag"></i> Denunciar</button>
     </div>
   </div>
 </div>
@@ -795,7 +800,7 @@
 <!-- LIGHTBOX -->
 <div id="bisnoLightbox">
   <div id="bisnoLightboxWrap">
-    <button id="bisnoLightboxClose" title="Fechar"><i class="fas fa-times"></i></button>
+    <button id="bisnoLightboxClose" title="Fechar"><i class="ph ph-x"></i></button>
     <img id="bisnoLightboxImg" src="" alt="">
   </div>
 </div>
@@ -816,12 +821,12 @@ const db   = window.firebaseDb;
 const auth = window.firebaseAuth;
 
 const CATS = {
-  casa:     { label:'Casa',      icon:'fa-home',       css:'cat--casa' },
-  trabalho: { label:'Trabalho',  icon:'fa-briefcase',  css:'cat--trabalho' },
-  veiculo:  { label:'Veículo',   icon:'fa-car',        css:'cat--veiculo' },
-  venda:    { label:'Venda',     icon:'fa-tag',        css:'cat--venda' },
-  parceria: { label:'Parceria',  icon:'fa-handshake',  css:'cat--parceria' },
-  outro:    { label:'Outro',     icon:'fa-ellipsis-h', css:'cat--outro' },
+  casa:     { label:'Casa',      icon:'ph-house',       css:'cat--casa' },
+  trabalho: { label:'Trabalho',  icon:'ph-briefcase',  css:'cat--trabalho' },
+  veiculo:  { label:'Veículo',   icon:'ph-car',        css:'cat--veiculo' },
+  venda:    { label:'Venda',     icon:'ph-tag',        css:'cat--venda' },
+  parceria: { label:'Parceria',  icon:'ph-handshake',  css:'cat--parceria' },
+  outro:    { label:'Outro',     icon:'ph-dots-three', css:'cat--outro' },
 };
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -856,9 +861,9 @@ function timeAgo(ts) {
   return d.toLocaleDateString('pt-AO',{day:'2-digit',month:'short'});
 }
 
-function showToast(msg, icon='fa-check-circle') {
+function showToast(msg, icon='ph-check-circle') {
   const el = document.getElementById('bisnoToast');
-  el.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
+  el.innerHTML = `<i class="ph ${icon}"></i> ${msg}`;
   el.classList.add('show');
   clearTimeout(el._t);
   el._t = setTimeout(()=>el.classList.remove('show'), 3200);
@@ -905,10 +910,10 @@ function renderCompose() {
   if (!_user) {
     el.innerHTML = `
       <div class="login-nudge">
-        <i class="fas fa-pencil-alt"></i>
+        <i class="ph ph-pencil-simple"></i>
         <p>Faz <strong>login</strong> para publicar um pedido, oferta ou oportunidade na comunidade.</p>
         <button class="btn btn--primary" onclick="document.getElementById('loginBtn')?.click()">
-          <i class="fas fa-sign-in-alt"></i> Entrar na conta
+          <i class="ph ph-sign-in"></i> Entrar na conta
         </button>
       </div>`;
     return;
@@ -936,11 +941,11 @@ function renderCompose() {
         <div class="compose-cats" id="composeCats">
           ${Object.entries(CATS).map(([k,v])=>`
             <button class="compose-cat" data-cat="${k}">
-              <i class="fas ${v.icon}"></i> ${v.label}
+              <i class="ph ${v.icon}"></i> ${v.label}
             </button>`).join('')}
         </div>
         <div class="compose-loc-row">
-          <i class="fas fa-map-marker-alt compose-loc-icon"></i>
+          <i class="ph ph-map-pin compose-loc-icon"></i>
           <input type="text" id="composeLocInput" class="compose-loc-input"
             placeholder="Cidade / Município (opcional)" maxlength="60"
             list="cityDatalist" autocomplete="off">
@@ -948,13 +953,13 @@ function renderCompose() {
         <div id="imgPreviewWrap"></div>
         <div class="compose-footer">
           <button class="compose-img-btn" id="composeImgBtn" type="button">
-            <i class="fas fa-image"></i> Adicionar imagem
+            <i class="ph ph-image"></i> Adicionar imagem
           </button>
           <input type="file" id="composeImgInput" accept="image/*" style="display:none">
           <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
             <button class="btn btn--ghost btn--sm" id="composeCancelBtn">Cancelar</button>
             <button class="btn-post" id="composeSubmitBtn" disabled>
-              <i class="fas fa-paper-plane"></i> Publicar
+              <i class="ph ph-paper-plane-tilt"></i> Publicar
             </button>
           </div>
         </div>
@@ -1011,7 +1016,7 @@ async function onImagePick(e) {
       <div class="compose-img-preview">
         <img src="${_imageData}" alt="Pré-visualização">
         <button class="compose-img-remove" id="imgRemoveBtn" title="Remover">
-          <i class="fas fa-times"></i>
+          <i class="ph ph-x"></i>
         </button>
       </div>`;
     document.getElementById('imgRemoveBtn').addEventListener('click', ()=>{
@@ -1019,7 +1024,7 @@ async function onImagePick(e) {
       wrap.innerHTML = '';
       document.getElementById('composeImgInput').value = '';
     });
-  } catch (_) { showToast('Erro ao carregar imagem.','fa-exclamation-circle'); }
+  } catch (_) { showToast('Erro ao carregar imagem.','ph-warning-circle'); }
 }
 
 async function submitPost() {
@@ -1029,7 +1034,7 @@ async function submitPost() {
   const category = catEl ? catEl.dataset.cat : 'outro';
   const btn = document.getElementById('composeSubmitBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A publicar…';
+  btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A publicar…';
 
   const locInput = document.getElementById('composeLocInput');
   const location = locInput ? locInput.value.trim() : '';
@@ -1046,12 +1051,12 @@ async function submitPost() {
     if (_imageData) post.imageData = _imageData;
     if (location)   post.location  = location;
     await db.collection('posts').add(post);
-    showToast('Publicação criada!', 'fa-check-circle');
+    showToast('Publicação criada!', 'ph-check-circle');
     closeCompose();
   } catch (err) {
-    showToast('Erro ao publicar. Tenta novamente.','fa-exclamation-circle');
+    showToast('Erro ao publicar. Tenta novamente.','ph-warning-circle');
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar';
+    btn.innerHTML = '<i class="ph ph-paper-plane-tilt"></i> Publicar';
   }
 }
 
@@ -1069,7 +1074,7 @@ function startFeed() {
     }, () => {
       document.getElementById('bisnoFeed').innerHTML = `
         <div class="bisno-empty">
-          <i class="fas fa-exclamation-circle"></i>
+          <i class="ph ph-warning-circle"></i>
           <p>Erro ao carregar publicações.</p>
         </div>`;
     });
@@ -1113,7 +1118,7 @@ function renderFeed() {
           : 'Ainda não há publicações. Sê o primeiro!';
     feed.innerHTML = `
       <div class="bisno-empty">
-        <i class="fas fa-${_searchQuery ? 'search' : 'map-marker-alt'}"></i>
+        <i class="ph ph-${_searchQuery ? 'search' : 'map-marker-alt'}"></i>
         <p>${emptyMsg}</p>
       </div>`;
     return;
@@ -1202,11 +1207,11 @@ function postCardHtml(p) {
   const avatarHtml = `<div class="post-avatar">${ini}</div>`;
 
   const typeLabel = p.authorType === 'provider'
-    ? '<span style="color:var(--color-primary);font-weight:700">Prestador</span>'
+    ? '<span style="color: var(--brand-strong);font-weight:700">Prestador</span>'
     : '<span style="color:var(--color-gray-400)">Cliente</span>';
 
   const locationBadge = p.location
-    ? `<span class="post-loc-badge"><i class="fas fa-map-marker-alt"></i> ${escHtml(p.location)}</span>`
+    ? `<span class="post-loc-badge"><i class="ph ph-map-pin"></i> ${escHtml(p.location)}</span>`
     : '';
 
   const editedBadge = p.edited
@@ -1217,26 +1222,26 @@ function postCardHtml(p) {
   const likeCount = p.likeCount || 0;
   const likeBtnHtml = `
     <button class="like-btn${liked ? ' like-btn--liked' : ''}" data-postid="${escHtml(p.id)}" title="${liked ? 'Tirar like' : 'Dar like'}">
-      <i class="${liked ? 'fas' : 'far'} fa-heart"></i>${likeCount > 0 ? ` ${likeCount}` : ''}
+      <i class="${liked ? 'ph-fill' : 'ph'} ph-heart"></i>${likeCount > 0 ? ` ${likeCount}` : ''}
     </button>`;
 
   // ── Resolved badge ───────────────────────────────────────────────────────
   const resolvedBadge = p.resolved
-    ? `<span class="resolved-badge"><i class="fas fa-check-circle"></i> Resolvido</span>` : '';
+    ? `<span class="resolved-badge"><i class="ph ph-check-circle"></i> Resolvido</span>` : '';
 
   // ── Owner menu ───────────────────────────────────────────────────────────
   const menuHtml = isOwn ? `
     <div class="post-menu">
-      <button class="post-menu-btn" title="Opções"><i class="fas fa-ellipsis-v"></i></button>
+      <button class="post-menu-btn" title="Opções"><i class="ph ph-dots-three-vertical"></i></button>
       <div class="post-menu__dropdown">
         <button class="post-menu__item post-edit-btn" data-id="${escHtml(p.id)}">
-          <i class="fas fa-pen"></i> Editar
+          <i class="ph ph-pen"></i> Editar
         </button>
         <button class="post-menu__item post-resolve-btn" data-id="${escHtml(p.id)}">
-          <i class="fas fa-${p.resolved ? 'undo' : 'check-circle'}"></i> ${p.resolved ? 'Reabrir' : 'Marcar Resolvido'}
+          <i class="ph ph-${p.resolved ? 'undo' : 'check-circle'}"></i> ${p.resolved ? 'Reabrir' : 'Marcar Resolvido'}
         </button>
         <button class="post-menu__item post-menu__item--danger post-delete-btn" data-id="${escHtml(p.id)}">
-          <i class="fas fa-trash"></i> Eliminar
+          <i class="ph ph-trash"></i> Eliminar
         </button>
       </div>
     </div>` : '';
@@ -1256,7 +1261,7 @@ function postCardHtml(p) {
             <div class="post-author__meta">
               ${typeLabel} &middot;
               <span class="post-cat-badge ${cat.css}">
-                <i class="fas ${cat.icon}"></i> ${cat.label}
+                <i class="ph ${cat.icon}"></i> ${cat.label}
               </span>
               ${locationBadge ? ` &middot; ${locationBadge}` : ''}
             </div>
@@ -1271,19 +1276,19 @@ function postCardHtml(p) {
       ${imageHtml}
       <div class="post-card__foot">
         <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
-          <span class="post-card__time"><i class="fas fa-clock" style="margin-right:.3rem;opacity:.5"></i>${timeAgo(p.createdAt)}${editedBadge}</span>
+          <span class="post-card__time"><i class="ph ph-clock" style="margin-right:.3rem;opacity:.5"></i>${timeAgo(p.createdAt)}${editedBadge}</span>
           <button class="cmt-toggle" data-postid="${escHtml(p.id)}">
-            <i class="fas fa-comment-alt"></i> ${(_cmtCounts[p.id]||0) > 0 ? `${_cmtCounts[p.id]} comentário${_cmtCounts[p.id]!==1?'s':''}` : 'Comentar'}
+            <i class="ph ph-chat-centered-text"></i> ${(_cmtCounts[p.id]||0) > 0 ? `${_cmtCounts[p.id]} comentário${_cmtCounts[p.id]!==1?'s':''}` : 'Comentar'}
           </button>
           ${likeBtnHtml}
           <button class="share-btn" data-postid="${escHtml(p.id)}" title="Partilhar no WhatsApp">
-            <i class="fab fa-whatsapp"></i>
+            <i class="ph ph-whatsapp-logo"></i>
           </button>
         </div>
         <div style="display:flex;align-items:center;gap:.35rem;flex-shrink:0">
-          ${!isOwn && _user ? `<button class="report-btn" data-postid="${escHtml(p.id)}" title="Denunciar publicação"><i class="fas fa-flag"></i></button>` : ''}
+          ${!isOwn && _user ? `<button class="report-btn" data-postid="${escHtml(p.id)}" title="Denunciar publicação"><i class="ph ph-flag"></i></button>` : ''}
           <a href="${profileUrl}" class="btn-contact">
-            <i class="fas fa-user"></i> Ver Perfil
+            <i class="ph ph-user"></i> Ver Perfil
           </a>
         </div>
       </div>
@@ -1293,9 +1298,9 @@ function postCardHtml(p) {
           ? `<div class="cmt-compose">
                <div class="cmt-compose-avatar">${(_user.name||'U').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()}</div>
                <input class="cmt-input" type="text" placeholder="Escreve um comentário…" maxlength="300" data-postid="${escHtml(p.id)}" autocomplete="off">
-               <button class="cmt-send-btn" data-postid="${escHtml(p.id)}" title="Enviar"><i class="fas fa-paper-plane"></i></button>
+               <button class="cmt-send-btn" data-postid="${escHtml(p.id)}" title="Enviar"><i class="ph ph-paper-plane-tilt"></i></button>
              </div>`
-          : `<div class="cmt-login-nudge"><i class="fas fa-lock" style="margin-right:.4rem"></i>Faz <span onclick="document.getElementById('loginBtn')?.click()">login</span> para comentar.</div>`
+          : `<div class="cmt-login-nudge"><i class="ph ph-lock-simple" style="margin-right:.4rem"></i>Faz <span onclick="document.getElementById('loginBtn')?.click()">login</span> para comentar.</div>`
         }
       </div>
     </div>`;
@@ -1306,8 +1311,8 @@ async function deletePost(id) {
   if (!confirm('Eliminar esta publicação?')) return;
   try {
     await db.collection('posts').doc(id).delete();
-    showToast('Publicação eliminada.', 'fa-trash');
-  } catch (_) { showToast('Erro ao eliminar.','fa-exclamation-circle'); }
+    showToast('Publicação eliminada.', 'ph-trash');
+  } catch (_) { showToast('Erro ao eliminar.','ph-warning-circle'); }
 }
 
 // ── Category filter ──────────────────────────────────────────────────────────
@@ -1374,7 +1379,7 @@ function loadCmts(postId) {
 
   const listEl = document.querySelector(`#cmt-${postId} .cmt-list`);
   if (!listEl) return;
-  listEl.innerHTML = '<div class="cmt-loading"><i class="fas fa-spinner fa-spin"></i></div>';
+  listEl.innerHTML = '<div class="cmt-loading"><i class="ph ph-spinner-gap fa-spin"></i></div>';
 
   _cmtUnsubs[postId] = db.collection('posts').doc(postId)
     .collection('comments').orderBy('createdAt', 'asc')
@@ -1386,7 +1391,7 @@ function loadCmts(postId) {
       updateCmtBtn(postId);
     }, () => {
       const el = document.querySelector(`#cmt-${postId} .cmt-list`);
-      if (el) el.innerHTML = '<div class="cmt-empty"><i class="fas fa-exclamation-circle"></i> Erro ao carregar comentários.</div>';
+      if (el) el.innerHTML = '<div class="cmt-empty"><i class="ph ph-warning-circle"></i> Erro ao carregar comentários.</div>';
     });
 }
 
@@ -1396,7 +1401,7 @@ function renderCmts(postId, comments) {
   if (!listEl) return;
 
   if (!comments.length) {
-    listEl.innerHTML = '<div class="cmt-empty"><i class="fas fa-comment-slash"></i> Sem comentários ainda. Sê o primeiro!</div>';
+    listEl.innerHTML = '<div class="cmt-empty"><i class="ph ph-prohibit"></i> Sem comentários ainda. Sê o primeiro!</div>';
     return;
   }
 
@@ -1423,7 +1428,7 @@ function cmtItemHtml(c) {
         <div class="cmt-meta">
           <span class="cmt-name">${escHtml(c.authorName)}</span>
           <span class="cmt-time">${timeAgo(c.createdAt)}</span>
-          ${isOwn ? `<button class="cmt-del-btn" data-cmtid="${escHtml(c.id)}" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
+          ${isOwn ? `<button class="cmt-del-btn" data-cmtid="${escHtml(c.id)}" title="Eliminar"><i class="ph ph-trash"></i></button>` : ''}
         </div>
         <div class="cmt-text">${escHtml(c.text)}</div>
       </div>
@@ -1437,7 +1442,7 @@ function updateCmtBtn(postId) {
   const isOpen = _openCmts.has(postId);
   const n = _cmtCounts[postId] || 0;
   const label = n > 0 ? `${n} comentário${n !== 1 ? 's' : ''}` : 'Comentar';
-  btn.innerHTML = `<i class="fas fa-comment${isOpen ? 's' : '-alt'}"></i> ${label}`;
+  btn.innerHTML = `<i class="ph ph-chat-circle${isOpen ? 's' : '-alt'}"></i> ${label}`;
   btn.classList.toggle('cmt-toggle--active', isOpen);
 }
 
@@ -1464,7 +1469,7 @@ async function submitComment(postId) {
     });
     input.value = '';
   } catch (_err) {
-    showToast('Erro ao enviar comentário.', 'fa-exclamation-circle');
+    showToast('Erro ao enviar comentário.', 'ph-warning-circle');
   } finally {
     input.disabled = false;
     if (sendBtn) sendBtn.disabled = false;
@@ -1478,7 +1483,7 @@ async function deleteCmt(postId, cmtId) {
   try {
     await db.collection('posts').doc(postId).collection('comments').doc(cmtId).delete();
   } catch (_err) {
-    showToast('Erro ao eliminar comentário.', 'fa-exclamation-circle');
+    showToast('Erro ao eliminar comentário.', 'ph-warning-circle');
   }
 }
 
@@ -1503,7 +1508,7 @@ function restoreOpenCmts() {
 // ── Likes ─────────────────────────────────────────────────────────────────────
 
 async function toggleLike(postId) {
-  if (!_user) { showToast('Faz login para dar like.', 'fa-info-circle'); return; }
+  if (!_user) { showToast('Faz login para dar like.', 'ph-info'); return; }
   const post = _allPosts.find(x => x.id === postId);
   if (!post) return;
 
@@ -1536,7 +1541,7 @@ async function toggleLike(postId) {
       post.likeCount = Math.max(0, (post.likeCount || 0) - 1);
     }
     updateLikeBtn(postId, post);
-    showToast('Erro ao actualizar like.', 'fa-exclamation-circle');
+    showToast('Erro ao actualizar like.', 'ph-warning-circle');
   }
 }
 
@@ -1547,7 +1552,7 @@ function updateLikeBtn(postId, post) {
   const count = post.likeCount || 0;
   btn.className = `like-btn${liked ? ' like-btn--liked' : ''}`;
   btn.title     = liked ? 'Tirar like' : 'Dar like';
-  btn.innerHTML = `<i class="${liked ? 'fas' : 'far'} fa-heart"></i>${count > 0 ? ` ${count}` : ''}`;
+  btn.innerHTML = `<i class="${liked ? 'ph-fill' : 'ph'} ph-heart"></i>${count > 0 ? ` ${count}` : ''}`;
 }
 
 // ── Resolved ──────────────────────────────────────────────────────────────────
@@ -1562,10 +1567,10 @@ async function toggleResolved(postId) {
     await db.collection('posts').doc(postId).update({ resolved: newResolved });
     showToast(
       newResolved ? 'Marcado como Resolvido!' : 'Publicação reaberta!',
-      newResolved ? 'fa-check-circle' : 'fa-undo'
+      newResolved ? 'ph-check-circle' : 'ph-arrow-counter-clockwise'
     );
   } catch (_err) {
-    showToast('Erro ao actualizar estado.', 'fa-exclamation-circle');
+    showToast('Erro ao actualizar estado.', 'ph-warning-circle');
   }
 }
 
@@ -1597,7 +1602,7 @@ function updateLocFilter() {
   }
 
   select.innerHTML =
-    `<option value="all">📍 Todas as cidades</option>` +
+    `<option value="all">Todas as cidades</option>` +
     locs.map(l => `<option value="${escHtml(l)}"${l === _locFilter ? ' selected' : ''}>${escHtml(l)}</option>`).join('');
   select.value = _locFilter === 'all' ? 'all' : (_locFilter || 'all');
   select.style.display = '';
@@ -1618,7 +1623,7 @@ function sharePost(post) {
 // ── Report post ────────────────────────────────────────────────────────────────
 
 function openReportModal(postId) {
-  if (!_user) { showToast('Faz login para denunciar.', 'fa-info-circle'); return; }
+  if (!_user) { showToast('Faz login para denunciar.', 'ph-info'); return; }
   _reportPostId = postId;
   _reportReason = null;
   document.querySelectorAll('.report-reason').forEach(b => b.classList.remove('selected'));
@@ -1639,7 +1644,7 @@ async function submitReport() {
   const post   = _allPosts.find(x => x.id === _reportPostId);
   const btn    = document.getElementById('reportSubmitBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i>';
 
   try {
     await db.collection('reports').add({
@@ -1653,12 +1658,12 @@ async function submitReport() {
       status:       'pending',
     });
     closeReportModal();
-    showToast('Denúncia enviada. Obrigado!', 'fa-flag');
+    showToast('Denúncia enviada. Obrigado!', 'ph-flag');
   } catch (_err) {
-    showToast('Erro ao enviar denúncia. Tenta novamente.', 'fa-exclamation-circle');
+    showToast('Erro ao enviar denúncia. Tenta novamente.', 'ph-warning-circle');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-flag"></i> Denunciar';
+    btn.innerHTML = '<i class="ph ph-flag"></i> Denunciar';
   }
 }
 
@@ -1679,7 +1684,7 @@ function openEditModal(id) {
   const catsEl = document.getElementById('editCats');
   catsEl.innerHTML = Object.entries(CATS).map(([k,v]) => `
     <button class="compose-cat${p.category === k ? ' selected' : ''}" data-cat="${k}">
-      <i class="fas ${v.icon}"></i> ${v.label}
+      <i class="ph ${v.icon}"></i> ${v.label}
     </button>`).join('');
   catsEl.querySelectorAll('.compose-cat').forEach(b => b.addEventListener('click', () => {
     catsEl.querySelectorAll('.compose-cat').forEach(x => x.classList.remove('selected'));
@@ -1717,7 +1722,7 @@ document.getElementById('editSaveBtn').addEventListener('click', async () => {
   const category = catEl ? catEl.dataset.cat : 'outro';
   const btn = document.getElementById('editSaveBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i>';
 
   try {
     await db.collection('posts').doc(_editId).update({
@@ -1730,12 +1735,12 @@ document.getElementById('editSaveBtn').addEventListener('click', async () => {
     const p = _allPosts.find(x => x.id === _editId);
     if (p) { p.text = text; p.category = category; p.edited = true; }
     closeEditModal();
-    showToast('Publicação actualizada!', 'fa-check-circle');
+    showToast('Publicação actualizada!', 'ph-check-circle');
   } catch (_) {
-    showToast('Erro ao guardar. Tenta novamente.', 'fa-exclamation-circle');
+    showToast('Erro ao guardar. Tenta novamente.', 'ph-warning-circle');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-check"></i> Guardar';
+    btn.innerHTML = '<i class="ph ph-check"></i> Guardar';
   }
 });
 

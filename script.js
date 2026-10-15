@@ -18,7 +18,7 @@ const ThemeManager = (function () {
     localStorage.setItem(KEY, theme);
     const icon = document.querySelector('#themeToggle i');
     const btn  = document.getElementById('themeToggle');
-    if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    if (icon) icon.className = theme === 'dark' ? 'ph ph-sun' : 'ph ph-moon';
     if (btn)  btn.title = theme === 'dark' ? 'Modo claro' : 'Modo escuro';
   }
 
@@ -154,11 +154,11 @@ const UI = {
       settingsRow.className = 'mobile-menu-settings';
       settingsRow.innerHTML = `
         <button class="mm-theme-btn" title="Alternar tema">
-          <i class="fas fa-${isDark ? 'sun' : 'moon'}"></i>
+          <i class="ph ph-${isDark ? 'sun' : 'moon'}"></i>
           ${isDark ? 'Modo Claro' : 'Modo Escuro'}
         </button>
-        <button class="mm-lang-btn ${currentLang === 'pt' ? 'active' : ''}" data-mm-lang="pt">🇵🇹 PT</button>
-        <button class="mm-lang-btn ${currentLang === 'en' ? 'active' : ''}" data-mm-lang="en">🇬🇧 EN</button>
+        <button class="mm-lang-btn ${currentLang === 'pt' ? 'active' : ''}" data-mm-lang="pt">PT</button>
+        <button class="mm-lang-btn ${currentLang === 'en' ? 'active' : ''}" data-mm-lang="en">EN</button>
       `;
       menu.appendChild(settingsRow);
 
@@ -166,7 +166,7 @@ const UI = {
         document.getElementById('themeToggle')?.click();
         const dark = document.documentElement.getAttribute('data-theme') === 'dark';
         const btn = settingsRow.querySelector('.mm-theme-btn');
-        btn.innerHTML = `<i class="fas fa-${dark ? 'sun' : 'moon'}"></i> ${dark ? 'Modo Claro' : 'Modo Escuro'}`;
+        btn.innerHTML = `<i class="ph ph-${dark ? 'sun' : 'moon'}"></i> ${dark ? 'Modo Claro' : 'Modo Escuro'}`;
       });
 
       settingsRow.querySelectorAll('.mm-lang-btn').forEach(btn => {
@@ -207,14 +207,14 @@ const UI = {
   openMenu(toggle, menu) {
     menu.classList.add('active');
     toggle.setAttribute('aria-expanded', 'true');
-    toggle.innerHTML = '<i class="fas fa-times"></i>';
+    toggle.innerHTML = '<i class="ph ph-x"></i>';
     document.body.style.overflow = 'hidden';
   },
 
   closeMenu(toggle, menu) {
     menu.classList.remove('active');
     toggle.setAttribute('aria-expanded', 'false');
-    toggle.innerHTML = '<i class="fas fa-bars"></i>';
+    toggle.innerHTML = '<i class="ph ph-list"></i>';
     document.body.style.overflow = '';
   },
 
@@ -244,10 +244,10 @@ const UI = {
               <strong>${esc(user.name)}</strong>
               <span>${typeLabel}</span>
             </div>
-            <a href="${dashboard}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="meu-perfil.html"><i class="fas fa-user-edit"></i> Meu Perfil</a>
+            <a href="${dashboard}"><i class="ph ph-gauge"></i> Dashboard</a>
+            <a href="meu-perfil.html"><i class="ph ph-user-gear"></i> Meu Perfil</a>
             <hr>
-            <a href="#" class="logout-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            <a href="#" class="logout-link" id="logoutBtn"><i class="ph ph-sign-out"></i> Sair</a>
           </div>
         </div>
       `;
@@ -265,12 +265,12 @@ const UI = {
         mobileCta.style.cssText = 'display:flex;flex-direction:column;gap:.15rem;padding-top:.75rem;border-top:1px solid var(--color-gray-100);margin-top:.25rem;';
         mobileCta.innerHTML = `
           <div style="display:flex;align-items:center;gap:.875rem;padding:.875rem 1rem;background:var(--color-gray-50);border-radius:.875rem;margin-bottom:.1rem;">
-            <div style="width:38px;height:38px;border-radius:.75rem;background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:1.1rem;flex-shrink:0;">${initial}</div>
+            <div style="width:38px;height:38px;border-radius:.75rem;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:1.1rem;flex-shrink:0;">${initial}</div>
             <div><strong style="font-size:.875rem;display:block;color:var(--color-gray-900);">${esc(user.name)}</strong><span style="font-size:.72rem;color:var(--color-gray-500);">${typeLabel}</span></div>
           </div>
-          <a href="${dashboard}" style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:.875rem;font-size:.875rem;font-weight:600;color:var(--color-gray-700);text-decoration:none;"><i class="fas fa-tachometer-alt" style="width:18px;text-align:center;color:var(--color-primary);"></i> Dashboard</a>
-          <a href="meu-perfil.html" style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:.875rem;font-size:.875rem;font-weight:600;color:var(--color-gray-700);text-decoration:none;"><i class="fas fa-user-edit" style="width:18px;text-align:center;color:var(--color-primary);"></i> Meu Perfil</a>
-          <button id="mobileLogoutBtn" style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:.875rem;font-size:.875rem;font-weight:600;color:var(--color-primary);background:none;border:none;cursor:pointer;width:100%;" ><i class="fas fa-sign-out-alt" style="width:18px;text-align:center;"></i> Terminar Sessão</button>
+          <a href="${dashboard}" style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:.875rem;font-size:.875rem;font-weight:600;color:var(--color-gray-700);text-decoration:none;"><i class="ph ph-gauge" style="width:18px;text-align:center;color: var(--brand-strong);"></i> Dashboard</a>
+          <a href="meu-perfil.html" style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:.875rem;font-size:.875rem;font-weight:600;color:var(--color-gray-700);text-decoration:none;"><i class="ph ph-user-gear" style="width:18px;text-align:center;color: var(--brand-strong);"></i> Meu Perfil</a>
+          <button id="mobileLogoutBtn" style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:.875rem;font-size:.875rem;font-weight:600;color: var(--brand-strong);background:none;border:none;cursor:pointer;width:100%;" ><i class="ph ph-sign-out" style="width:18px;text-align:center;"></i> Terminar Sessão</button>
         `;
         document.getElementById('mobileLogoutBtn')?.addEventListener('click', () => Auth.logout());
       }
@@ -278,10 +278,10 @@ const UI = {
       const ctaBtn = document.getElementById('btnComecarAgora');
       if (ctaBtn) {
         if (user.type === 'provider') {
-          ctaBtn.innerHTML = '<i class="fas fa-user"></i> Ver o meu Perfil';
+          ctaBtn.innerHTML = '<i class="ph ph-user"></i> Ver o meu Perfil';
           ctaBtn.onclick = e => { e.preventDefault(); window.location.href = 'meu-perfil.html'; };
         } else {
-          ctaBtn.innerHTML = '<i class="fas fa-search"></i> Ver Prestadores';
+          ctaBtn.innerHTML = '<i class="ph ph-magnifying-glass"></i> Ver Prestadores';
           ctaBtn.onclick = e => { e.preventDefault(); window.location.href = 'prestadores.html'; };
         }
       }
@@ -308,7 +308,7 @@ const UI = {
       // Restore "Começar Agora" CTA to default
       const ctaBtn = document.getElementById('btnComecarAgora');
       if (ctaBtn) {
-        ctaBtn.innerHTML = '<i class="fas fa-rocket"></i> Começar Agora — Grátis';
+        ctaBtn.innerHTML = 'Criar conta grátis';
         ctaBtn.onclick = null;
       }
     }
@@ -403,7 +403,8 @@ const StatsSync = {
       }
 
       const provEl = document.getElementById('stat-providers');
-      if (provEl) {
+      // Só mostra número real: '0' na secção de confiança afasta clientes
+      if (provEl && totalProviders > 0) {
         provEl.setAttribute('data-target', totalProviders);
         Counter.animate(provEl);
       }
@@ -632,13 +633,13 @@ const Toast = {
 
   show(message, type = 'info', duration = 4000) {
     if (!this.container) this.init();
-    const icons = { success: 'check-circle', error: 'times-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+    const icons = { success: 'check-circle', error: 'x-circle', warning: 'warning', info: 'info' };
     const toast = document.createElement('div');
     toast.className = `toast toast--${type}`;
     toast.innerHTML = `
-      <i class="fas fa-${icons[type] || icons.info}"></i>
+      <i class="ph ph-${icons[type] || icons.info}"></i>
       <span>${message}</span>
-      <button class="toast__close" aria-label="Fechar"><i class="fas fa-times"></i></button>
+      <button class="toast__close" aria-label="Fechar"><i class="ph ph-x"></i></button>
     `;
     toast.querySelector('.toast__close').addEventListener('click', () => this.dismiss(toast));
     this.container.appendChild(toast);
@@ -681,7 +682,7 @@ const Search = {
     // Preenche as 18 províncias (substitui a lista parcial hardcoded)
     const locSel = document.getElementById('searchLocation');
     if (locSel && window.AOLocations) {
-      window.AOLocations.fillProvinces(locSel, { allOption: 'Todas as Províncias' });
+      window.AOLocations.fillProvinces(locSel, { allOption: 'Todo o país' });
     }
 
     form.addEventListener('submit', e => {
@@ -729,7 +730,7 @@ const Search = {
       const matches = suggestions.filter(s => s.toLowerCase().includes(val)).slice(0, 6);
       if (!matches.length) { hide(); return; }
       dropdown.innerHTML = matches.map(m =>
-        `<div class="suggestion-item" role="option"><i class="fas fa-search"></i> ${m}</div>`
+        `<div class="suggestion-item" role="option"><i class="ph ph-magnifying-glass"></i> ${m}</div>`
       ).join('');
       show();
       dropdown.querySelectorAll('.suggestion-item').forEach(item => {
@@ -988,7 +989,7 @@ const Auth = {
 
       const btn = form.querySelector('[type="submit"]');
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A criar conta…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A criar conta…';
       btn.disabled = true;
 
       try {
@@ -1017,7 +1018,7 @@ const Auth = {
 
       const btn = form.querySelector('[type="submit"]');
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A entrar…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A entrar…';
       btn.disabled = true;
 
       // Detect if input is a phone number (digits/spaces/+ only, no @)
@@ -1372,14 +1373,14 @@ const Orders = {
     if (o.paymentStatus === 'held') {
       return `
         <div style="margin-top:.75rem;padding:.8rem 1rem;background:rgba(42,157,143,.08);border:1.5px solid rgba(42,157,143,.3);border-radius:.875rem;font-size:.83rem;color:var(--color-gray-700);line-height:1.55;">
-          <strong style="color:var(--color-accent);"><i class="fas fa-shield-alt"></i> Pagamento retido em segurança</strong><br>
+          <strong style="color:var(--color-accent);"><i class="ph ph-shield-check"></i> Pagamento retido em segurança</strong><br>
           Os ${amount} Kz estão guardados pela Conecta Já e só são entregues ao prestador quando o trabalho estiver concluído.
         </div>`;
     }
     if (o.paymentStatus === 'released') {
       return `
         <div style="margin-top:.75rem;padding:.8rem 1rem;background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.3);border-radius:.875rem;font-size:.83rem;color:var(--color-gray-700);">
-          <strong style="color:#059669;"><i class="fas fa-check-double"></i> Pagamento entregue ao prestador</strong>
+          <strong style="color:#059669;"><i class="ph ph-checks"></i> Pagamento entregue ao prestador</strong>
         </div>`;
     }
     // paymentStatus 'none' — oferecer o Pagamento Seguro enquanto o
@@ -1390,13 +1391,13 @@ const Orders = {
     );
     return `
       <div style="margin-top:.75rem;padding:.8rem 1rem;background:rgba(59,130,246,.06);border:1.5px solid rgba(59,130,246,.25);border-radius:.875rem;font-size:.83rem;color:var(--color-gray-700);line-height:1.6;">
-        <strong style="color:#2563eb;"><i class="fas fa-shield-alt"></i> Pagamento Seguro</strong> <span style="font-size:.75rem;color:var(--color-gray-400);">(recomendado)</span><br>
+        <strong style="color:#2563eb;"><i class="ph ph-shield-check"></i> Pagamento Seguro</strong> <span style="font-size:.75rem;color:var(--color-gray-400);">(recomendado)</span><br>
         Envia <strong>${amount} Kz</strong> por Multicaixa Express para <strong>${PLATFORM_PAY.expressNumber}</strong>.
         Ficam retidos e só são entregues ao prestador quando confirmares a conclusão.
         <div style="margin-top:.6rem;">
           <a href="https://wa.me/${PLATFORM_PAY.adminWhatsApp}?text=${waMsg}" target="_blank" rel="noopener"
             style="display:inline-flex;align-items:center;gap:.45rem;padding:.5rem .9rem;background:#25D366;color:white;border-radius:.7rem;font-size:.8rem;font-weight:700;text-decoration:none;">
-            <i class="fab fa-whatsapp"></i> Enviar comprovativo
+            <i class="ph ph-whatsapp-logo"></i> Enviar comprovativo
           </a>
         </div>
       </div>`;
@@ -1539,9 +1540,9 @@ const Reviews = {
   renderStars(rating, max = 5) {
     let html = '';
     for (let i = 1; i <= max; i++) {
-      if (i <= Math.floor(rating)) html += '<i class="fas fa-star"></i>';
-      else if (i - 0.5 <= rating) html += '<i class="fas fa-star-half-alt"></i>';
-      else html += '<i class="far fa-star"></i>';
+      if (i <= Math.floor(rating)) html += '<i class="ph-fill ph-star"></i>';
+      else if (i - 0.5 <= rating) html += '<i class="ph-fill ph-star-half"></i>';
+      else html += '<i class="ph ph-star"></i>';
     }
     return html;
   },
@@ -1691,10 +1692,11 @@ function categoryFromQuery(q) {
 //   1 = contacto verificado
 //   2 = identidade verificada (BI/Passaporte) — equivale ao antigo `verified`
 //   3 = Conecta Já Pro (verificação reforçada / selo de ouro)
+// `badge` = variante do componente .badge em components.css
 const VERIF_LEVELS = {
-  1: { label: 'Contacto verificado', icon: 'fa-phone-alt', color: '#2563eb', bg: 'rgba(37,99,235,.1)', bd: 'rgba(37,99,235,.3)' },
-  2: { label: 'Identidade verificada', icon: 'fa-check-circle', color: 'var(--color-accent)', bg: 'rgba(42,157,143,.1)', bd: 'rgba(42,157,143,.3)' },
-  3: { label: 'Conecta Já Pro', icon: 'fa-shield-alt', color: '#b45309', bg: 'rgba(245,158,11,.12)', bd: 'rgba(245,158,11,.35)' },
+  1: { label: 'Contacto verificado', icon: 'ph-phone', badge: 'contact' },
+  2: { label: 'Identidade verificada', icon: 'ph-seal-check', badge: 'verified' },
+  3: { label: 'Conecta Já Pro', icon: 'ph-crown', badge: 'pro' },
 };
 
 // Deriva o nível a partir do registo (retrocompatível com o booleano `verified`).
@@ -1708,7 +1710,7 @@ function verificationLevelOf(d) {
 function verificationBadgeHTML(level) {
   const v = VERIF_LEVELS[level];
   if (!v) return '';
-  return `<span class="verif-badge verif-badge--l${level}" style="display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .6rem;background:${v.bg};border:1px solid ${v.bd};border-radius:50px;font-size:.7rem;font-weight:700;color:${v.color};"><i class="fas ${v.icon}"></i> ${v.label}</span>`;
+  return `<span class="badge badge--${v.badge} verif-badge verif-badge--l${level}"><i class="ph ${v.icon}"></i> ${v.label}</span>`;
 }
 
 /* ============================================
@@ -1718,7 +1720,7 @@ function verificationBadgeHTML(level) {
 // de pagamentos são manuais (WhatsApp + Firebase Console), tal como a
 // verificação de identidade — migra para gateway automático mais tarde.
 const PLATFORM_PAY = {
-  adminWhatsApp: '244931482577',
+  adminWhatsApp: '244937879654',
   expressNumber: '931 482 577',      // Multicaixa Express da plataforma
   premiumPrice: 5000,                // Kz / mês — plano Destaque
 };
@@ -1735,7 +1737,7 @@ function isPremium(d) {
 
 // Selo dourado "Destaque" para cards e perfil.
 function premiumBadgeHTML() {
-  return '<span class="premium-badge" style="display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .6rem;background:linear-gradient(135deg,rgba(251,191,36,.18),rgba(245,158,11,.18));border:1px solid rgba(245,158,11,.45);border-radius:50px;font-size:.7rem;font-weight:800;color:#b45309;"><i class="fas fa-crown"></i> Destaque</span>';
+  return '<span class="badge badge--premium premium-badge"><i class="ph ph-crown"></i> Destaque</span>';
 }
 
 /* ============================================
@@ -1879,7 +1881,7 @@ const PrestadoresPage = {
     if (grid) {
       grid.innerHTML = `
         <div style="grid-column:1/-1;text-align:center;padding:4rem 2rem;">
-          <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--color-primary);display:block;margin-bottom:1rem;"></i>
+          <i class="ph ph-spinner-gap fa-spin" style="font-size:2rem;color: var(--brand-strong);display:block;margin-bottom:1rem;"></i>
           <p style="color:var(--color-gray-500);">A carregar prestadores…</p>
         </div>`;
     }
@@ -1978,7 +1980,7 @@ const PrestadoresPage = {
   async handleNearMe() {
     const btn = document.getElementById('nearMeBtn');
     const orig = btn ? btn.innerHTML : '';
-    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A localizar…'; }
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A localizar…'; }
     try {
       await Geo.getCurrentPosition();
       const sortSel = document.querySelector('[name="sort"]');
@@ -2037,7 +2039,7 @@ const PrestadoresPage = {
       const total = Providers.getAll().length;
       grid.innerHTML = `
         <div class="providers-empty" style="grid-column:1/-1;text-align:center;padding:4rem 2rem;">
-          <i class="fas fa-${total === 0 ? 'users' : 'search'}" style="font-size:3rem;color:var(--color-gray-400);margin-bottom:1rem;display:block;"></i>
+          <i class="ph ph-${total === 0 ? 'users' : 'magnifying-glass'}" style="font-size:3rem;color:var(--color-gray-400);margin-bottom:1rem;display:block;"></i>
           <h3>${total === 0 ? 'Ainda não há prestadores registados' : 'Nenhum prestador encontrado'}</h3>
           <p style="color:var(--color-gray-500);">${total === 0 ? 'Cria uma conta de prestador para seres o primeiro!' : 'Tenta ajustar os filtros de pesquisa'}</p>
         </div>
@@ -2074,22 +2076,22 @@ const PrestadoresPage = {
     const near = km <= 10;
     const color = near ? 'var(--color-accent)' : 'var(--color-gray-500)';
     const bg = near ? 'rgba(42,157,143,.1)' : 'var(--color-gray-100)';
-    return `<span class="provider-distance" style="display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .55rem;background:${bg};border-radius:50px;font-size:.72rem;font-weight:700;color:${color};margin-top:.4rem;"><i class="fas fa-location-arrow"></i> ${near ? 'Perto de ti · ' : ''}${Geo.formatDistance(km)}</span>`;
+    return `<span class="provider-distance" style="display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .55rem;background:${bg};border-radius:50px;font-size:.72rem;font-weight:700;color:${color};margin-top:.4rem;"><i class="ph ph-navigation-arrow"></i> ${near ? 'Perto de ti · ' : ''}${Geo.formatDistance(km)}</span>`;
   },
 
   cardHTML(p) {
     const stars = Reviews.renderStars(p.rating);
     const initials = p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     const availBadge = p.available
-      ? '<span class="provider-badge provider-badge--available"><i class="fas fa-circle"></i> Disponível</span>'
-      : '<span class="provider-badge provider-badge--busy"><i class="fas fa-circle"></i> Ocupado</span>';
+      ? '<span class="provider-badge provider-badge--available"><i class="ph-fill ph-circle"></i> Disponível</span>'
+      : '<span class="provider-badge provider-badge--busy"><i class="ph-fill ph-circle"></i> Ocupado</span>';
     const verifiedBadge = verificationBadgeHTML(p.verificationLevel);
     const premBadge = p.premium ? premiumBadgeHTML() : '';
     const distBadge = this.distanceBadge(p);
-    const premStyle = p.premium ? ' style="border:1.5px solid rgba(245,158,11,.45);box-shadow:0 4px 20px rgba(245,158,11,.12);"' : '';
+    const premClass = p.premium ? ' provider-card--premium' : '';
 
     return `
-      <article class="provider-card reveal" data-id="${esc(p.id)}" role="button" tabindex="0" aria-label="Ver perfil de ${esc(p.name)}"${premStyle}>
+      <article class="provider-card${premClass} reveal" data-id="${esc(p.id)}" role="button" tabindex="0" aria-label="Ver perfil de ${esc(p.name)}">
         <div class="provider-card__header">
           <div class="provider-avatar">${p.avatar ? `<img src="${esc(p.avatar)}" alt="${esc(p.name)}">` : `<span>${initials}</span>`}</div>
           ${availBadge}
@@ -2097,8 +2099,8 @@ const PrestadoresPage = {
         <div class="provider-card__body">
           ${(premBadge || verifiedBadge) ? `<div style="margin-bottom:.4rem;display:flex;gap:.35rem;flex-wrap:wrap;">${premBadge}${verifiedBadge}</div>` : ''}
           <h3>${esc(p.name)}</h3>
-          <p class="provider-category"><i class="fas fa-tag"></i> ${esc(categoryText(p))}</p>
-          <p class="provider-location"><i class="fas fa-map-marker-alt"></i> ${esc(locationText(p))}</p>
+          <p class="provider-category"><i class="ph ph-tag"></i> ${esc(categoryText(p))}</p>
+          <p class="provider-location"><i class="ph ph-map-pin"></i> ${esc(locationText(p))}</p>
           ${distBadge ? `<div>${distBadge}</div>` : ''}
           <div class="provider-rating">
             <span class="stars">${stars}</span>
@@ -2230,7 +2232,7 @@ const MapView = {
       marker.addTo(map);
       marker.bindPopup(
         `<strong>${esc(p.name)}</strong>` +
-        (p.premium ? ' <span style="color:#b45309;font-weight:800;font-size:.8em;">★ Destaque</span>' : '') +
+        (p.premium ? ' <span style="color:#b45309;font-weight:800;font-size:.8em;"><i class="ph-fill ph-crown"></i> Destaque</span>' : '') +
         `<br>${esc(categoryText(p))}` +
         `<br>${esc(locationText(p))}` +
         (pos.approx ? '<br><em style="font-size:.8em;color:#b45309;">Localização aproximada</em>' : '') +
@@ -2243,7 +2245,7 @@ const MapView = {
     const u = Geo.getUserPos();
     if (u) {
       const um = L.circleMarker([u.lat, u.lng], {
-        radius: 9, color: '#fff', weight: 2, fillColor: '#E63946', fillOpacity: 1,
+        radius: 9, color: '#fff', weight: 2, fillColor: '#FD6802', fillOpacity: 1,
       }).addTo(map);
       um.bindPopup('Estás aqui');
       this._markers.push(um);
@@ -2355,7 +2357,7 @@ const ProfilePage = {
     const availEl = document.getElementById('profile-availability');
     if (availEl) {
       availEl.className = `availability-badge ${p.available ? 'available' : 'busy'}`;
-      availEl.innerHTML = `<i class="fas fa-circle"></i> ${p.available ? 'Disponível' : 'Ocupado'}`;
+      availEl.innerHTML = `<i class="ph-fill ph-circle"></i> ${p.available ? 'Disponível' : 'Ocupado'}`;
     }
 
     // Selo de verificação (por nível) junto ao nome
@@ -2364,7 +2366,7 @@ const ProfilePage = {
       const v = VERIF_LEVELS[p.verificationLevel];
       if (v) {
         verifEl.style.display = '';
-        verifEl.innerHTML = `<i class="fas ${v.icon}"></i> ${v.label}`;
+        verifEl.innerHTML = `<i class="ph ${v.icon}"></i> ${v.label}`;
       } else {
         verifEl.style.display = 'none';
       }
@@ -2396,9 +2398,9 @@ const ProfilePage = {
       const ig = toUrl(p.instagram, 'https://instagram.com/');
       const fb = toUrl(p.facebook, 'https://facebook.com/');
       const xv = toUrl(p.x, 'https://x.com/');
-      if (ig) links.push(`<a href="${ig}" target="_blank" rel="noopener" class="social-link social-link--ig"><i class="fab fa-instagram"></i></a>`);
-      if (fb) links.push(`<a href="${fb}" target="_blank" rel="noopener" class="social-link social-link--fb"><i class="fab fa-facebook"></i></a>`);
-      if (xv) links.push(`<a href="${xv}" target="_blank" rel="noopener" class="social-link social-link--x"><i class="fab fa-x-twitter"></i></a>`);
+      if (ig) links.push(`<a href="${ig}" target="_blank" rel="noopener" class="social-link social-link--ig"><i class="ph ph-instagram-logo"></i></a>`);
+      if (fb) links.push(`<a href="${fb}" target="_blank" rel="noopener" class="social-link social-link--fb"><i class="ph ph-facebook-logo"></i></a>`);
+      if (xv) links.push(`<a href="${xv}" target="_blank" rel="noopener" class="social-link social-link--x"><i class="ph ph-x-logo"></i></a>`);
       socialEl.style.display = links.length ? 'flex' : 'none';
       socialEl.innerHTML = links.join('');
       const socialCard = document.getElementById('profile-social-card');
@@ -2413,10 +2415,10 @@ const ProfilePage = {
       if (contactWrap) {
         contactWrap.innerHTML = `
           <div style="text-align:center;padding:1.5rem;background:var(--color-gray-50);border-radius:1.25rem;border:2px dashed var(--color-gray-200);">
-            <i class="fas fa-lock" style="font-size:1.8rem;color:var(--color-primary);margin-bottom:.75rem;display:block;"></i>
+            <i class="ph ph-lock-simple" style="font-size:1.8rem;color: var(--brand-strong);margin-bottom:.75rem;display:block;"></i>
             <p style="font-weight:700;color:var(--color-gray-800);margin-bottom:.4rem;">Contacto disponível após login</p>
             <p style="font-size:.85rem;color:var(--color-gray-500);margin-bottom:1.25rem;">Cria uma conta gratuita para ver o número, enviar mensagem e solicitar serviços.</p>
-            <button class="btn btn--primary btn--sm js-open-login"><i class="fas fa-sign-in-alt"></i> Entrar / Registar</button>
+            <button class="btn btn--primary btn--sm js-open-login"><i class="ph ph-sign-in"></i> Entrar / Registar</button>
           </div>
         `;
         contactWrap.querySelector('.js-open-login')?.addEventListener('click', () => Modal.open('loginModal'));
@@ -2430,10 +2432,10 @@ const ProfilePage = {
       if (contactWrap) {
         contactWrap.innerHTML = `
           <div style="text-align:center;padding:1.5rem;background:var(--color-gray-50);border-radius:1.25rem;border:2px dashed var(--color-gray-200);">
-            <i class="fas fa-user-circle" style="font-size:1.8rem;color:var(--color-primary);margin-bottom:.75rem;display:block;"></i>
+            <i class="ph ph-user-circle" style="font-size:1.8rem;color: var(--brand-strong);margin-bottom:.75rem;display:block;"></i>
             <p style="font-weight:700;color:var(--color-gray-800);margin-bottom:.4rem;">Este é o teu perfil</p>
             <p style="font-size:.85rem;color:var(--color-gray-500);margin-bottom:1.25rem;">Não podes fazer pedidos ao teu próprio perfil.</p>
-            <a href="meu-perfil.html" class="btn btn--primary btn--sm"><i class="fas fa-user-edit"></i> Editar Perfil</a>
+            <a href="meu-perfil.html" class="btn btn--primary btn--sm"><i class="ph ph-user-gear"></i> Editar Perfil</a>
           </div>
         `;
       }
@@ -2455,7 +2457,7 @@ const ProfilePage = {
       Orders.hasActiveOrder(Auth.currentUser().uid, p.uid || p.id).then(active => {
         if (active) {
           btnRequest.disabled = true;
-          btnRequest.innerHTML = '<i class="fas fa-clock"></i> Pedido já enviado';
+          btnRequest.innerHTML = '<i class="ph ph-clock"></i> Pedido já enviado';
           btnRequest.title = 'Já tens um pedido pendente ou aceite com este prestador.';
         }
       });
@@ -2522,7 +2524,7 @@ const ProfilePage = {
         const submitBtn = document.getElementById('reqSubmitBtn');
         const origSubmit = submitBtn.innerHTML;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar…';
+        submitBtn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A enviar…';
         try {
           const order = await Orders.create({
             providerId:   p.uid || p.id,
@@ -2539,7 +2541,7 @@ const ProfilePage = {
           Toast.success(`Pedido ${order.id} enviado! O prestador vai responder com um orçamento.`);
           if (btnRequest) {
             btnRequest.disabled = true;
-            btnRequest.innerHTML = '<i class="fas fa-clock"></i> Pedido já enviado';
+            btnRequest.innerHTML = '<i class="ph ph-clock"></i> Pedido já enviado';
           }
         } catch (err) {
           if (err.message === 'duplicate-order') {
@@ -2547,7 +2549,7 @@ const ProfilePage = {
             document.getElementById('requestModal').style.display = 'none';
             if (btnRequest) {
               btnRequest.disabled = true;
-              btnRequest.innerHTML = '<i class="fas fa-clock"></i> Pedido já enviado';
+              btnRequest.innerHTML = '<i class="ph ph-clock"></i> Pedido já enviado';
             }
           } else {
             Toast.error('Erro ao enviar pedido. Tenta novamente.');
@@ -2585,11 +2587,11 @@ const ProfilePage = {
                 <button class="btn btn--ghost btn--sm" data-edit-review="${esc(r.id)}"
                   data-rating="${r.rating}" data-text="${encodeURIComponent(r.text)}"
                   style="font-size:.78rem;padding:.3rem .65rem;">
-                  <i class="fas fa-edit"></i> Editar
+                  <i class="ph ph-pencil-simple"></i> Editar
                 </button>
                 <button class="btn btn--ghost btn--sm" data-delete-review="${esc(r.id)}"
                   style="font-size:.78rem;padding:.3rem .65rem;color:#EF4444;">
-                  <i class="fas fa-trash"></i> Apagar
+                  <i class="ph ph-trash"></i> Apagar
                 </button>
               </div>` : ''}
           </div>
@@ -2644,7 +2646,7 @@ const ProfilePage = {
 
     // Change button label
     const btn = form.querySelector('[type="submit"]');
-    if (btn) btn.innerHTML = '<i class="fas fa-save"></i> Guardar Alterações';
+    if (btn) btn.innerHTML = '<i class="ph ph-floppy-disk"></i> Guardar Alterações';
 
     // Scroll to form
     form.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2678,7 +2680,7 @@ const ProfilePage = {
     // Reset edit state and button label
     this._editingReviewId = null;
     const submitBtn = f.querySelector('[type="submit"]');
-    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submeter Avaliação';
+    if (submitBtn) submitBtn.innerHTML = '<i class="ph ph-paper-plane-tilt"></i> Submeter Avaliação';
 
     const user = Auth.currentUser();
 
@@ -2692,7 +2694,7 @@ const ProfilePage = {
     if (user) {
       const already = await Reviews.hasReviewed(user.uid, p.id);
       if (already) {
-        f.innerHTML = '<p style="color:var(--color-gray-500);text-align:center;padding:1rem;"><i class="fas fa-check-circle" style="color:#22C55E;margin-right:.4rem;"></i>Já avaliaste este prestador — clica em <strong>Editar</strong> na tua avaliação para a alterar.</p>';
+        f.innerHTML = '<p style="color:var(--color-gray-500);text-align:center;padding:1rem;"><i class="ph ph-check-circle" style="color:#22C55E;margin-right:.4rem;"></i>Já avaliaste este prestador — clica em <strong>Editar</strong> na tua avaliação para a alterar.</p>';
         return;
       }
     }
@@ -2717,7 +2719,7 @@ const ProfilePage = {
       const btn  = f.querySelector('[type="submit"]');
       const orig = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A guardar…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A guardar…';
 
       try {
         if (this._editingReviewId) {
@@ -2788,10 +2790,10 @@ const ProfilePage = {
     lb.className = 'lightbox';
     lb.innerHTML = `
       <div class="lightbox__backdrop"></div>
-      <button class="lightbox__close" aria-label="Fechar"><i class="fas fa-times"></i></button>
-      <button class="lightbox__prev" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+      <button class="lightbox__close" aria-label="Fechar"><i class="ph ph-x"></i></button>
+      <button class="lightbox__prev" aria-label="Anterior"><i class="ph ph-caret-left"></i></button>
       <div class="lightbox__img-wrap"><img class="lightbox__img" src="" alt=""></div>
-      <button class="lightbox__next" aria-label="Próximo"><i class="fas fa-chevron-right"></i></button>
+      <button class="lightbox__next" aria-label="Próximo"><i class="ph ph-caret-right"></i></button>
       <div class="lightbox__counter"></div>
     `;
     document.body.appendChild(lb);
@@ -2929,14 +2931,14 @@ const DashboardClient = {
             <p><strong>Prestador:</strong> ${esc(o.providerName || '—')}</p>
             <p><strong>Serviço:</strong> ${esc(o.categoryCustom || PrestadoresPage.categoryLabel(o.category))}</p>
             ${o.message ? `<p><strong>Descrição:</strong> ${esc(o.message.length > 90 ? o.message.substring(0, 90) + '…' : o.message)}</p>` : ''}
-            ${o.scheduledDate ? `<p><strong>Quando:</strong> <i class="fas fa-calendar-alt" style="color:var(--color-primary);font-size:.8em;"></i> ${esc(Orders.scheduleLabel(o))}</p>` : ''}
+            ${o.scheduledDate ? `<p><strong>Quando:</strong> <i class="ph ph-calendar" style="color: var(--brand-strong);font-size:.8em;"></i> ${esc(Orders.scheduleLabel(o))}</p>` : ''}
             ${o.quote ? `<p><strong>Orçamento:</strong> <span style="color:var(--color-accent);font-weight:800;">${Number(o.quote).toLocaleString('pt-AO')} Kz</span>${o.quoteNote ? ` <span style="color:var(--color-gray-500);font-size:.85em;">(${esc(o.quoteNote)})</span>` : ''}</p>` : ''}
             <p class="order-date">${new Date(o.createdAt).toLocaleDateString('pt-AO')}</p>
             ${Orders.paymentBoxHTML(o)}
             ${o.status === 'completed' ? `
               <div style="margin-top:.75rem;">
                 <a href="perfil-prestador.html?id=${esc(o.providerId)}#reviews" class="btn btn--outline btn--sm">
-                  <i class="fas fa-star" style="color:#FBBF24;"></i> Avaliar Prestador
+                  <i class="ph-fill ph-star" style="color:#FBBF24;"></i> Avaliar Prestador
                 </a>
               </div>
             ` : ''}
@@ -2990,7 +2992,7 @@ const DashboardProvider = {
       el.innerHTML = `
         <div style="padding:1.1rem 1.2rem;background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(245,158,11,.12));border:1.5px solid rgba(245,158,11,.4);border-radius:1.1rem;">
           <div style="display:flex;align-items:center;gap:.6rem;font-weight:800;color:#b45309;margin-bottom:.4rem;">
-            <i class="fas fa-crown"></i> Plano Destaque ativo
+            <i class="ph ph-crown"></i> Plano Destaque ativo
           </div>
           <p style="font-size:.85rem;color:var(--color-gray-600);margin:0;line-height:1.6;">
             Apareces no <strong>topo das pesquisas</strong>, com selo dourado e pin destacado no mapa.
@@ -3008,15 +3010,15 @@ const DashboardProvider = {
         Estás no plano <strong>Gratuito</strong>. Com o <strong style="color:#b45309;">Destaque</strong> apareces primeiro e ganhas mais clientes:
       </p>
       <ul style="list-style:none;padding:0;margin:0 0 1rem;display:flex;flex-direction:column;gap:.45rem;font-size:.83rem;color:var(--color-gray-700);">
-        <li><i class="fas fa-check" style="color:var(--color-accent);margin-right:.4rem;"></i> Topo dos resultados de pesquisa</li>
-        <li><i class="fas fa-check" style="color:var(--color-accent);margin-right:.4rem;"></i> Selo dourado <strong>Destaque</strong> no perfil</li>
-        <li><i class="fas fa-check" style="color:var(--color-accent);margin-right:.4rem;"></i> Pin destacado no mapa</li>
+        <li><i class="ph ph-check" style="color:var(--color-accent);margin-right:.4rem;"></i> Topo dos resultados de pesquisa</li>
+        <li><i class="ph ph-check" style="color:var(--color-accent);margin-right:.4rem;"></i> Selo dourado <strong>Destaque</strong> no perfil</li>
+        <li><i class="ph ph-check" style="color:var(--color-accent);margin-right:.4rem;"></i> Pin destacado no mapa</li>
       </ul>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
         <div style="font-weight:900;font-size:1.15rem;color:var(--color-gray-900);">${PLATFORM_PAY.premiumPrice.toLocaleString('pt-AO')} Kz<span style="font-size:.75rem;font-weight:600;color:var(--color-gray-400);">/mês</span></div>
         <a href="https://wa.me/${PLATFORM_PAY.adminWhatsApp}?text=${waMsg}" target="_blank" rel="noopener"
           class="btn btn--primary btn--sm" style="background:linear-gradient(135deg,#F59E0B,#d97706);border-color:#d97706;">
-          <i class="fas fa-crown"></i> Ativar Destaque
+          <i class="ph ph-crown"></i> Ativar Destaque
         </a>
       </div>`;
   },
@@ -3102,41 +3104,41 @@ const DashboardProvider = {
             <p><strong>Cliente:</strong> ${esc(o.clientName || '—')}</p>
             <p><strong>Serviço:</strong> ${esc(o.categoryCustom || PrestadoresPage.categoryLabel(o.category))}</p>
             ${o.message ? `<p><strong>Descrição:</strong> ${esc(o.message)}</p>` : ''}
-            ${o.scheduledDate ? `<p><strong>Quando:</strong> <i class="fas fa-calendar-alt" style="color:var(--color-primary);font-size:.8em;"></i> ${esc(Orders.scheduleLabel(o))}</p>` : ''}
-            ${o.clientLocation ? `<p><strong>Local:</strong> <i class="fas fa-map-marker-alt" style="color:var(--color-primary);font-size:.8em;"></i> ${esc(o.clientLocation)}</p>` : ''}
+            ${o.scheduledDate ? `<p><strong>Quando:</strong> <i class="ph ph-calendar" style="color: var(--brand-strong);font-size:.8em;"></i> ${esc(Orders.scheduleLabel(o))}</p>` : ''}
+            ${o.clientLocation ? `<p><strong>Local:</strong> <i class="ph ph-map-pin" style="color: var(--brand-strong);font-size:.8em;"></i> ${esc(o.clientLocation)}</p>` : ''}
             ${o.quote ? `<p><strong>Orçamento enviado:</strong> <span style="color:var(--color-accent);font-weight:800;">${Number(o.quote).toLocaleString('pt-AO')} Kz</span></p>` : ''}
-            ${o.paymentStatus === 'held' ? `<p style="color:var(--color-accent);font-weight:700;font-size:.83rem;"><i class="fas fa-shield-alt"></i> Pagamento Seguro retido — recebes ao concluir</p>` : ''}
-            ${o.paymentStatus === 'released' ? `<p style="color:#059669;font-weight:700;font-size:.83rem;"><i class="fas fa-check-double"></i> Pagamento recebido via Conecta Já</p>` : ''}
+            ${o.paymentStatus === 'held' ? `<p style="color:var(--color-accent);font-weight:700;font-size:.83rem;"><i class="ph ph-shield-check"></i> Pagamento Seguro retido — recebes ao concluir</p>` : ''}
+            ${o.paymentStatus === 'released' ? `<p style="color:#059669;font-weight:700;font-size:.83rem;"><i class="ph ph-checks"></i> Pagamento recebido via Conecta Já</p>` : ''}
             <p class="order-date">${new Date(o.createdAt).toLocaleDateString('pt-AO')}</p>
             <div class="order-actions" style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;">
               ${o.status === 'pending' ? `
                 <button class="btn btn--primary btn--sm" data-action="accept" data-order="${esc(o.id)}">
-                  <i class="fas fa-check"></i> Aceitar
+                  <i class="ph ph-check"></i> Aceitar
                 </button>
                 <button class="btn btn--outline btn--sm" data-action="cancel" data-order="${esc(o.id)}">
-                  <i class="fas fa-times"></i> Recusar
+                  <i class="ph ph-x"></i> Recusar
                 </button>
               ` : ''}
               ${o.status === 'accepted' ? `
                 <button class="btn btn--primary btn--sm" data-action="start" data-order="${esc(o.id)}">
-                  <i class="fas fa-play"></i> Iniciar Trabalho
+                  <i class="ph ph-play"></i> Iniciar Trabalho
                 </button>
               ` : ''}
               ${o.status === 'in_progress' ? `
                 <button class="btn btn--primary btn--sm" data-action="complete" data-order="${esc(o.id)}">
-                  <i class="fas fa-flag-checkered"></i> Marcar Concluído
+                  <i class="ph ph-flag-checkered"></i> Marcar Concluído
                 </button>
               ` : ''}
               <button class="btn btn--ghost btn--sm" data-action="view-client"
                 data-order="${esc(o.id)}"
                 data-order-status="${esc(o.status)}">
-                <i class="fas fa-user-circle"></i> Ver Cliente
+                <i class="ph ph-user-circle"></i> Ver Cliente
               </button>
             </div>
             <!-- Mini-form de orçamento (aparece ao clicar Aceitar) -->
             <div class="quote-form" id="quote-form-${esc(o.id)}" style="display:none;margin-top:.75rem;padding:.875rem;background:rgba(42,157,143,.06);border:1.5px solid rgba(42,157,143,.25);border-radius:.875rem;">
               <p style="font-size:.82rem;font-weight:700;margin-bottom:.6rem;color:var(--color-gray-800);">
-                <i class="fas fa-coins" style="color:var(--color-accent);"></i> Enviar orçamento ao cliente <span style="font-weight:400;color:var(--color-gray-400);">(opcional)</span>
+                <i class="ph ph-coins" style="color:var(--color-accent);"></i> Enviar orçamento ao cliente <span style="font-weight:400;color:var(--color-gray-400);">(opcional)</span>
               </p>
               <div style="display:flex;flex-direction:column;gap:.5rem;">
                 <input type="text" inputmode="numeric" class="quote-input" placeholder="Valor em Kz — ex: 15000"
@@ -3145,7 +3147,7 @@ const DashboardProvider = {
                   style="width:100%;padding:.6rem .8rem;border:1.5px solid var(--color-gray-200);border-radius:.7rem;font-family:inherit;font-size:.875rem;background:var(--color-gray-50);color:var(--color-gray-900);">
                 <div style="display:flex;gap:.5rem;">
                   <button class="btn btn--primary btn--sm" data-action="confirm-accept" data-order="${esc(o.id)}" style="flex:1;">
-                    <i class="fas fa-check"></i> Aceitar Pedido
+                    <i class="ph ph-check"></i> Aceitar Pedido
                   </button>
                   <button class="btn btn--outline btn--sm" data-action="hide-quote" data-order="${esc(o.id)}">
                     Cancelar
@@ -3219,7 +3221,7 @@ const DashboardProvider = {
     if (!modal || !content) return;
 
     // Show modal with loading state
-    content.innerHTML = '<div style="text-align:center;padding:3rem;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--color-primary);"></i></div>';
+    content.innerHTML = '<div style="text-align:center;padding:3rem;"><i class="ph ph-spinner-gap fa-spin" style="font-size:2rem;color: var(--brand-strong);"></i></div>';
     modal.style.display = 'flex';
 
     // Start with data already embedded in the order (always accessible by provider)
@@ -3269,15 +3271,15 @@ const DashboardProvider = {
 
     content.innerHTML = `
       <div style="text-align:center;padding:2rem 1.5rem 1rem;">
-        <div style="width:76px;height:76px;border-radius:1.25rem;background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:900;color:white;margin:0 auto 1rem;overflow:hidden;border:4px solid rgba(230,57,70,.15);">${avatarHTML}</div>
+        <div style="width:76px;height:76px;border-radius:1.25rem;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:900;color:white;margin:0 auto 1rem;overflow:hidden;border:4px solid rgba(253, 104, 2,.15);">${avatarHTML}</div>
         <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:.3rem;">${esc(c.name)}</h3>
-        <span style="display:inline-block;background:rgba(230,57,70,.1);color:var(--color-primary);padding:.2rem .75rem;border-radius:50px;font-size:.75rem;font-weight:700;">Cliente</span>
+        <span style="display:inline-block;background:rgba(253, 104, 2,.1);color: var(--brand-strong);padding:.2rem .75rem;border-radius:50px;font-size:.75rem;font-weight:700;">Cliente</span>
       </div>
 
       ${locLabel ? `
       <div style="margin:0 1.5rem;padding:.875rem 1rem;background:var(--color-gray-50);border-radius:1rem;display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
-        <div style="width:34px;height:34px;border-radius:.625rem;background:linear-gradient(135deg,var(--color-primary),var(--color-secondary));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <i class="fas fa-map-marker-alt" style="color:white;font-size:.85rem;"></i>
+        <div style="width:34px;height:34px;border-radius:.625rem;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="ph ph-map-pin" style="color:white;font-size:.85rem;"></i>
         </div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:.7rem;font-weight:700;color:var(--color-gray-400);text-transform:uppercase;letter-spacing:.05em;">Localização</div>
@@ -3286,7 +3288,7 @@ const DashboardProvider = {
         ${hasGps ? `
         <a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank" rel="noopener"
           style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .8rem;background:var(--color-accent);color:white;border-radius:.75rem;font-size:.78rem;font-weight:700;text-decoration:none;flex-shrink:0;">
-          <i class="fas fa-map-location-dot"></i> Ver no mapa
+          <i class="ph ph-map-trifold"></i> Ver no mapa
         </a>` : ''}
       </div>` : ''}
 
@@ -3296,22 +3298,22 @@ const DashboardProvider = {
             <div style="display:flex;flex-direction:column;gap:.75rem;">
               <a href="https://wa.me/${waPhone(c.phone)}" target="_blank" rel="noopener"
                 style="display:flex;align-items:center;justify-content:center;gap:.6rem;padding:.875rem;background:#25D366;color:white;border-radius:1rem;font-weight:700;text-decoration:none;font-size:.95rem;">
-                <i class="fab fa-whatsapp" style="font-size:1.2rem;"></i> Contactar no WhatsApp
+                <i class="ph ph-whatsapp-logo" style="font-size:1.2rem;"></i> Contactar no WhatsApp
               </a>
               <a href="tel:${c.phone}"
                 style="display:flex;align-items:center;justify-content:center;gap:.6rem;padding:.875rem;border:2px solid var(--color-gray-200);border-radius:1rem;font-weight:700;text-decoration:none;color:var(--color-gray-800);font-size:.95rem;">
-                <i class="fas fa-phone" style="color:var(--color-primary);"></i> Ligar — ${c.phone}
+                <i class="ph ph-phone" style="color: var(--brand-strong);"></i> Ligar — ${c.phone}
               </a>
             </div>
           ` : `
             <div style="text-align:center;padding:1.25rem;background:var(--color-gray-50);border-radius:1rem;">
-              <i class="fas fa-phone-slash" style="font-size:1.5rem;color:var(--color-gray-400);margin-bottom:.5rem;display:block;"></i>
+              <i class="ph ph-phone-slash" style="font-size:1.5rem;color:var(--color-gray-400);margin-bottom:.5rem;display:block;"></i>
               <p style="color:var(--color-gray-500);font-size:.9rem;">Este cliente não adicionou contacto ao perfil.</p>
             </div>
           `
         ) : `
           <div style="text-align:center;padding:1.25rem;background:rgba(245,158,11,.07);border-radius:1rem;border:1px solid rgba(245,158,11,.25);">
-            <i class="fas fa-lock" style="font-size:1.6rem;color:#d97706;margin-bottom:.6rem;display:block;"></i>
+            <i class="ph ph-lock-simple" style="font-size:1.6rem;color:#d97706;margin-bottom:.6rem;display:block;"></i>
             <p style="font-weight:700;color:#92400e;margin-bottom:.3rem;">Aceita o pedido para contactar</p>
             <p style="font-size:.82rem;color:#b45309;line-height:1.5;">Ao aceitares o pedido, o número de telefone e WhatsApp de <strong>${c.name}</strong> ficam disponíveis aqui.</p>
           </div>
@@ -3433,7 +3435,7 @@ const ContactPage = {
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar…';
+    btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A enviar…';
 
     try {
       if (typeof emailjs !== 'undefined') {
@@ -3451,10 +3453,10 @@ const ContactPage = {
     } catch (err) {
       const waMsg = encodeURIComponent(`Olá, sou ${name} (${email}).\n\n${message}`);
       Toast.warning('Falha no envio por email. A redirecionar para WhatsApp…');
-      setTimeout(() => window.open(`https://wa.me/244931482577?text=${waMsg}`, '_blank'), 1500);
+      setTimeout(() => window.open(`https://wa.me/244937879654?text=${waMsg}`, '_blank'), 1500);
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensagem';
+      btn.innerHTML = '<i class="ph ph-paper-plane-tilt"></i> Enviar Mensagem';
     }
   },
 };
@@ -3617,13 +3619,13 @@ const AuthModals = {
 <div class="modal" id="loginModal" role="dialog" aria-modal="true">
   <div class="modal__overlay"></div>
   <div class="modal__container auth-modal-box">
-    <button class="modal__close" aria-label="Fechar"><i class="fas fa-times"></i></button>
+    <button class="modal__close" aria-label="Fechar"><i class="ph ph-x"></i></button>
     <div class="modal__content auth-modal-content">
 
       <!-- Passo: email/senha -->
       <div class="auth-step" data-step="email">
         <div class="auth-modal-header">
-          <div class="auth-modal-icon"><i class="fas fa-sign-in-alt"></i></div>
+          <div class="auth-modal-icon"><i class="ph ph-sign-in"></i></div>
           <h2>Iniciar Sessão</h2>
           <p>Bem-vindo de volta ao Conecta Já</p>
         </div>
@@ -3639,11 +3641,11 @@ const AuthModals = {
             </label>
             <div class="auth-input-wrap">
               <input id="login_password" type="password" placeholder="A tua senha" class="auth-input" required>
-              <button type="button" class="pw-toggle" tabindex="-1"><i class="fas fa-eye"></i></button>
+              <button type="button" class="pw-toggle" tabindex="-1"><i class="ph ph-eye"></i></button>
             </div>
           </div>
           <button type="submit" class="btn btn--primary auth-submit">
-            <i class="fas fa-sign-in-alt"></i> Entrar
+            <i class="ph ph-sign-in"></i> Entrar
           </button>
         </form>
         <div class="auth-divider"><span>ou continua com</span></div>
@@ -3654,7 +3656,7 @@ const AuthModals = {
           </button>
           <!-- PHONE_AUTH_DISABLED (Spark plan — descomentar após upgrade para Blaze)
           <button class="btn-social btn-phone" id="loginPhoneBtn" type="button">
-            <i class="fas fa-phone"></i> Telefone
+            <i class="ph ph-phone"></i> Telefone
           </button>
           -->
         </div>
@@ -3664,7 +3666,7 @@ const AuthModals = {
       <!-- Passo: número de telefone -->
       <div class="auth-step" data-step="phone1" style="display:none">
         <div class="auth-modal-header">
-          <div class="auth-modal-icon"><i class="fas fa-phone"></i></div>
+          <div class="auth-modal-icon"><i class="ph ph-phone"></i></div>
           <h2>Entrar com Telefone</h2>
           <p>Vamos enviar um código SMS</p>
         </div>
@@ -3678,17 +3680,17 @@ const AuthModals = {
         </div>
         <div id="phone-recaptcha"></div>
         <button class="btn btn--primary auth-submit" id="sendCodeBtn" type="button">
-          <i class="fas fa-sms"></i> Enviar Código SMS
+          <i class="ph ph-chat-text"></i> Enviar Código SMS
         </button>
         <button class="btn-auth-back" id="backToEmailBtn" type="button">
-          <i class="fas fa-arrow-left"></i> Voltar
+          <i class="ph ph-arrow-left"></i> Voltar
         </button>
       </div>
 
       <!-- Passo: código SMS -->
       <div class="auth-step" data-step="phone2" style="display:none">
         <div class="auth-modal-header">
-          <div class="auth-modal-icon"><i class="fas fa-comment-dots"></i></div>
+          <div class="auth-modal-icon"><i class="ph ph-chat-dots"></i></div>
           <h2>Verificar Código</h2>
           <p id="phone-sent-to">Código enviado para o teu número</p>
         </div>
@@ -3697,18 +3699,18 @@ const AuthModals = {
           <input id="phone_code" type="text" placeholder="_ _ _ _ _ _" class="auth-input auth-code-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
         </div>
         <button class="btn btn--primary auth-submit" id="confirmCodeBtn" type="button">
-          <i class="fas fa-check"></i> Confirmar
+          <i class="ph ph-check"></i> Confirmar
         </button>
         <p class="auth-switch" style="margin-top:.75rem">Não recebeste? <a href="#" id="resendCodeBtn">Reenviar código</a></p>
         <button class="btn-auth-back" id="backToPhone1Btn" type="button">
-          <i class="fas fa-arrow-left"></i> Voltar
+          <i class="ph ph-arrow-left"></i> Voltar
         </button>
       </div>
 
       <!-- Passo: novo utilizador (Google ou telefone) -->
       <div class="auth-step" data-step="newuser" style="display:none">
         <div class="auth-modal-header">
-          <div class="auth-modal-icon"><i class="fas fa-user-circle"></i></div>
+          <div class="auth-modal-icon"><i class="ph ph-user-circle"></i></div>
           <h2>Quase pronto!</h2>
           <p>Diz-nos como vais usar o Conecta Já</p>
         </div>
@@ -3721,25 +3723,25 @@ const AuthModals = {
           <label class="reg-type-label">
             <input type="radio" name="newuser_type" value="client" checked>
             <div class="reg-type-card" data-type="client">
-              <i class="fas fa-user"></i><span>Cliente</span>
+              <i class="ph ph-user"></i><span>Cliente</span>
             </div>
           </label>
           <label class="reg-type-label">
             <input type="radio" name="newuser_type" value="provider">
             <div class="reg-type-card" data-type="provider">
-              <i class="fas fa-briefcase"></i><span>Prestador</span>
+              <i class="ph ph-briefcase"></i><span>Prestador</span>
             </div>
           </label>
         </div>
         <button class="btn btn--primary auth-submit" id="newuserContinueBtn" type="button">
-          <i class="fas fa-arrow-right"></i> Continuar
+          <i class="ph ph-arrow-right"></i> Continuar
         </button>
       </div>
 
       <!-- Passo: criar senha (utilizadores de telefone) -->
       <div class="auth-step" data-step="phone-password" style="display:none">
         <div class="auth-modal-header">
-          <div class="auth-modal-icon"><i class="fas fa-lock"></i></div>
+          <div class="auth-modal-icon"><i class="ph ph-lock-simple"></i></div>
           <h2>Criar Senha</h2>
           <p>Entra com o teu número + senha, sem precisar de código SMS</p>
         </div>
@@ -3747,11 +3749,11 @@ const AuthModals = {
           <label>Senha <span class="auth-hint">(mín. 6 caracteres)</span></label>
           <div class="auth-input-wrap">
             <input id="phonelink_password" type="password" placeholder="Cria uma senha segura" class="auth-input">
-            <button type="button" class="pw-toggle" tabindex="-1"><i class="fas fa-eye"></i></button>
+            <button type="button" class="pw-toggle" tabindex="-1"><i class="ph ph-eye"></i></button>
           </div>
         </div>
         <button class="btn btn--primary auth-submit" id="phonelinkSaveBtn" type="button">
-          <i class="fas fa-save"></i> Guardar Senha
+          <i class="ph ph-floppy-disk"></i> Guardar Senha
         </button>
         <button class="btn-auth-back" id="phonelinkSkipBtn" type="button">
           Ignorar por agora
@@ -3766,10 +3768,10 @@ const AuthModals = {
 <div class="modal" id="registerModal" role="dialog" aria-modal="true">
   <div class="modal__overlay"></div>
   <div class="modal__container auth-modal-box">
-    <button class="modal__close" aria-label="Fechar"><i class="fas fa-times"></i></button>
+    <button class="modal__close" aria-label="Fechar"><i class="ph ph-x"></i></button>
     <div class="modal__content auth-modal-content">
       <div class="auth-modal-header">
-        <div class="auth-modal-icon"><i class="fas fa-user-plus"></i></div>
+        <div class="auth-modal-icon"><i class="ph ph-user-plus"></i></div>
         <h2>Criar Conta</h2>
         <p>Junta-te à comunidade Conecta Já</p>
       </div>
@@ -3778,13 +3780,13 @@ const AuthModals = {
           <label class="reg-type-label">
             <input type="radio" name="user_type" value="client" checked>
             <div class="reg-type-card" data-type="client">
-              <i class="fas fa-user"></i><span>Cliente</span>
+              <i class="ph ph-user"></i><span>Cliente</span>
             </div>
           </label>
           <label class="reg-type-label">
             <input type="radio" name="user_type" value="provider">
             <div class="reg-type-card" data-type="provider">
-              <i class="fas fa-briefcase"></i><span>Prestador</span>
+              <i class="ph ph-briefcase"></i><span>Prestador</span>
             </div>
           </label>
         </div>
@@ -3800,13 +3802,13 @@ const AuthModals = {
           <label>Senha <span class="auth-hint">(mín. 6 caracteres)</span></label>
           <div class="auth-input-wrap">
             <input id="reg_password" type="password" placeholder="Cria uma senha segura" class="auth-input" required>
-            <button type="button" class="pw-toggle" tabindex="-1"><i class="fas fa-eye"></i></button>
+            <button type="button" class="pw-toggle" tabindex="-1"><i class="ph ph-eye"></i></button>
           </div>
           <div class="pw-strength-bar"><div id="pwStrengthBar"></div></div>
           <span id="pwStrengthLabel" class="auth-hint"></span>
         </div>
         <button type="submit" class="btn btn--primary auth-submit">
-          <i class="fas fa-user-plus"></i> Criar Conta
+          <i class="ph ph-user-plus"></i> Criar Conta
         </button>
       </form>
       <div class="auth-divider"><span>ou regista-te com</span></div>
@@ -3859,7 +3861,7 @@ const AuthModals = {
       if (!inp) return;
       const show = inp.type === 'password';
       inp.type = show ? 'text' : 'password';
-      btn.querySelector('i').className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
+      btn.querySelector('i').className = show ? 'ph ph-eye-slash' : 'ph ph-eye';
     });
 
     // Password strength
@@ -3898,7 +3900,7 @@ const AuthModals = {
     // ── Google Sign-In ──────────────────────────────────────────────────
     const handleGoogleLogin = async (btn) => {
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i>';
       btn.disabled = true;
       try {
         const { fbUser, type, isNew } = await Auth.loginWithGoogle();
@@ -3951,7 +3953,7 @@ const AuthModals = {
 
       const btn = e.currentTarget;
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A enviar…';
       btn.disabled = true;
       try {
         await Auth.sendPhoneCode(phone);
@@ -3971,7 +3973,7 @@ const AuthModals = {
       if (code.length !== 6) { Toast.error('Introduz o código de 6 dígitos.'); return; }
 
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A verificar…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A verificar…';
       btn.disabled = true;
       try {
         const cred = await Auth.verifyPhoneCode(code);
@@ -4037,7 +4039,7 @@ const AuthModals = {
 
       const btn = e.currentTarget;
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A criar…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A criar…';
       btn.disabled = true;
 
       try {
@@ -4071,7 +4073,7 @@ const AuthModals = {
 
       const btn = e.currentTarget;
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A guardar…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A guardar…';
       btn.disabled = true;
 
       try {
@@ -4188,7 +4190,7 @@ const Profile = {
     btn.addEventListener('click', async () => {
       const orig = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A obter…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A obter…';
       if (status) { status.style.color = 'var(--color-gray-500)'; status.innerHTML = ''; }
       try {
         const pos = await Geo.getCurrentPosition();
@@ -4204,7 +4206,7 @@ const Profile = {
           : err && err.message === 'unsupported'
             ? 'O teu navegador não suporta geolocalização.'
             : 'Não foi possível obter a localização. Tenta novamente.';
-        if (status) { status.style.color = 'var(--color-primary)'; status.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${msg}`; }
+        if (status) { status.style.color = 'var(--color-primary)'; status.innerHTML = `<i class="ph ph-warning"></i> ${msg}`; }
         Toast.error(msg);
       } finally {
         btn.disabled = false;
@@ -4218,10 +4220,10 @@ const Profile = {
     if (!status) return;
     if (typeof lat === 'number' && typeof lng === 'number') {
       status.style.color = 'var(--color-accent)';
-      status.innerHTML = `<i class="fas fa-circle-check"></i> Localização definida (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+      status.innerHTML = `<i class="ph ph-check-circle"></i> Localização definida (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
     } else {
       status.style.color = 'var(--color-gray-400)';
-      status.innerHTML = '<i class="fas fa-circle-info"></i> Sem localização definida';
+      status.innerHTML = '<i class="ph ph-info"></i> Sem localização definida';
     }
   },
 
@@ -4262,8 +4264,8 @@ const Profile = {
         <div class="portfolio-slot">
           ${url
             ? `<img src="${url}" alt="Foto ${i + 1}">
-               <button type="button" class="portfolio-slot__remove" data-idx="${i}" title="Remover"><i class="fas fa-times"></i></button>`
-            : `<i class="fas fa-camera" style="font-size:1.75rem;color:var(--color-gray-300);margin-bottom:.4rem;"></i>
+               <button type="button" class="portfolio-slot__remove" data-idx="${i}" title="Remover"><i class="ph ph-x"></i></button>`
+            : `<i class="ph ph-camera" style="font-size:1.75rem;color:var(--color-gray-300);margin-bottom:.4rem;"></i>
                <span class="portfolio-slot__label">Foto ${i + 1}</span>
                <input type="file" accept="image/*" class="pf-file" data-idx="${i}" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">`}
         </div>`).join('');
@@ -4308,8 +4310,8 @@ const Profile = {
     }
     if (nameEl) nameEl.textContent = user.name || 'Utilizador';
     if (badgeEl) badgeEl.innerHTML = user.type === 'provider'
-      ? '<i class="fas fa-briefcase"></i> Prestador de Serviços'
-      : '<i class="fas fa-user"></i> Cliente';
+      ? '<i class="ph ph-briefcase"></i> Prestador de Serviços'
+      : '<i class="ph ph-user"></i> Cliente';
 
     // Sidebar quick info
     const sidebarName = document.getElementById('sidebarName');
@@ -4411,7 +4413,7 @@ const Profile = {
       e.preventDefault();
       const btn = form.querySelector('[type="submit"]');
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A guardar…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A guardar…';
       btn.disabled = true;
 
       const name = document.getElementById('prof_name')?.value?.trim() || user.name;
@@ -4538,7 +4540,7 @@ const Profile = {
 
       const btn = form.querySelector('[type="submit"]');
       const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A alterar…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A alterar…';
       btn.disabled = true;
 
       try {
@@ -4646,12 +4648,12 @@ const Referral = {
         <input type="text" readonly value="${esc(link)}" id="referralLinkInput"
           style="flex:1;min-width:0;padding:.6rem .8rem;border:1.5px solid var(--color-gray-200);border-radius:.7rem;font-size:.78rem;background:var(--color-gray-50);color:var(--color-gray-600);font-family:inherit;">
         <button class="btn btn--outline btn--sm" id="referralCopyBtn" title="Copiar link" style="flex-shrink:0;">
-          <i class="fas fa-copy"></i>
+          <i class="ph ph-copy"></i>
         </button>
       </div>
       <a href="https://wa.me/?text=${waText}" target="_blank" rel="noopener"
         style="display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem;background:#25D366;color:white;border-radius:.8rem;font-size:.875rem;font-weight:700;text-decoration:none;">
-        <i class="fab fa-whatsapp" style="font-size:1.1rem;"></i> Convidar pelo WhatsApp
+        <i class="ph ph-whatsapp-logo" style="font-size:1.1rem;"></i> Convidar pelo WhatsApp
       </a>
       <p id="referralCount" style="font-size:.78rem;color:var(--color-gray-400);text-align:center;margin:.6rem 0 0;"></p>`;
 
@@ -4676,7 +4678,7 @@ const Referral = {
         const countEl = document.getElementById('referralCount');
         if (countEl) {
           countEl.innerHTML = n > 0
-            ? `<i class="fas fa-users" style="color:var(--color-accent);"></i> Já convidaste <strong>${n}</strong> ${n === 1 ? 'pessoa' : 'pessoas'}!`
+            ? `<i class="ph ph-users" style="color:var(--color-accent);"></i> Já convidaste <strong>${n}</strong> ${n === 1 ? 'pessoa' : 'pessoas'}!`
             : 'Ainda não convidaste ninguém — começa agora!';
         }
       }
@@ -4738,18 +4740,18 @@ const Verification = {
   // Escada de confiança: mostra os 3 níveis e o nível atual do prestador.
   _htmlLevels(current) {
     const steps = [
-      { lvl: 1, icon: 'fa-phone-alt', title: 'Contacto verificado', desc: 'Telefone/WhatsApp confirmado.' },
-      { lvl: 2, icon: 'fa-id-card', title: 'Identidade verificada', desc: 'BI ou Passaporte validado pela equipa.' },
-      { lvl: 3, icon: 'fa-shield-alt', title: 'Conecta Já Pro', desc: 'Verificação reforçada — selo de ouro.' },
+      { lvl: 1, icon: 'ph-phone', title: 'Contacto verificado', desc: 'Telefone/WhatsApp confirmado.' },
+      { lvl: 2, icon: 'ph-identification-card', title: 'Identidade verificada', desc: 'BI ou Passaporte validado pela equipa.' },
+      { lvl: 3, icon: 'ph-shield-check', title: 'Conecta Já Pro', desc: 'Verificação reforçada — selo de ouro.' },
     ];
     const rows = steps.map(s => {
       const done = current >= s.lvl;
       const color = done ? 'var(--color-accent)' : 'var(--color-gray-400)';
       const bg = done ? 'rgba(42,157,143,.1)' : 'var(--color-gray-100)';
-      const check = done ? '<i class="fas fa-check" style="color:var(--color-accent);"></i>' : `<span style="font-size:.7rem;font-weight:800;color:var(--color-gray-400);">${s.lvl}</span>`;
+      const check = done ? '<i class="ph ph-check" style="color:var(--color-accent);"></i>' : `<span style="font-size:.7rem;font-weight:800;color:var(--color-gray-400);">${s.lvl}</span>`;
       return `
         <div style="display:flex;align-items:center;gap:.85rem;padding:.6rem .25rem;">
-          <div style="width:34px;height:34px;border-radius:.7rem;background:${bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas ${s.icon}" style="color:${color};font-size:.9rem;"></i></div>
+          <div style="width:34px;height:34px;border-radius:.7rem;background:${bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ph ${s.icon}" style="color:${color};font-size:.9rem;"></i></div>
           <div style="flex:1;min-width:0;">
             <div style="font-weight:700;font-size:.85rem;color:var(--color-gray-800);">${s.title}</div>
             <div style="font-size:.76rem;color:var(--color-gray-500);">${s.desc}</div>
@@ -4771,7 +4773,7 @@ const Verification = {
   _htmlVerified() {
     return `
       <div style="display:flex;align-items:center;gap:1rem;padding:1.25rem;background:rgba(42,157,143,.06);border:1.5px solid rgba(42,157,143,.2);border-radius:1.25rem;">
-        <div style="width:48px;height:48px;border-radius:.875rem;background:linear-gradient(135deg,var(--color-accent),#0d7a6e);display:flex;align-items:center;justify-content:center;color:white;font-size:1.4rem;flex-shrink:0;"><i class="fas fa-check-circle"></i></div>
+        <div style="width:48px;height:48px;border-radius:.875rem;background:linear-gradient(135deg,var(--color-accent),#0d7a6e);display:flex;align-items:center;justify-content:center;color:white;font-size:1.4rem;flex-shrink:0;"><i class="ph ph-check-circle"></i></div>
         <div>
           <div style="font-weight:800;font-size:.95rem;color:var(--color-accent);">Conta Verificada</div>
           <div style="font-size:.82rem;color:var(--color-gray-500);margin-top:.15rem;">O teu perfil tem o Selo Verificado e aparece em destaque nos resultados.</div>
@@ -4789,31 +4791,31 @@ const Verification = {
     return `
       <div style="padding:1.25rem;background:rgba(245,158,11,.06);border:1.5px solid rgba(245,158,11,.25);border-radius:1.25rem;margin-bottom:1.25rem;">
         <div style="display:flex;align-items:center;gap:.5rem;font-weight:800;color:#d97706;margin-bottom:.5rem;">
-          <i class="fas fa-clock"></i> Em Análise${date ? ` — submetido em ${date}` : ''}
+          <i class="ph ph-clock"></i> Em Análise${date ? ` — submetido em ${date}` : ''}
         </div>
         <p style="font-size:.875rem;color:var(--color-gray-600);margin:0;line-height:1.6;">O teu pedido foi recebido. A nossa equipa irá analisá-lo em até 48 horas.</p>
       </div>
       <div style="padding:1.25rem;background:rgba(42,157,143,.04);border:1.5px solid rgba(42,157,143,.2);border-radius:1.25rem;">
         <p style="font-size:.875rem;font-weight:800;color:var(--color-gray-800);margin:0 0 .4rem;">
-          <i class="fas fa-exclamation-circle" style="color:var(--color-accent);margin-right:.3rem;"></i> Passo seguinte — obrigatório
+          <i class="ph ph-warning-circle" style="color:var(--color-accent);margin-right:.3rem;"></i> Passo seguinte — obrigatório
         </p>
         <p style="font-size:.83rem;color:var(--color-gray-600);margin:0 0 1rem;line-height:1.65;">
           Para completar a verificação, envia via WhatsApp:<br>
           <strong>1.</strong> Uma foto clara do teu BI ou Passaporte<br>
           <strong>2.</strong> Uma selfie segurando o documento (para confirmar que és tu)
         </p>
-        <a href="https://wa.me/244931482577?text=${waMsg}" target="_blank" rel="noopener"
+        <a href="https://wa.me/244937879654?text=${waMsg}" target="_blank" rel="noopener"
            style="display:inline-flex;align-items:center;gap:.6rem;padding:.7rem 1.25rem;background:#25D366;color:white;border-radius:.875rem;font-size:.875rem;font-weight:700;text-decoration:none;">
-          <i class="fab fa-whatsapp" style="font-size:1.1rem;"></i> Enviar fotos via WhatsApp
+          <i class="ph ph-whatsapp-logo" style="font-size:1.1rem;"></i> Enviar fotos via WhatsApp
         </a>
-        <p style="font-size:.75rem;color:var(--color-gray-400);margin:.75rem 0 0;"><i class="fas fa-lock"></i> As fotos são usadas apenas para verificação e nunca são publicadas.</p>
+        <p style="font-size:.75rem;color:var(--color-gray-400);margin:.75rem 0 0;"><i class="ph ph-lock-simple"></i> As fotos são usadas apenas para verificação e nunca são publicadas.</p>
       </div>`;
   },
 
   _htmlRejected(reason) {
     return `
-      <div style="padding:1.25rem;background:rgba(230,57,70,.05);border:1.5px solid rgba(230,57,70,.2);border-radius:1.25rem;margin-bottom:1.5rem;">
-        <div style="display:flex;align-items:center;gap:.5rem;font-weight:800;color:var(--color-primary);margin-bottom:.5rem;"><i class="fas fa-times-circle"></i> Pedido Rejeitado</div>
+      <div style="padding:1.25rem;background:rgba(253, 104, 2,.05);border:1.5px solid rgba(253, 104, 2,.2);border-radius:1.25rem;margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;font-weight:800;color: var(--brand-strong);margin-bottom:.5rem;"><i class="ph ph-x-circle"></i> Pedido Rejeitado</div>
         <p style="font-size:.875rem;color:var(--color-gray-600);margin:0;line-height:1.6;">${esc(reason || 'O teu pedido não foi aprovado. Podes submeter novamente com informações corretas.')}</p>
       </div>`;
   },
@@ -4821,7 +4823,7 @@ const Verification = {
   _htmlApproved() {
     return `
       <div style="display:flex;align-items:center;gap:1rem;padding:1.25rem;background:rgba(42,157,143,.06);border:1.5px solid rgba(42,157,143,.2);border-radius:1.25rem;">
-        <div style="width:48px;height:48px;border-radius:.875rem;background:linear-gradient(135deg,var(--color-accent),#0d7a6e);display:flex;align-items:center;justify-content:center;color:white;font-size:1.4rem;flex-shrink:0;"><i class="fas fa-check-circle"></i></div>
+        <div style="width:48px;height:48px;border-radius:.875rem;background:linear-gradient(135deg,var(--color-accent),#0d7a6e);display:flex;align-items:center;justify-content:center;color:white;font-size:1.4rem;flex-shrink:0;"><i class="ph ph-check-circle"></i></div>
         <div>
           <div style="font-weight:800;font-size:.95rem;color:var(--color-accent);">Verificação Aprovada</div>
           <div style="font-size:.82rem;color:var(--color-gray-500);margin-top:.15rem;">A verificação foi aprovada. O selo será visível no teu perfil em breve.</div>
@@ -4832,7 +4834,7 @@ const Verification = {
   _htmlIntro() {
     return `
       <div style="padding:1.1rem 1.25rem;background:var(--color-gray-50);border:1px solid var(--color-gray-200);border-radius:1.1rem;margin-bottom:1.5rem;">
-        <p style="font-size:.875rem;color:var(--color-gray-700);margin:0 0 .4rem;font-weight:700;"><i class="fas fa-info-circle" style="color:var(--color-accent);margin-right:.3rem;"></i> O que é o Selo Verificado?</p>
+        <p style="font-size:.875rem;color:var(--color-gray-700);margin:0 0 .4rem;font-weight:700;"><i class="ph ph-info" style="color:var(--color-accent);margin-right:.3rem;"></i> O que é o Selo Verificado?</p>
         <p style="font-size:.83rem;color:var(--color-gray-500);margin:0;line-height:1.6;">Prestadores verificados recebem um badge especial no perfil, aparecem em destaque nos resultados e transmitem mais confiança aos clientes. Para verificar, precisamos do teu número de BI ou Passaporte.</p>
       </div>`;
   },
@@ -4841,16 +4843,16 @@ const Verification = {
     return `
       <form id="verificationForm" novalidate>
         <div class="profile-field" style="margin-bottom:1rem;">
-          <label>Número de BI / Passaporte <span style="color:var(--color-primary)">*</span></label>
+          <label>Número de BI / Passaporte <span style="color: var(--brand-strong)">*</span></label>
           <input id="verif_bi" type="text" placeholder="Ex: 000123456LA041" maxlength="30" required style="letter-spacing:.04em;">
-          <small style="display:block;margin-top:.3rem;color:var(--color-gray-400);font-size:.77rem;"><i class="fas fa-lock"></i> Confidencial — nunca partilhado publicamente.</small>
+          <small style="display:block;margin-top:.3rem;color:var(--color-gray-400);font-size:.77rem;"><i class="ph ph-lock-simple"></i> Confidencial — nunca partilhado publicamente.</small>
         </div>
         <div class="profile-field" style="margin-bottom:1.5rem;">
           <label>Informações adicionais <span style="font-weight:400;color:var(--color-gray-400)">(opcional)</span></label>
           <textarea id="verif_notes" placeholder="Ex: Electricista licenciado com 5 anos de experiência. Tenho certificado do MINEA." maxlength="300" style="min-height:80px;resize:vertical;width:100%;font-size:.9rem;"></textarea>
         </div>
         <button type="submit" class="btn btn--primary" id="verifSubmitBtn">
-          <i class="fas fa-paper-plane"></i> Submeter Pedido de Verificação
+          <i class="ph ph-paper-plane-tilt"></i> Submeter Pedido de Verificação
         </button>
       </form>`;
   },
@@ -4869,7 +4871,7 @@ const Verification = {
       const btn = document.getElementById('verifSubmitBtn');
       const orig = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar…';
+      btn.innerHTML = '<i class="ph ph-spinner-gap fa-spin"></i> A enviar…';
       try {
         if (window.firebaseDb) {
           await window.firebaseDb.collection('verificationRequests').doc(user.uid).set({
@@ -4889,7 +4891,7 @@ const Verification = {
         const msg = encodeURIComponent(
           `🔔 *Verificação — Conecta Já*\n\nPrestador: ${user.name}\nEmail: ${user.email}\nBI/Passaporte: ${biNumber}${notes ? `\nNotas: ${notes}` : ''}\n\n→ Aprova em Firebase Console > verificationRequests`
         );
-        setTimeout(() => window.open(`https://wa.me/244931482577?text=${msg}`, '_blank'), 800);
+        setTimeout(() => window.open(`https://wa.me/244937879654?text=${msg}`, '_blank'), 800);
       } catch (err) {
         console.error('Verification error:', err);
         Toast.error('Erro ao enviar pedido. Verifica a tua ligação e tenta novamente.');
@@ -4918,7 +4920,6 @@ document.addEventListener('DOMContentLoaded', () => {
   RatingWidget.init();
   ChoiceModal.init();
   StatsSync.init();
-  Search.init();
   PrestadoresPage.init();
   ProfilePage.init();
   Profile.init();
@@ -4929,4 +4930,10 @@ document.addEventListener('DOMContentLoaded', () => {
   FAQPage.init();
   ContactPage.init();
   BlogPage.init();
+
+  // PWA: regista o service worker. Caminho relativo porque o site vive numa
+  // subpasta (/ConectaJa.ao/). Só em HTTPS para não prender cache em dev local.
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js').catch(() => {}));
+  }
 });

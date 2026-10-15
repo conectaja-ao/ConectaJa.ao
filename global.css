@@ -9,7 +9,7 @@
 .page-hero {
     padding: 10rem 0 5rem;
     background: linear-gradient(135deg,
-        rgba(230, 57, 70, 0.06) 0%,
+        rgba(253, 104, 2, 0.06) 0%,
         rgba(244, 162, 97, 0.06) 50%,
         rgba(42, 157, 143, 0.04) 100%);
     text-align: center;
@@ -22,7 +22,7 @@
     position: absolute;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(230, 57, 70, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(253, 104, 2, 0.08) 0%, transparent 70%);
     top: -200px;
     right: -100px;
     border-radius: 50%;
@@ -53,9 +53,9 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1.25rem;
-    background: rgba(230, 57, 70, 0.1);
-    border: 1px solid rgba(230, 57, 70, 0.2);
-    color: var(--color-primary);
+    background: rgba(253, 104, 2, 0.1);
+    border: 1px solid rgba(253, 104, 2, 0.2);
+    color: var(--brand-strong);
     border-radius: 50px;
     font-size: 0.875rem;
     font-weight: 700;
@@ -168,7 +168,7 @@
     align-items: center;
     justify-content: center;
     font-size: 1.125rem;
-    box-shadow: 0 4px 20px rgba(230, 57, 70, 0.35);
+    box-shadow: 0 4px 20px rgba(253, 104, 2, 0.35);
     z-index: 9000;
     transition: all 0.3s ease;
     opacity: 0;
@@ -326,8 +326,8 @@
     }
 
     .navbar__link:hover {
-        background: rgba(230, 57, 70, 0.06);
-        color: var(--color-primary) !important;
+        background: rgba(253, 104, 2, 0.06);
+        color: var(--brand-strong) !important;
     }
 
     .navbar__actions {
@@ -347,7 +347,7 @@
         border-radius: 0.75rem;
     }
     .navbar__toggle:hover {
-        background: rgba(230,57,70,.08);
+        background: rgba(253, 104, 2,.08);
     }
     /* Move lang + theme into the mobile menu */
     .lang-toggle-wrapper,
@@ -383,8 +383,8 @@
     .mobile-menu-settings .mm-lang-btn:hover,
     .mobile-menu-settings .mm-lang-btn.active {
         border-color: var(--color-primary);
-        color: var(--color-primary);
-        background: rgba(230,57,70,.06);
+        color: var(--brand-strong);
+        background: rgba(253, 104, 2,.06);
     }
 }
 
@@ -529,11 +529,11 @@
     --shadow-lg:  0 10px 15px -3px rgba(0,0,0,0.45), 0 4px 6px -2px rgba(0,0,0,0.3);
     --shadow-xl:  0 20px 25px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(0,0,0,0.2);
     --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.7);
-    --shadow-glow: 0 0 40px rgba(230, 57, 70, 0.35);
+    --shadow-glow: 0 0 40px rgba(253, 104, 2, 0.35);
 
     /* Hero gradient mais forte em fundo escuro */
     --gradient-hero: linear-gradient(135deg,
-        rgba(230, 57, 70, 0.14) 0%,
+        rgba(253, 104, 2, 0.14) 0%,
         rgba(244, 162, 97, 0.10) 50%,
         rgba(42, 157, 143, 0.08) 100%);
 }
@@ -555,28 +555,15 @@
    Corrige valores rgba(255,255,255,...) hardcoded
 ============================================ */
 
-/* Navbar / Header */
-[data-theme="dark"] .header,
-[data-theme="dark"] header.navbar {
-    background: rgba(13, 17, 23, 0.92) !important;
-    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
-}
-[data-theme="dark"] .header.scrolled {
-    background: rgba(13, 17, 23, 0.98) !important;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
-}
 
 /* Menu móvel overlay */
 @media (max-width: 1023px) {
-    [data-theme="dark"] .navbar__menu {
-        background: rgba(13, 17, 23, 0.98) !important;
-    }
     [data-theme="dark"] .navbar__link {
         color: var(--color-gray-800) !important;
     }
     [data-theme="dark"] .navbar__link:hover {
-        background: rgba(230, 57, 70, 0.12) !important;
-        color: var(--color-primary) !important;
+        background: rgba(253, 104, 2, 0.12) !important;
+        color: var(--brand-strong) !important;
     }
     [data-theme="dark"] .mobile-menu-settings {
         border-color: rgba(255,255,255,.08);
@@ -590,8 +577,8 @@
     [data-theme="dark"] .mobile-menu-settings .mm-lang-btn:hover,
     [data-theme="dark"] .mobile-menu-settings .mm-lang-btn.active {
         border-color: var(--color-primary);
-        color: var(--color-primary);
-        background: rgba(230,57,70,.1);
+        color: var(--brand-strong);
+        background: rgba(253, 104, 2,.1);
     }
     [data-theme="dark"] .navbar__toggle:hover {
         background: rgba(255,255,255,.08);
@@ -609,19 +596,6 @@
     border-color: rgba(255, 255, 255, 0.06) !important;
 }
 
-/* Page hero */
-[data-theme="dark"] .page-hero {
-    background: linear-gradient(135deg,
-        rgba(230, 57, 70, 0.10) 0%,
-        rgba(244, 162, 97, 0.07) 50%,
-        rgba(42, 157, 143, 0.05) 100%) !important;
-}
-[data-theme="dark"] .page-hero::before {
-    background: radial-gradient(circle, rgba(230, 57, 70, 0.12) 0%, transparent 70%) !important;
-}
-[data-theme="dark"] .page-hero::after {
-    background: radial-gradient(circle, rgba(244, 162, 97, 0.10) 0%, transparent 70%) !important;
-}
 
 /* Skeleton loader */
 [data-theme="dark"] .skeleton {
@@ -632,10 +606,6 @@
     background-size: 200% 100% !important;
 }
 
-/* Page transition overlay (mantém o gradiente colorido) */
-[data-theme="dark"] .page-transition-overlay {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)) !important;
-}
 
 /* ============================================
    THEME TOGGLE BUTTON
@@ -663,7 +633,7 @@
     color: #fff;
     border-color: var(--color-primary);
     transform: scale(1.12) rotate(12deg);
-    box-shadow: 0 4px 16px rgba(230, 57, 70, 0.35);
+    box-shadow: 0 4px 16px rgba(253, 104, 2, 0.35);
 }
 
 [data-theme="dark"] .theme-toggle {
@@ -708,7 +678,7 @@
     background: var(--color-primary);
     color: #fff;
     border-color: var(--color-primary);
-    box-shadow: 0 4px 16px rgba(230, 57, 70, 0.35);
+    box-shadow: 0 4px 16px rgba(253, 104, 2, 0.35);
 }
 
 .lang-flag {
@@ -770,11 +740,11 @@
 
 .lang-option:hover {
     background: var(--color-gray-100);
-    color: var(--color-primary);
+    color: var(--brand-strong);
 }
 
 .lang-option.active {
-    color: var(--color-primary);
+    color: var(--brand-strong);
     font-weight: 700;
 }
 
@@ -803,20 +773,10 @@
    DARK MODE — INTENTIONALLY DARK SECTIONS
    (stay dark in both themes — do NOT invert)
 ============================================ */
-[data-theme="dark"] .footer,
-[data-theme="dark"] .trust {
-    background: #0a0a0a !important;
-}
 
 /* Hero gradient override (modern-styles.css uses hardcoded #FFFFFF) */
 [data-theme="dark"] .hero {
     background: linear-gradient(135deg, var(--color-white) 0%, var(--color-gray-100) 100%) !important;
-}
-[data-theme="dark"] .footer-main {
-    border-bottom-color: rgba(255,255,255,0.08) !important;
-}
-[data-theme="dark"] .footer-bottom {
-    border-top-color: rgba(255,255,255,0.08) !important;
 }
 
 /* ============================================
