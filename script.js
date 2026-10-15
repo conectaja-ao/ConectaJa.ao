@@ -207,14 +207,14 @@ const UI = {
   openMenu(toggle, menu) {
     menu.classList.add('active');
     toggle.setAttribute('aria-expanded', 'true');
-    toggle.innerHTML = '<i class="ph ph-x"></i>';
+    toggle.querySelector('i').className = 'ph ph-x'; // só a classe: trocar o <i> tirava o alvo do DOM e o 'clique fora' fechava o menu
     document.body.style.overflow = 'hidden';
   },
 
   closeMenu(toggle, menu) {
     menu.classList.remove('active');
     toggle.setAttribute('aria-expanded', 'false');
-    toggle.innerHTML = '<i class="ph ph-list"></i>';
+    toggle.querySelector('i').className = 'ph ph-list';
     document.body.style.overflow = '';
   },
 

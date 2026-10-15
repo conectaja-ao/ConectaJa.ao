@@ -381,10 +381,18 @@ header.navbar {
   height: var(--header-height);
   z-index: var(--z-header);
   background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: saturate(1.6) blur(16px);
-  -webkit-backdrop-filter: saturate(1.6) blur(16px);
   border-bottom: 1px solid transparent;
   transition: border-color var(--dur-base), background var(--dur-base), transform var(--dur-slow) var(--ease-out);
+}
+/* O blur vive num pseudo-elemento: backdrop-filter no próprio header tornava-o o
+   containing block do menu móvel (position: fixed), que ficava com 72px de altura. */
+header.navbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  backdrop-filter: saturate(1.6) blur(16px);
+  -webkit-backdrop-filter: saturate(1.6) blur(16px);
 }
 header.navbar.scrolled {
   background: color-mix(in srgb, var(--bg) 92%, transparent);
@@ -492,7 +500,7 @@ header.navbar .container { height: 100%; }
 
 /* Menu móvel (folha de ecrã inteiro) */
 @media (max-width: 1023px) {
-  .navbar__menu { background: var(--bg) !important; padding: calc(var(--header-height) + var(--space-6)) var(--gutter) var(--space-8); align-items: stretch; justify-content: flex-start; }
+  .navbar__menu { background: color-mix(in srgb, var(--bg) 90%, transparent) !important; backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4); padding: calc(var(--header-height) + var(--space-6)) var(--gutter) var(--space-8); align-items: stretch; justify-content: flex-start; }
   .navbar__link { font-family: var(--font-display); font-size: var(--text-xl) !important; font-weight: var(--weight-bold) !important; height: auto; padding: var(--space-3) 0 !important; color: var(--text) !important; border-radius: 0; border-bottom: 1px solid var(--border); background: none !important; justify-content: flex-start; }
   .navbar__link.active::before { margin-right: 12px; }
   .navbar__toggle { margin-left: auto; }
