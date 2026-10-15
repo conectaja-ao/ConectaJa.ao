@@ -7,10 +7,12 @@
   <meta name="description" content="Perfil completo do prestador de serviços no Conecta Já.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Manrope:wght@400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="tokens.css">
   <style>
     .profile-page { background: var(--color-gray-50); padding-top: var(--header-height); min-height: 100vh; }
 
@@ -20,7 +22,7 @@
     }
     .profile-hero::before {
       content: ''; position: absolute; width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(230,57,70,.25), transparent 70%);
+      background: radial-gradient(circle, rgba(253, 104, 2,.25), transparent 70%);
       top: -150px; right: -100px; border-radius: 50%;
     }
 
@@ -28,7 +30,7 @@
 
     .profile-avatar-large {
       width: 120px; height: 120px; border-radius: 1.5rem; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      background: var(--gradient-primary);
       display: flex; align-items: center; justify-content: center;
       font-size: 3rem; font-weight: 900; color: white;
       box-shadow: 0 12px 40px rgba(0,0,0,.4);
@@ -48,7 +50,7 @@
       padding: .35rem .9rem; border-radius: 50px; font-size: .8rem; font-weight: 700;
     }
     .availability-badge.available { background: rgba(42,157,143,.2); color: #4ecdc4; border: 1px solid rgba(42,157,143,.3); }
-    .availability-badge.busy { background: rgba(230,57,70,.2); color: #ff6b7a; border: 1px solid rgba(230,57,70,.3); }
+    .availability-badge.busy { background: rgba(253, 104, 2,.2); color: #FE9667; border: 1px solid rgba(253, 104, 2,.3); }
     .availability-badge i { font-size: .5rem; }
 
     .verified-badge { background: rgba(42,157,143,.2); color: var(--color-accent); padding: .3rem .75rem; border-radius: 50px; font-size: .8rem; font-weight: 700; border: 1px solid rgba(42,157,143,.3); display: inline-flex; align-items: center; gap: .4rem; }
@@ -64,7 +66,7 @@
       box-shadow: 0 4px 20px rgba(0,0,0,.06);
     }
     .profile-card__title { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.25rem; padding-bottom: .75rem; border-bottom: 2px solid var(--color-gray-100); display: flex; align-items: center; gap: .5rem; }
-    .profile-card__title i { color: var(--color-primary); }
+    .profile-card__title i { color: var(--brand-strong); }
 
     /* Action buttons */
     .profile-actions { display: flex; flex-direction: column; gap: .75rem; }
@@ -74,7 +76,7 @@
     .profile-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
     .profile-stat { text-align: center; padding: 1rem; border-radius: 1rem; background: var(--color-gray-50); }
     .profile-stat__val { font-size: 1.5rem; font-weight: 900; color: var(--color-gray-900); }
-    .profile-stat__val.gradient-text { background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .profile-stat__val.gradient-text { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .profile-stat__label { font-size: .75rem; color: var(--color-gray-500); font-weight: 600; margin-top: .2rem; }
 
     /* Bio */
@@ -128,6 +130,9 @@
   </style>
   <script>!function(){var t=localStorage.getItem('cj-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}();</script>
   <script>if(localStorage.getItem('cj-lang')==='en')document.documentElement.style.opacity='0';</script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#FD6802">
+  <link rel="stylesheet" href="components.css">
 </head>
 <body class="profile-page">
 
@@ -138,10 +143,7 @@
   <div class="container">
     <div class="navbar__wrapper">
       <a href="index.html" class="navbar__logo">
-        <svg class="logo__icon" viewBox="0 0 40 40" fill="none">
-          <path d="M20 0L40 10V30L20 40L0 30V10L20 0Z" fill="currentColor"/>
-          <circle cx="20" cy="20" r="8" fill="white"/>
-        </svg>
+        <svg class="logo__icon" viewBox="0 0 40 40" fill="none" aria-hidden="true"><defs><linearGradient id="cjLogo13" x1="2" y1="2" x2="38" y2="38" gradientUnits="userSpaceOnUse"><stop stop-color="#EB5B47"/><stop offset=".55" stop-color="#F4A261"/><stop offset="1" stop-color="#4F9D86"/></linearGradient></defs><path d="M20 0L40 10V30L20 40L0 30V10L20 0Z" fill="url(#cjLogo13)"/><circle cx="20" cy="20" r="9" fill="#fff"/><circle cx="20" cy="20" r="5" fill="#E63946"/></svg>
         <span class="logo__text">Conecta<span class="logo__accent">Já</span></span>
       </a>
       <ul class="navbar__menu" id="navMenu" role="list">
@@ -158,20 +160,19 @@
       </div>
       <div class="lang-toggle-wrapper" id="langWrapper">
         <button class="lang-toggle" id="langToggle" aria-label="Mudar idioma" aria-expanded="false" title="Mudar idioma">
-          <span class="lang-flag">🇵🇹</span>
+          <i class="ph ph-globe lang-globe" aria-hidden="true"></i>
           <span class="lang-code">PT</span>
-          <i class="fas fa-chevron-down lang-arrow"></i>
         </button>
         <div class="lang-menu" id="langMenu">
-          <button class="lang-option" data-set-lang="pt">🇵🇹 Português</button>
-          <button class="lang-option" data-set-lang="en">🇬🇧 English</button>
+          <button class="lang-option" data-set-lang="pt">Português</button>
+          <button class="lang-option" data-set-lang="en">English</button>
         </div>
       </div>
       <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema" title="Modo escuro">
-        <i class="fas fa-moon"></i>
+        <i class="ph ph-moon"></i>
       </button>
       <button class="navbar__toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
-        <i class="fas fa-bars"></i>
+        <i class="ph ph-list"></i>
       </button>
     </div>
   </div>
@@ -182,23 +183,23 @@
   <div class="profile-hero">
     <div class="container">
       <a href="prestadores.html" style="display:inline-flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.6);font-size:.9rem;font-weight:600;text-decoration:none;margin-bottom:2rem;" class="reveal">
-        <i class="fas fa-arrow-left"></i> Voltar aos prestadores
+        <i class="ph ph-arrow-left"></i> Voltar aos prestadores
       </a>
       <div class="profile-hero__inner reveal">
         <div class="profile-avatar-large" id="profile-avatar">
-          <i class="fas fa-user"></i>
+          <i class="ph ph-user"></i>
         </div>
         <div class="profile-hero__info">
           <div class="profile-hero__name">
             <span id="profile-name">Carregando…</span>
-            <span class="verified-badge" id="profile-verified" style="display:none;"><i class="fas fa-check-circle"></i> Verificado</span>
+            <span class="verified-badge" id="profile-verified" style="display:none;"><i class="ph ph-check-circle"></i> Verificado</span>
           </div>
           <div class="profile-hero__role" id="profile-category">—</div>
           <div class="profile-hero__meta">
-            <span><i class="fas fa-map-marker-alt"></i> <span id="profile-location">—</span></span>
+            <span><i class="ph ph-map-pin"></i> <span id="profile-location">—</span></span>
             <span class="stars" id="profile-rating">—</span>
             <span id="profile-reviews-count">—</span>
-            <span id="profile-availability" class="availability-badge available"><i class="fas fa-circle"></i> Disponível</span>
+            <span id="profile-availability" class="availability-badge available"><i class="ph-fill ph-circle"></i> Disponível</span>
           </div>
         </div>
       </div>
@@ -215,16 +216,16 @@
         <div class="profile-card reveal" style="margin-bottom:1.5rem;">
           <div class="profile-actions" id="profile-contact-actions">
             <button id="btn-whatsapp" class="btn btn--primary btn--lg">
-              <i class="fab fa-whatsapp"></i> Contactar no WhatsApp
+              <i class="ph ph-whatsapp-logo"></i> Contactar no WhatsApp
             </button>
             <button id="btn-call" class="btn btn--outline btn--lg">
-              <i class="fas fa-phone"></i> Ligar
+              <i class="ph ph-phone"></i> Ligar
             </button>
             <button id="btn-request" class="btn btn--ghost btn--lg">
-              <i class="fas fa-paper-plane"></i> Fazer Pedido
+              <i class="ph ph-paper-plane-tilt"></i> Fazer Pedido
             </button>
             <button id="btn-share" class="btn btn--ghost btn--lg" style="border:1.5px dashed var(--color-gray-300);">
-              <i class="fas fa-share-alt"></i> Partilhar Perfil
+              <i class="ph ph-share-network"></i> Partilhar Perfil
             </button>
           </div>
           <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--color-gray-100);text-align:center;">
@@ -235,7 +236,7 @@
 
         <!-- Stats -->
         <div class="profile-card reveal delay-100">
-          <div class="profile-card__title"><i class="fas fa-chart-bar"></i> Estatísticas</div>
+          <div class="profile-card__title"><i class="ph ph-chart-bar"></i> Estatísticas</div>
           <div class="profile-stats">
             <div class="profile-stat">
               <div class="profile-stat__val gradient-text" id="stat-rating">—</div>
@@ -254,19 +255,19 @@
 
         <!-- Social -->
         <div class="profile-card reveal delay-200" style="margin-top:1.5rem;" id="profile-social-card">
-          <div class="profile-card__title"><i class="fas fa-share-nodes"></i> Redes Sociais</div>
+          <div class="profile-card__title"><i class="ph ph-share-network"></i> Redes Sociais</div>
           <div id="profile-social" style="display:none;gap:.75rem;flex-wrap:wrap;"></div>
         </div>
 
         <!-- Share -->
         <div class="profile-card reveal delay-300" style="margin-top:1.5rem;">
-          <div class="profile-card__title"><i class="fas fa-share-alt"></i> Partilhar</div>
+          <div class="profile-card__title"><i class="ph ph-share-network"></i> Partilhar</div>
           <div style="display:flex;gap:.75rem;">
             <button onclick="navigator.share ? navigator.share({title:document.title,url:location.href}).catch(()=>{}) : navigator.clipboard.writeText(location.href).then(()=>Toast.success('Link copiado!')).catch(()=>Toast.error('Não foi possível copiar o link.'))" class="btn btn--outline btn--sm" style="flex:1;justify-content:center;">
-              <i class="fas fa-link"></i> Copiar link
+              <i class="ph ph-link"></i> Copiar link
             </button>
             <a href="https://wa.me/?text=Vê%20este%20prestador%20no%20Conecta%20Já" target="_blank" rel="noopener" class="btn btn--sm" style="background:#25D366;color:white;flex:1;justify-content:center;">
-              <i class="fab fa-whatsapp"></i> WhatsApp
+              <i class="ph ph-whatsapp-logo"></i> WhatsApp
             </a>
           </div>
         </div>
@@ -276,13 +277,13 @@
       <div>
         <!-- Bio -->
         <div class="profile-card reveal" style="margin-bottom:1.5rem;">
-          <div class="profile-card__title"><i class="fas fa-user"></i> Sobre o Prestador</div>
+          <div class="profile-card__title"><i class="ph ph-user"></i> Sobre o Prestador</div>
           <p class="profile-bio-text" id="profile-bio">Carregando informação do prestador…</p>
         </div>
 
         <!-- Portfolio -->
         <div class="profile-card reveal delay-50" style="margin-bottom:1.5rem;">
-          <div class="profile-card__title"><i class="fas fa-images"></i> Portefólio de Trabalhos</div>
+          <div class="profile-card__title"><i class="ph ph-images"></i> Portefólio de Trabalhos</div>
           <div class="portfolio-grid" id="portfolio-grid">
             <p style="color:var(--color-gray-400);text-align:center;grid-column:1/-1;padding:1.5rem 0;font-size:.9rem;">A carregar…</p>
           </div>
@@ -290,7 +291,7 @@
 
         <!-- Reviews -->
         <div class="profile-card reveal delay-100">
-          <div class="profile-card__title"><i class="fas fa-star"></i> Avaliações dos Clientes</div>
+          <div class="profile-card__title"><i class="ph-fill ph-star"></i> Avaliações dos Clientes</div>
           <div id="reviews-list">
             <p style="color:var(--color-gray-400);text-align:center;padding:2rem;">A carregar avaliações…</p>
           </div>
@@ -301,17 +302,17 @@
             <form id="reviewForm">
               <label>Classificação</label>
               <div class="star-rating">
-                <input type="radio" name="rating" id="star5" value="5"><label for="star5"><i class="fas fa-star"></i></label>
-                <input type="radio" name="rating" id="star4" value="4"><label for="star4"><i class="fas fa-star"></i></label>
-                <input type="radio" name="rating" id="star3" value="3"><label for="star3"><i class="fas fa-star"></i></label>
-                <input type="radio" name="rating" id="star2" value="2"><label for="star2"><i class="fas fa-star"></i></label>
-                <input type="radio" name="rating" id="star1" value="1"><label for="star1"><i class="fas fa-star"></i></label>
+                <input type="radio" name="rating" id="star5" value="5"><label for="star5"><i class="ph-fill ph-star"></i></label>
+                <input type="radio" name="rating" id="star4" value="4"><label for="star4"><i class="ph-fill ph-star"></i></label>
+                <input type="radio" name="rating" id="star3" value="3"><label for="star3"><i class="ph-fill ph-star"></i></label>
+                <input type="radio" name="rating" id="star2" value="2"><label for="star2"><i class="ph-fill ph-star"></i></label>
+                <input type="radio" name="rating" id="star1" value="1"><label for="star1"><i class="ph-fill ph-star"></i></label>
               </div>
               <label for="review_text">Comentário</label>
               <textarea id="review_text" name="review_text" placeholder="Partilha a tua experiência com este prestador…" maxlength="500" style="margin-bottom:.25rem;"></textarea>
               <small id="review_text_counter" style="display:block;text-align:right;color:var(--color-gray-400);font-size:.75rem;margin-bottom:1rem">0/500</small>
               <button type="submit" class="btn btn--primary">
-                <i class="fas fa-paper-plane"></i> Submeter Avaliação
+                <i class="ph ph-paper-plane-tilt"></i> Submeter Avaliação
               </button>
             </form>
           </div>
@@ -322,11 +323,11 @@
   </div>
 </main>
 
-<a href="https://wa.me/244931482577?text=Olá!%20Preciso%20de%20ajuda." class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp">
-  <i class="fab fa-whatsapp"></i>
+<a href="https://wa.me/244937879654?text=Olá!%20Preciso%20de%20ajuda." class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <i class="ph ph-whatsapp-logo"></i>
   <span class="wa-tooltip">Fala Connosco!</span>
 </a>
-<button class="back-to-top" aria-label="Voltar ao topo"><i class="fas fa-chevron-up"></i></button>
+<button class="back-to-top" aria-label="Voltar ao topo"><i class="ph ph-caret-up"></i></button>
 
 <script src="i18n.js"></script>
 <script>I18n.init();</script>
@@ -354,18 +355,18 @@
   <div class="req-inner" style="border-radius:1.5rem;width:100%;max-width:460px;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.22);max-height:90vh;overflow-y:auto;">
     <button type="button" onclick="document.getElementById('requestModal').style.display='none'"
       style="position:absolute;top:.875rem;right:.875rem;width:34px;height:34px;border-radius:50%;background:var(--color-gray-100);border:none;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1;">
-      <i class="fas fa-times" style="font-size:.9rem;color:var(--color-gray-600);"></i>
+      <i class="ph ph-x" style="font-size:.9rem;color:var(--color-gray-600);"></i>
     </button>
     <div style="padding:1.75rem 1.5rem 1.5rem;">
       <h3 style="font-size:1.15rem;font-weight:800;margin-bottom:.3rem;">
-        <i class="fas fa-paper-plane" style="color:var(--color-primary);margin-right:.4rem;"></i>Solicitar Serviço
+        <i class="ph ph-paper-plane-tilt" style="color: var(--brand-strong);margin-right:.4rem;"></i>Solicitar Serviço
       </h3>
       <p style="font-size:.85rem;color:var(--color-gray-500);margin-bottom:1.25rem;">
         Descreve o que precisas a <strong id="reqProviderName">este prestador</strong> — quanto mais detalhes, melhor o orçamento.
       </p>
       <form id="requestForm" novalidate>
         <div class="profile-field" style="margin-bottom:1rem;">
-          <label>O que precisas? <span style="color:var(--color-primary)">*</span></label>
+          <label>O que precisas? <span style="color: var(--brand-strong)">*</span></label>
           <textarea id="req_message" required maxlength="500" placeholder="Ex: Tenho uma fuga de água na cozinha, debaixo do lava-loiça…" style="min-height:110px;resize:vertical;"></textarea>
           <small id="req_msg_counter" style="display:block;text-align:right;color:var(--color-gray-400);font-size:.75rem;margin-top:.25rem;">0/500</small>
         </div>
@@ -384,10 +385,10 @@
           </div>
         </div>
         <button type="submit" class="btn btn--primary" id="reqSubmitBtn" style="width:100%;justify-content:center;">
-          <i class="fas fa-paper-plane"></i> Enviar Pedido
+          <i class="ph ph-paper-plane-tilt"></i> Enviar Pedido
         </button>
         <p style="font-size:.75rem;color:var(--color-gray-400);text-align:center;margin-top:.75rem;">
-          <i class="fas fa-info-circle"></i> O prestador responde com um orçamento. Sem compromisso.
+          <i class="ph ph-info"></i> O prestador responde com um orçamento. Sem compromisso.
         </p>
       </form>
     </div>

@@ -1,34 +1,41 @@
 /**
  * ============================================
  * CONECTA JÁ - SERVICE WORKER PWA
- * Versão: 1.2.0
+ * Versão: 2.0.0
  * ============================================
  */
 
-const CACHE_NAME = 'conectaja-v1.2.0';
-const OFFLINE_PAGE = '/offline.html';
+const CACHE_NAME = 'conectaja-v2.0.0';
+// Caminhos relativos ao próprio SW: o site vive em /ConectaJa.ao/ no GitHub Pages,
+// por isso '/index.html' apontaria para fora do site.
+const OFFLINE_PAGE = 'offline.html';
 
 // Ficheiros essenciais para cache (funciona offline)
 const STATIC_CACHE_URLS = [
-    '/',
-    '/index.html',
-    '/prestadores.html',
-    '/sobre.html',
-    '/contacto.html',
-    '/faq.html',
-    '/blog.html',
-    '/offline.html',
-    '/styles.css',
-    '/global.css',
-    '/script.js',
-    '/ao-locations.js',
-    '/i18n.js',
+    './',
+    'index.html',
+    'prestadores.html',
+    'sobre.html',
+    'contacto.html',
+    'faq.html',
+    'blog.html',
+    'offline.html',
+    'styles.css',
+    'global.css',
+    'tokens.css',
+    'components.css',
+    'site.css',
+    'script.js',
+    'ao-locations.js',
+    'i18n.js',
+    'manifest.webmanifest',
 ];
 
 // Recursos externos (CDN)
 const EXTERNAL_RESOURCES = [
-    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+    'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Manrope:wght@400..800&display=swap',
+    'https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css',
+    'https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css'
 ];
 
 // ============================================
@@ -120,8 +127,8 @@ self.addEventListener('push', (event) => {
     let data = {
         title: 'Conecta Já',
         body: 'Tens uma nova notificação!',
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/badge-72x72.png',
+        icon: 'icons/icon-192x192.png',
+        badge: 'icons/icon-192x192.png',
         tag: 'notification'
     };
 
@@ -151,7 +158,7 @@ self.addEventListener('notificationclick', (event) => {
 
     if (event.action === 'open' || !event.action) {
         event.waitUntil(
-            clients.openWindow(event.notification.data?.url || '/')
+            clients.openWindow(event.notification.data?.url || './')
         );
     }
 });

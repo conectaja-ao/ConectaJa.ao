@@ -6,18 +6,19 @@
   <title>Sem Ligação — Conecta Já</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Poppins:wght@700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Manrope:wght@400..800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --color-primary: #E63946;
+      /* Página isolada (servida offline sem tokens.css): valores copiados dos tokens */
+      --color-primary: #FD6802;
       --color-secondary: #F4A261;
       --color-accent: #2A9D8F;
+      --gradient-primary: linear-gradient(135deg, #FD6802 0%, #FE9667 100%);
     }
     body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 100%);
+      font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #100E0C 0%, #1B1815 100%);
       min-height: 100vh; display: flex; align-items: center; justify-content: center;
       color: white; text-align: center; padding: 2rem;
     }
@@ -31,28 +32,28 @@
     .offline-logo span { color: var(--color-primary); }
     .offline-icon {
       width: 120px; height: 120px; border-radius: 2rem; margin: 0 auto 2.5rem;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      background: var(--gradient-primary);
       display: flex; align-items: center; justify-content: center;
       font-size: 3.5rem; color: white;
-      box-shadow: 0 20px 60px rgba(230,57,70,.3);
+      box-shadow: 0 20px 60px rgba(253, 104, 2,.3);
       animation: pulse 2s ease-in-out infinite;
     }
     @keyframes pulse {
-      0%, 100% { box-shadow: 0 20px 60px rgba(230,57,70,.3); }
-      50% { box-shadow: 0 20px 80px rgba(230,57,70,.5), 0 0 0 20px rgba(230,57,70,.1); }
+      0%, 100% { box-shadow: 0 20px 60px rgba(253, 104, 2,.3); }
+      50% { box-shadow: 0 20px 80px rgba(253, 104, 2,.5), 0 0 0 20px rgba(253, 104, 2,.1); }
     }
     h1 { font-size: clamp(2rem,5vw,3rem); font-weight: 900; margin-bottom: 1rem; }
-    h1 span { background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    h1 span { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     p { font-size: 1.1rem; color: rgba(255,255,255,.65); line-height: 1.7; margin-bottom: 2.5rem; }
     .btn-retry {
       display: inline-flex; align-items: center; gap: .75rem;
       padding: 1rem 2.5rem; border-radius: 1rem;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      background: var(--gradient-primary);
       color: white; font-size: 1rem; font-weight: 700; border: none;
       cursor: pointer; text-decoration: none;
-      transition: all .3s; box-shadow: 0 8px 30px rgba(230,57,70,.3);
+      transition: all .3s; box-shadow: 0 8px 30px rgba(253, 104, 2,.3);
     }
-    .btn-retry:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(230,57,70,.4); }
+    .btn-retry:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(253, 104, 2,.4); }
     .offline-tips { margin-top: 3rem; display: flex; flex-direction: column; gap: .75rem; }
     .tip { display: flex; align-items: center; gap: .75rem; padding: 1rem 1.25rem; border-radius: 1rem; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); text-align: left; font-size: .9rem; color: rgba(255,255,255,.6); }
     .tip i { color: var(--color-secondary); flex-shrink: 0; }
@@ -61,6 +62,8 @@
     .connection-status { font-size: .875rem; color: rgba(255,255,255,.4); margin-top: 2rem; }
   </style>
   <script>!function(){var t=localStorage.getItem('cj-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}();</script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#FD6802">
 </head>
 <body>
   <div class="offline-wrap">
@@ -69,19 +72,19 @@
       Conecta<span>Já</span>
     </a>
 
-    <div class="offline-icon"><i class="fas fa-wifi"></i></div>
+    <div class="offline-icon"><i class="ph ph-wifi-high"></i></div>
 
     <h1>Sem <span>Ligação</span></h1>
     <p>Parece que perdeste a ligação à internet. Verifica a tua rede Wi-Fi ou dados móveis e tenta novamente.</p>
 
     <button class="btn-retry" onclick="window.location.reload()">
-      <i class="fas fa-redo"></i> Tentar Novamente
+      <i class="ph ph-arrow-clockwise"></i> Tentar Novamente
     </button>
 
     <div class="offline-tips">
-      <div class="tip"><i class="fas fa-wifi"></i> Verifica se estás ligado ao Wi-Fi</div>
-      <div class="tip"><i class="fas fa-mobile-alt"></i> Activa os dados móveis se estiveres fora de casa</div>
-      <div class="tip"><i class="fas fa-router"></i> Reinicia o router se o problema persistir</div>
+      <div class="tip"><i class="ph ph-wifi-high"></i> Verifica se estás ligado ao Wi-Fi</div>
+      <div class="tip"><i class="ph ph-device-mobile"></i> Activa os dados móveis se estiveres fora de casa</div>
+      <div class="tip"><i class="ph ph-wifi-high"></i> Reinicia o router se o problema persistir</div>
     </div>
 
     <p class="connection-status">
@@ -98,7 +101,7 @@
 
     // Update status text
     window.addEventListener('offline', () => {
-      document.querySelector('.connection-status').innerHTML = '<span style="color:#E63946;">● Sem ligação à internet</span>';
+      document.querySelector('.connection-status').innerHTML = '<span style="color:#FD6802;">● Sem ligação à internet</span>';
     });
   </script>
 </body>
