@@ -974,6 +974,27 @@ const I18n = (function () {
     'A equipa valida o teu perfil em 24 a 48 horas': 'Our team validates your profile in 24 to 48 hours',
     'Depois da aprovação, começas a receber pedidos': 'Once approved, you start receiving requests',
     'Conecta Já — início': 'Conecta Já — home',
+
+    /* ── APP ANDROID ── */
+    'Nova app para Android': 'New Android app',
+    'A Conecta Já no teu bolso.': 'Conecta Já in your pocket.',
+    'Pede orçamentos, fala com os prestadores e recebe avisos na hora, mesmo com a app fechada.': 'Request quotes, talk to providers and get instant alerts, even with the app closed.',
+    'Avisos de pedidos e mensagens': 'Request and message alerts',
+    'Poupança de dados': 'Data saver',
+    'Prestadores perto de ti no mapa': 'Providers near you on the map',
+    'Fotos e notas de voz no chat': 'Photos and voice notes in chat',
+    'Descarregar para': 'Download for',
+    'Aponta a câmara do telemóvel': 'Point your phone camera here',
+    'Ainda não está na Play Store. Como instalar?': 'Not on the Play Store yet. How to install?',
+    'Toca em': 'Tap',
+    'Descarregar para Android': 'Download for Android',
+    '(ou lê o código QR).': '(or scan the QR code).',
+    'Abre o ficheiro': 'Open the file',
+    'nas transferências.': 'in your downloads.',
+    'Se o telemóvel pedir, permite': 'If your phone asks, allow',
+    'Instalar apps desconhecidas': 'Install unknown apps',
+    'e toca em Instalar.': 'and tap Install.',
+    'Para iPhone: em breve.': 'For iPhone: coming soon.',
   };
 
   /* ------------------------------------------

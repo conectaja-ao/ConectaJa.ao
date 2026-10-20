@@ -543,6 +543,59 @@
 .lp-contact-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
 .lp-note { margin-top: var(--space-4); font-size: var(--text-sm); color: var(--text-subtle); display: inline-flex; align-items: center; gap: 6px; }
 
+/* ── 1b. App Android (APK) ───────────────────────────────── */
+.lp-app {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: var(--space-12); align-items: center;
+  padding: clamp(2rem, 1.5rem + 3vw, 4rem) clamp(1.5rem, 1rem + 3vw, 4rem);
+  border-radius: var(--radius-2xl);
+  background: var(--navy-950); color: var(--neutral-0);
+}
+.lp-app::before {
+  content: ""; position: absolute; right: -15%; top: -40%; width: 70%; height: 180%;
+  background: radial-gradient(closest-side, rgba(253, 104, 2, 0.32), transparent);
+  pointer-events: none;
+}
+.lp-app > * { position: relative; }
+.lp-app .lp-title { color: var(--neutral-0); }
+.lp-app .lp-lead { color: var(--neutral-300); max-width: 44ch; }
+.lp-app__eyebrow { color: var(--apricot-300); display: inline-flex; align-items: center; gap: .4rem; }
+.lp-app__features { list-style: none; padding: 0; margin: var(--space-6) 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-6); }
+.lp-app__features li { display: flex; align-items: center; gap: .55rem; color: var(--neutral-200); font-size: .95rem; }
+.lp-app__features i { color: var(--orange-400); font-size: 1.15rem; }
+.lp-app__actions { display: flex; align-items: center; gap: var(--space-6); margin-top: var(--space-8); flex-wrap: wrap; }
+.lp-app__download {
+  display: inline-flex; align-items: center; gap: .8rem;
+  padding: .85rem 1.5rem .85rem 1.2rem; border-radius: 16px;
+  background: var(--orange-500); color: var(--navy-950); text-decoration: none;
+  box-shadow: 0 10px 30px rgba(253, 104, 2, .35);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.lp-app__download:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(253, 104, 2, .45); }
+.lp-app__download:focus-visible { outline: 3px solid var(--neutral-0); outline-offset: 3px; }
+.lp-app__download i { font-size: 2rem; }
+.lp-app__download small { display: block; font-size: .75rem; font-weight: 600; line-height: 1.1; }
+.lp-app__download strong { display: block; font-size: 1.3rem; line-height: 1.1; }
+.lp-app__qr { display: flex; align-items: center; gap: var(--space-3); }
+.lp-app__qr svg { width: 96px; height: 96px; padding: 8px; background: #fff; border-radius: 12px; }
+.lp-app__qr small { color: var(--neutral-300); max-width: 11ch; line-height: 1.3; }
+.lp-app__how { margin-top: var(--space-6); color: var(--neutral-300); font-size: .9rem; }
+.lp-app__how summary { cursor: pointer; display: inline-flex; align-items: center; gap: .4rem; color: var(--neutral-200); }
+.lp-app__how ol { margin: var(--space-3) 0 var(--space-2); padding-left: 1.2rem; line-height: 1.7; }
+.lp-app__how strong { color: var(--neutral-0); }
+.lp-app__visual { display: flex; justify-content: center; }
+.lp-app__phone {
+  width: 250px; aspect-ratio: 1 / 2; padding: 9px; border-radius: 38px;
+  background: #16204a; box-shadow: 0 30px 70px rgba(0, 0, 0, .5); transform: rotate(-4deg);
+}
+.lp-app__phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 30px; display: block; }
+@media (max-width: 860px) {
+  .lp-app { grid-template-columns: 1fr; }
+  .lp-app__visual { display: none; }
+  .lp-app__qr { display: none; } /* no telemóvel basta o botão */
+}
+@media (max-width: 480px) { .lp-app__features { grid-template-columns: 1fr; } }
+
 /* ── Revelação ao rolar (usa a classe .reveal do script.js) ── */
 .lp .reveal { opacity: 0; transform: translateY(16px); transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
 .lp .reveal.revealed { opacity: 1; transform: none; }
