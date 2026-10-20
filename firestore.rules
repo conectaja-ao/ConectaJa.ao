@@ -11,6 +11,11 @@ service cloud.firestore {
       return request.auth.uid == uid;
     }
 
+    // Administração (avisos para todos os utilizadores da app).
+    function isAdmin() {
+      return isLoggedIn() && request.auth.token.email == 'conectaja.ao@gmail.com';
+    }
+
     function isParticipant(convData) {
       return request.auth.uid in convData.participants;
     }
@@ -81,6 +86,16 @@ service cloud.firestore {
       // aprovar/rejeitar é exclusivo do Console (admin)
       allow create, update: if isLoggedIn() && isOwner(uid)
         && request.resource.data.status == 'pending';
+    }
+
+    // ── Códigos de notificação da app (Expo Push) ──
+    match /pushTokens/{uid} {
+      // Um de cada vez: quem faz uma acção avisa a outra pessoa (pedido, mensagem, proposta)
+      allow get: if isLoggedIn();
+      // Listar todos (enviar um aviso a toda a gente) só a administração
+      allow list: if isAdmin();
+      // Cada um só mexe nos seus
+      allow write: if isLoggedIn() && isOwner(uid);
     }
 
     // ── Estatísticas globais (contadores da homepage) ──
