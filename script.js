@@ -571,6 +571,11 @@ const BackToTop = {
 /* ============================================
    MODAL SYSTEM
 ============================================ */
+// A Montra pede para ficar aberta depois do login, para não perder a cesta. As outras páginas seguem para o painel.
+const irAposEntrar = (type) => {
+  if (!window.ficarAposEntrar) window.location.href = type === 'provider' ? 'dashboard-provider.html' : 'dashboard-client.html';
+};
+
 const Modal = {
   init() {
     // Event delegation — works for dynamically injected modals too
@@ -1048,7 +1053,7 @@ const Auth = {
         Modal.closeAll();
         form.reset();
         setTimeout(() => {
-          window.location.href = type === 'provider' ? 'dashboard-provider.html' : 'dashboard-client.html';
+          irAposEntrar(type);
         }, 1500);
       } catch (err) {
         btn.innerHTML = orig;
@@ -3921,7 +3926,7 @@ const AuthModals = {
         } else {
           Toast.success(`Bem-vindo de volta, ${fbUser.displayName || 'utilizador'}!`);
           Modal.closeAll();
-          setTimeout(() => { window.location.href = type === 'provider' ? 'dashboard-provider.html' : 'dashboard-client.html'; }, 1200);
+          setTimeout(() => { irAposEntrar(type); }, 1200);
         }
       } catch (err) {
         btn.innerHTML = orig; btn.disabled = false;
@@ -4002,7 +4007,7 @@ const AuthModals = {
         } else {
           Toast.success('Bem-vindo de volta!');
           Modal.closeAll();
-          setTimeout(() => { window.location.href = type === 'provider' ? 'dashboard-provider.html' : 'dashboard-client.html'; }, 1200);
+          setTimeout(() => { irAposEntrar(type); }, 1200);
         }
       } catch (err) {
         btn.innerHTML = orig; btn.disabled = false;
@@ -4056,7 +4061,7 @@ const AuthModals = {
           this._pendingNewUser = null;
           Toast.success(`Conta criada! Bem-vindo, ${name}!`);
           Modal.closeAll();
-          setTimeout(() => { window.location.href = type === 'provider' ? 'dashboard-provider.html' : 'dashboard-client.html'; }, 1200);
+          setTimeout(() => { irAposEntrar(type); }, 1200);
         }
       } catch (err) {
         Toast.error('Erro ao criar perfil. Tenta novamente.');
@@ -4082,7 +4087,7 @@ const AuthModals = {
         this._pendingNewUser = null;
         Toast.success('Senha criada! Podes entrar com o teu número + senha.');
         Modal.closeAll();
-        setTimeout(() => { window.location.href = type === 'provider' ? 'dashboard-provider.html' : 'dashboard-client.html'; }, 1200);
+        setTimeout(() => { irAposEntrar(type); }, 1200);
       } catch (err) {
         btn.innerHTML = orig; btn.disabled = false;
         Toast.error(Auth.errorMsg(err.code) || 'Erro ao criar senha.');
@@ -4094,7 +4099,7 @@ const AuthModals = {
       const type = this._pendingNewUser?.type || 'client';
       this._pendingNewUser = null;
       Modal.closeAll();
-      setTimeout(() => { window.location.href = type === 'provider' ? 'dashboard-provider.html' : 'dashboard-client.html'; }, 100);
+      setTimeout(() => { irAposEntrar(type); }, 100);
     });
 
     // Choice modal buttons → open registerModal with type pre-selected

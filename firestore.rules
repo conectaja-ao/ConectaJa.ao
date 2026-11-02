@@ -231,6 +231,7 @@ service cloud.firestore {
         && d.get('fidelidade', {}) is map
         && d.get('equipa', {}) is map
         && d.get('membros', []) is list && d.get('membros', []).size() <= 20
+        && d.get('filiais', []) is list && d.get('filiais', []).size() <= 10
         && urlImagem(d.logoUrl) && urlImagem(d.capaUrl);
     }
     function produtoValido(d) {
@@ -258,6 +259,7 @@ service cloud.firestore {
         && (d.modo != 'entrega' || (n.entrega == true && d.morada is string && d.morada.size() >= 3 && d.morada.size() <= 160))
         && (d.modo != 'mesa' || (n.get('mesas', false) == true && d.mesa is string && d.mesa.size() >= 1 && d.mesa.size() <= 10))
         && d.hora is string && d.hora.size() <= 5
+        && d.get('filial', '') is string && d.get('filial', '').size() <= 60
         && d.pagamento in ['referencia', 'dinheiro']
         && (d.pagamento != 'referencia' || n.get('dadosPagamento', '') != '')
         && d.itens is list && d.itens.size() >= 1 && d.itens.size() <= 50
@@ -293,6 +295,24 @@ service cloud.firestore {
       function negocio() {
         return get(/databases/$(database)/documents/negocios/$(negocioId)).data;
       }
+      function negocioDepois() {
+        return getAfter(/databases/$(database)/documents/negocios/$(negocioId)).data;
+      }
+      // A média só muda junto com a avaliação de quem escreve: uma nova, editada ou apagada.
+      function contagemAvaliacao() {
+        let aval = /databases/$(database)/documents/negocios/$(negocioId)/avaliacoes/$(request.auth.uid);
+        let d = request.resource.data;
+        let soma = resource.data.get('notaSoma', 0);
+        let total = resource.data.get('notaTotal', 0);
+        return isLoggedIn()
+          && resource.data.status == 'aprovado'
+          && d.diff(resource.data).affectedKeys().hasOnly(['notaSoma', 'notaTotal'])
+          && (
+            (!exists(aval) && existsAfter(aval) && d.notaTotal == total + 1 && d.notaSoma == soma + getAfter(aval).data.nota)
+            || (exists(aval) && existsAfter(aval) && d.get('notaTotal', 0) == total && d.get('notaSoma', 0) == soma - get(aval).data.nota + getAfter(aval).data.nota)
+            || (exists(aval) && !existsAfter(aval) && d.notaTotal == total - 1 && d.notaSoma == soma - get(aval).data.nota)
+          );
+      }
 
       // O público só vê negócios aprovados; o dono e a equipa vêem sempre o seu.
       allow get: if resource.data.status == 'aprovado' || podeGerir(resource.data) || isAdmin();
@@ -312,10 +332,10 @@ service cloud.firestore {
       // Selo, plano e dono não se mudam daqui; a equipa só o dono muda. O dono só pode pedir aprovação;
       // aprovar ou rejeitar é só para a administração. Depois de aprovado, o nome fica preso:
       // o selo foi dado àquele nome.
-      allow update: if isAdmin() || (
+      allow update: if isAdmin() || contagemAvaliacao() || (
         podeGerir(resource.data)
         && negocioValido(request.resource.data)
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerUid', 'verificado', 'plano', 'planoAte', 'motivoRejeicao'])
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerUid', 'verificado', 'plano', 'planoAte', 'motivoRejeicao', 'notaSoma', 'notaTotal'])
         && (resource.data.ownerUid == request.auth.uid || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['equipa', 'membros']))
         && (podeEditar(resource.data) || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sobras', 'lojaFechada', 'filaAberta']))
         && (resource.data.status != 'aprovado' || request.resource.data.nome == resource.data.nome)
@@ -351,6 +371,39 @@ service cloud.firestore {
         );
         // Só ao eliminar a conta do dono.
         allow delete: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
+      }
+
+      // Avaliações: uma por cliente, só depois de um pedido entregue. A resposta é do negócio.
+      match /avaliacoes/{clienteUid} {
+        function avaliacaoValida(d) {
+          return d.nota is int && d.nota >= 1 && d.nota <= 5
+            && d.texto is string && d.texto.size() <= 500
+            && urlImagem(d.fotoUrl);
+        }
+        allow get, list: if negocio().status == 'aprovado' || podeGerir(negocio()) || isAdmin();
+        allow create: if isLoggedIn()
+          && request.auth.uid == clienteUid
+          && request.resource.data.clienteUid == clienteUid
+          && request.resource.data.clienteNome is string && request.resource.data.clienteNome.size() <= 100
+          && request.resource.data.resposta == ''
+          && avaliacaoValida(request.resource.data)
+          && get(/databases/$(database)/documents/negocios/$(negocioId)/pedidos/$(request.resource.data.pedidoId)).data.clienteUid == clienteUid
+          && get(/databases/$(database)/documents/negocios/$(negocioId)/pedidos/$(request.resource.data.pedidoId)).data.estado == 'entregue'
+          && negocioDepois().get('notaTotal', 0) == negocio().get('notaTotal', 0) + 1;
+        allow update: if isLoggedIn() && (
+          (request.auth.uid == clienteUid
+            && avaliacaoValida(request.resource.data)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nota', 'texto', 'fotoUrl', 'updatedAt'])
+            && negocioDepois().get('notaSoma', 0) == negocio().get('notaSoma', 0) - resource.data.nota + request.resource.data.nota)
+          || (podeGerir(negocio())
+            && request.resource.data.resposta is string && request.resource.data.resposta.size() <= 500
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resposta', 'respostaEm']))
+        );
+        // O dono só ao eliminar a conta; retirar uma avaliação denunciada é com a administração.
+        allow delete: if isAdmin() || (isLoggedIn() && (
+          (request.auth.uid == clienteUid && negocioDepois().get('notaTotal', 0) == negocio().get('notaTotal', 0) - 1)
+          || negocio().ownerUid == request.auth.uid
+        ));
       }
 
       // Índice de preços do comparador: um documento só, público como o catálogo.

@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon-96x96.png" type="image/png" sizes="96x96">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <title>Montra — Conecta Já</title>
-  <meta name="description" content="Catálogo, horário e pedidos por WhatsApp no Conecta Já.">
+  <meta name="description" content="Catálogo, horário, pedidos e avaliações no Conecta Já.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Manrope:wght@400..800&display=swap" rel="stylesheet">
@@ -71,9 +71,46 @@
 
     .montra-barra { position: fixed; left: 0; right: 0; bottom: 0; padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--bg) 70%, transparent); }
     .montra-barra[hidden] { display: none; }
-    .montra-barra a { display: flex; align-items: center; gap: .75rem; max-width: 688px; min-height: 56px; margin: 0 auto; padding: 0 1rem; border-radius: 16px; background: var(--brand); color: var(--brand-ink); font-weight: 700; text-decoration: none; }
+    .montra-barra button { display: flex; align-items: center; gap: .75rem; width: 100%; max-width: 688px; min-height: 56px; margin: 0 auto; padding: 0 1rem; border: 0; border-radius: 16px; background: var(--brand); color: var(--brand-ink); font: inherit; font-weight: 700; cursor: pointer; }
     .montra-barra b { width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%; background: var(--brand-ink); color: var(--brand); display: flex; align-items: center; justify-content: center; font-size: .8rem; }
-    .montra-barra span { flex: 1; }
+    .montra-barra span { flex: 1; text-align: left; }
+
+    .montra-pill--nota { background: var(--surface-sunken); color: var(--text); }
+    .montra-pill--nota i { color: var(--gold-500, #F59E0B); }
+    .montra-caixa { padding: 1rem; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); }
+    .montra-caixa strong { color: var(--text); }
+    .montra-caixa p, .montra-caixa small { color: var(--text-muted); overflow-wrap: anywhere; }
+    .montra-fornada { display: flex; gap: .75rem; align-items: center; border-color: var(--brand); background: var(--brand-soft); margin-top: .5rem; }
+    .montra-fornada i { font-size: 1.75rem; color: var(--brand-strong); }
+    .montra-carimbos { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .5rem; }
+    .montra-carimbos span { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-sunken); display: flex; align-items: center; justify-content: center; color: var(--brand-ink); font-size: .8rem; }
+    .montra-carimbos span.cheio { background: var(--brand); border-color: var(--brand); }
+    .montra-lista { display: grid; gap: .75rem; margin-top: .5rem; list-style: none; padding: 0; }
+    .montra-estrelas { color: var(--gold-500, #F59E0B); white-space: nowrap; }
+    .montra-av-topo { display: flex; justify-content: space-between; gap: .5rem; align-items: center; }
+    .montra-av-foto { width: 100%; max-height: 240px; object-fit: cover; border-radius: 12px; margin-top: .5rem; }
+    .montra-resposta { margin-top: .5rem; padding: .625rem .75rem; border-radius: 10px; background: var(--surface-sunken); }
+
+    .montra-check { position: fixed; inset: 0; z-index: calc(var(--z-modal) - 1); background: rgba(5, 13, 39, .55); display: flex; align-items: flex-end; justify-content: center; }
+    .montra-check__caixa { width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; background: var(--bg); border-radius: 24px 24px 0 0; padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom)); display: grid; gap: .875rem; color: var(--text); }
+    @media (min-width: 640px) { .montra-check { align-items: center; } .montra-check__caixa { border-radius: 24px; } }
+    .montra-check__topo { display: flex; align-items: center; gap: .75rem; }
+    .montra-check__topo h2 { flex: 1; margin: 0; }
+    .montra-check__topo button { width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--surface-sunken); color: var(--text); cursor: pointer; font-size: 1.1rem; }
+    .montra-rotulo { display: block; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-subtle); margin-bottom: .375rem; }
+    .montra-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .montra-chips button { min-height: 44px; padding: 0 1rem; border-radius: 50px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
+    .montra-chips button[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+    .montra-chips button:disabled { opacity: .55; cursor: not-allowed; }
+    .montra-campo { width: 100%; min-height: 48px; padding: .625rem .875rem; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; }
+    .montra-linha { display: flex; justify-content: space-between; gap: .75rem; color: var(--text-muted); }
+    .montra-linha--total { color: var(--text); font-weight: 800; font-size: 1.05rem; padding-top: .5rem; border-top: 1px solid var(--border); }
+    .montra-erro { padding: .625rem .75rem; border-radius: 10px; border: 1px solid var(--color-error, #D92D20); color: var(--text); }
+    .montra-check .btn { width: 100%; min-height: 48px; justify-content: center; }
+    .montra-passo { display: flex; gap: .5rem; align-items: center; color: var(--text-muted); }
+    .montra-passo.feito { color: var(--text); font-weight: 700; }
+    .montra-passo i { font-size: 1.25rem; }
+    .montra-passo.feito i { color: var(--success-500); }
   </style>
   <script>!function(){var t=localStorage.getItem('cj-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}();</script>
   <script>if(localStorage.getItem('cj-lang')==='en')document.documentElement.style.opacity='0';</script>
@@ -139,6 +176,14 @@
         <a class="btn btn--outline" id="mLigar"><i class="ph ph-phone" aria-hidden="true"></i> <span>Ligar</span></a>
       </div>
 
+      <div class="montra-caixa" id="mCartao" hidden></div>
+
+      <section id="mOfertas" hidden>
+        <h2>Ofertas</h2>
+        <div class="montra-caixa montra-fornada" id="mFornada" hidden></div>
+        <ul class="montra-produtos" id="mSobras"></ul>
+      </section>
+
       <section>
         <h2>Catálogo</h2>
         <ul class="montra-produtos" id="mProdutos"></ul>
@@ -151,6 +196,12 @@
         <p id="mDescricao"></p>
         <p id="mHorario"></p>
         <p id="mMorada"></p>
+        <div id="mFiliais"></div>
+      </section>
+
+      <section id="mAvaliacoes" hidden>
+        <h2>Avaliações</h2>
+        <ul class="montra-lista" id="mListaAvaliacoes"></ul>
       </section>
 
       <a class="montra-app" href="index.html#app">
@@ -162,11 +213,15 @@
 </main>
 
 <div class="montra-barra" id="mBarra" hidden>
-  <a id="mEnviar" target="_blank" rel="noopener">
+  <button id="mVerCesta" type="button">
     <b id="mItens"></b>
-    <span>Enviar pedido por WhatsApp</span>
+    <span>Ver cesta</span>
     <strong id="mTotal"></strong>
-  </a>
+  </button>
+</div>
+
+<div class="montra-check" id="mCheck" role="dialog" aria-modal="true" aria-labelledby="mCheckTitulo" hidden>
+  <div class="montra-check__caixa" id="mCheckCaixa"></div>
 </div>
 
 <script src="i18n.js"></script>
@@ -241,11 +296,61 @@
     box.replaceChildren(el('i', { class: `ph ${icone}`, 'aria-hidden': 'true' }), ...(titulo ? [el('h1', { text: titulo })] : []), el('p', { text: texto }));
   }
 
+  // Igual a features/negocios/model.ts da app.
+  const minutosDe = (d) => d.getHours() * 60 + d.getMinutes();
+  const horaDe = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+  const diaDe = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const horaValida = (h) => /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(h || '');
+  const estadoNegocio = (n, now = new Date()) => (n.lojaFechada ? { aberto: false, texto: t('Fechado agora', 'Closed now') } : estadoAberto(n.horario, now));
+  const codigoPedido = (id) => id.slice(-4).toUpperCase();
+  const telefoneAO = (v) => {
+    const d = String(v).replace(/\D/g, '').replace(/^(00)?244/, '');
+    return /^9[0-9]{8}$/.test(d) ? `+244${d}` : '';
+  };
+
+  function fornadaAtiva(n, now = new Date()) {
+    const f = n.fornada;
+    if (!f || !horaValida(f.hora) || f.dia !== diaDe(now) || minutosDe(now) > minutos(f.hora) + 60) return null;
+    return { ...f, quente: minutosDe(now) >= minutos(f.hora) };
+  }
+
+  const sobrasAtivas = (n, now = new Date()) =>
+    (Array.isArray(n.sobras) ? n.sobras : []).filter((x) => x.dia === diaDe(now) && x.qtd > 0 && horaValida(x.ate) && minutosDe(now) < minutos(x.ate));
+
+  function horasPedido(n, now = new Date()) {
+    if (n.lojaFechada) return [];
+    const agora = minutosDe(now);
+    const abre = minutos(n.horario.abre);
+    const fecha = minutos(n.horario.fecha) <= abre ? 24 * 60 : minutos(n.horario.fecha);
+    const horas = [];
+    if (n.horario.dias.includes(now.getDay())) {
+      for (let m = Math.max(abre, Math.ceil((agora + 15) / 30) * 30); m < fecha && horas.length < 3; m += 30) horas.push(horaDe(m));
+    }
+    const f = fornadaAtiva(n, now);
+    if (f && !f.quente && !horas.includes(f.hora)) horas.push(f.hora);
+    horas.sort();
+    return estadoNegocio(n, now).aberto ? ['agora', ...horas] : horas;
+  }
+
+  const MODOS = { levantar: t('Levantar', 'Pick up'), entrega: t('Entrega', 'Delivery'), mesa: t('Na mesa', 'At the table') };
+  const pagamentoTexto = (p, modo) =>
+    p === 'referencia'
+      ? t('Pagamento por referência', 'Payment by reference')
+      : { levantar: t('Dinheiro ao levantar', 'Cash on pick-up'), entrega: t('Dinheiro na entrega', 'Cash on delivery'), mesa: t('Dinheiro na mesa', 'Cash at the table') }[modo];
+
   const cesta = new Map();
+  const redesenhos = [];
   // QR de mesa: o número segue na mensagem de WhatsApp.
   const mesa = (new URLSearchParams(location.search).get('mesa') ?? '').replace(/[^A-Za-z0-9 -]/g, '').slice(0, 10);
   let negocio = null;
+  let negocioId = '';
   let produtos = [];
+  let utilizador = null;
+  let perfil = { nome: '', telefone: '' };
+  let carimbos = 0;
+  let pararPedido = null;
+  // A mensagem de WhatsApp vai sempre em português: é o que o negócio lê.
+  const ck = { modo: 'levantar', hora: '', morada: '', mesa: '', filial: '', telefone: '', pagamento: 'dinheiro', erro: '', busy: false, id: '', aguardaLogin: false };
 
   function linhasCesta() {
     return produtos.filter((p) => cesta.get(p.id)).map((p) => ({ produto: p, qtd: cesta.get(p.id) }));
@@ -258,9 +363,263 @@
     $('mBarra').hidden = !itens;
     $('mItens').textContent = itens;
     $('mTotal').textContent = kz(total);
-    // A mensagem vai sempre em português: é o que o negócio lê.
-    const lista = linhas.map((l) => `${l.qtd}× ${l.produto.nome} (${kz(l.produto.preco * l.qtd)})`).join('\n');
-    $('mEnviar').href = wa(negocio.telefone, `Olá ${negocio.nome}! Quero fazer este pedido pela Conecta Já:\n\n${lista}${mesa ? `\n\nMesa ${mesa}` : ''}\n\nTotal: ${kz(total)}\n\nConfirma se está disponível, por favor.`);
+  }
+
+  function totais() {
+    const subtotal = linhasCesta().reduce((s, l) => s + l.produto.preco * l.qtd, 0);
+    const taxa = ck.modo === 'entrega' ? Number(negocio.taxaEntrega) || 0 : 0;
+    const f = negocio.fidelidade;
+    const desconto = f && f.meta > 0 && f.desconto > 0 && carimbos >= f.meta && subtotal >= f.desconto ? f.desconto : 0;
+    return { subtotal, taxa, desconto, total: subtotal + taxa - desconto };
+  }
+
+  function mensagemWhatsapp() {
+    const lista = linhasCesta().map((l) => `${l.qtd}× ${l.produto.nome} (${kz(l.produto.preco * l.qtd)})`).join('\n');
+    const quando = ck.modo === 'mesa' ? `Mesa ${ck.mesa.trim()}` : `${{ levantar: 'Levantar', entrega: 'Entrega' }[ck.modo]} · ${ck.hora && ck.hora !== 'agora' ? ck.hora : 'agora'}`;
+    const pagamento = ck.pagamento === 'referencia' ? 'Pagamento por referência' : { levantar: 'Dinheiro ao levantar', entrega: 'Dinheiro na entrega', mesa: 'Dinheiro na mesa' }[ck.modo];
+    const extra = [quando, ck.modo !== 'entrega' && ck.filial ? `Filial: ${ck.filial}` : '', ck.modo === 'entrega' && ck.morada.trim() ? `Morada: ${ck.morada.trim()}` : '', pagamento].filter(Boolean).join('\n');
+    return `Olá ${negocio.nome}! Quero fazer este pedido pela Conecta Já:\n\n${lista}\n\n${extra}\n\nTotal: ${kz(totais().total)}\n\nConfirma se está disponível, por favor.`;
+  }
+
+  const chips = (rotulo, opcoes, atual, escolher) =>
+    el(
+      'div',
+      {},
+      el('span', { class: 'montra-rotulo', text: rotulo }),
+      el(
+        'div',
+        { class: 'montra-chips' },
+        ...opcoes.map(([valor, texto, desligado]) => {
+          const b = el('button', { type: 'button', text: texto, 'aria-pressed': String(valor === atual) });
+          b.disabled = !!desligado;
+          b.onclick = () => escolher(valor);
+          return b;
+        }),
+      ),
+    );
+
+  function campo(rotulo, valor, guardar, attrs = {}) {
+    const input = el('input', { class: 'montra-campo', 'aria-label': rotulo, ...attrs });
+    input.value = valor;
+    input.oninput = () => guardar(input.value);
+    return el('label', {}, el('span', { class: 'montra-rotulo', text: rotulo }), input);
+  }
+
+  const linhaValor = (rotulo, valor, total) => el('div', { class: `montra-linha${total ? ' montra-linha--total' : ''}` }, el('span', { text: rotulo }), el('span', { text: valor }));
+
+  function topoCheckout(titulo) {
+    const fechar = el('button', { type: 'button', 'aria-label': t('Fechar', 'Close') }, el('i', { class: 'ph ph-x', 'aria-hidden': 'true' }));
+    fechar.onclick = fecharCheckout;
+    return el('div', { class: 'montra-check__topo' }, el('h2', { id: 'mCheckTitulo', text: titulo }), fechar);
+  }
+
+  function desenharCheckout() {
+    const n = negocio;
+    const horas = horasPedido(n);
+    if (!horas.includes(ck.hora)) ck.hora = horas[0] ?? '';
+    const aberto = estadoNegocio(n).aberto;
+    const podePedir = ck.modo === 'mesa' ? aberto : !!ck.hora;
+    const contas = totais();
+    const opcoesModo = [['levantar', MODOS.levantar], ...(n.entrega ? [['entrega', MODOS.entrega]] : []), ...(n.mesas ? [['mesa', MODOS.mesa]] : [])];
+    const filiais = Array.isArray(n.filiais) ? n.filiais : [];
+
+    const confirmar = el('button', { type: 'button', class: 'btn btn--primary', text: utilizador ? t(`Confirmar pedido · ${kz(contas.total)}`, `Confirm order · ${kz(contas.total)}`) : t('Entrar para confirmar o pedido', 'Sign in to confirm the order') });
+    confirmar.disabled = ck.busy || (!!utilizador && !podePedir);
+    confirmar.onclick = confirmarPedido;
+    const whatsapp = el('a', { class: 'btn btn--outline', href: wa(n.telefone, mensagemWhatsapp()), target: '_blank', rel: 'noopener' }, el('i', { class: 'ph-fill ph-whatsapp-logo', 'aria-hidden': 'true' }), t(' Enviar pedido por WhatsApp', ' Send order by WhatsApp'));
+
+    $('mCheckCaixa').replaceChildren(
+      topoCheckout(t('O teu pedido', 'Your order')),
+      ...(aberto ? [] : [el('div', { class: 'montra-caixa' }, el('strong', { text: estadoNegocio(n).texto }), el('p', { text: horas.length ? t('Podes marcar para mais tarde.', 'You can book for later.') : t('Hoje já não dá para marcar aqui. Podes enviar o pedido por WhatsApp.', "It's too late to book here today. You can send the order by WhatsApp.") }))]),
+      chips(t('Como queres?', 'How would you like it?'), opcoesModo, ck.modo, (v) => { ck.modo = v; desenharCheckout(); }),
+      ...(filiais.length && ck.modo !== 'entrega' ? [chips(t('Em que loja?', 'Which shop?'), [['', t('Loja principal', 'Main shop')], ...filiais.map((f) => [f.nome, f.nome])], ck.filial, (v) => { ck.filial = v; desenharCheckout(); })] : []),
+      ...(ck.modo === 'mesa'
+        ? [campo(t('Número da mesa', 'Table number'), ck.mesa, (v) => { ck.mesa = v; }, { maxlength: '10' })]
+        : horas.length
+          ? [chips(ck.modo === 'entrega' ? t('Hora de entrega', 'Delivery time') : t('Hora de levantamento', 'Pick-up time'), horas.map((h) => [h, h === 'agora' ? t('Agora', 'Now') : h]), ck.hora, (v) => { ck.hora = v; desenharCheckout(); })]
+          : []),
+      ...(ck.modo === 'entrega' ? [campo(t('Morada de entrega', 'Delivery address'), ck.morada, (v) => { ck.morada = v; }, { maxlength: '160', autocomplete: 'street-address' })] : []),
+      campo(t('O teu telefone', 'Your phone'), ck.telefone, (v) => { ck.telefone = v; }, { type: 'tel', maxlength: '16', placeholder: '9XX XXX XXX', autocomplete: 'tel' }),
+      el('div', { class: 'montra-caixa' }, ...linhasCesta().map((l) => linhaValor(`${l.qtd}× ${l.produto.nome}`, kz(l.produto.preco * l.qtd)))),
+      chips(t('Pagamento', 'Payment'), [['multicaixa', t('Multicaixa Express · Em breve', 'Multicaixa Express · Coming soon'), true], ...(n.dadosPagamento ? [['referencia', pagamentoTexto('referencia', ck.modo)]] : []), ['dinheiro', pagamentoTexto('dinheiro', ck.modo)]], ck.pagamento, (v) => { ck.pagamento = v; desenharCheckout(); }),
+      el(
+        'div',
+        { style: 'display:grid;gap:.375rem' },
+        linhaValor(t('Subtotal', 'Subtotal'), kz(contas.subtotal)),
+        ...(ck.modo === 'entrega' ? [linhaValor(t('Taxa de entrega', 'Delivery fee'), contas.taxa ? kz(contas.taxa) : t('Combinar com o negócio', 'Arrange with the business'))] : []),
+        ...(contas.desconto ? [linhaValor(t('Desconto de fidelidade', 'Loyalty discount'), `−${kz(contas.desconto)}`)] : []),
+        linhaValor('Total', kz(contas.total), true),
+      ),
+      ...(ck.erro ? [el('div', { class: 'montra-erro', role: 'alert', text: ck.erro })] : []),
+      confirmar,
+      whatsapp,
+    );
+  }
+
+  function abrirCheckout() {
+    ck.erro = '';
+    ck.id = ck.id || window.firebaseDb.collection('negocios').doc(negocioId).collection('pedidos').doc().id;
+    $('mCheck').hidden = false;
+    document.body.style.overflow = 'hidden';
+    desenharCheckout();
+  }
+
+  function fecharCheckout() {
+    $('mCheck').hidden = true;
+    document.body.style.overflow = '';
+    if (pararPedido) pararPedido();
+    pararPedido = null;
+  }
+
+  async function confirmarPedido() {
+    if (!utilizador) {
+      // Fica nesta página depois de entrar, com a cesta intacta.
+      ck.aguardaLogin = true;
+      fecharCheckout();
+      Modal.open('loginModal');
+      return;
+    }
+    const clienteTelefone = telefoneAO(ck.telefone);
+    const morada = ck.morada.trim();
+    const mesaLimpa = ck.mesa.trim();
+    const erro = !clienteTelefone
+      ? t('O telefone tem de ser um número angolano de 9 dígitos, começado por 9.', 'The phone must be a 9-digit Angolan number starting with 9.')
+      : ck.modo === 'entrega' && morada.length < 3
+        ? t('Escreve a morada de entrega.', 'Enter the delivery address.')
+        : ck.modo === 'mesa' && !mesaLimpa
+          ? t('Escreve o número da mesa.', 'Enter the table number.')
+          : !navigator.onLine
+            ? t('Estás sem ligação. Liga os dados e tenta outra vez.', "You're offline. Turn on data and try again.")
+            : '';
+    ck.erro = erro;
+    if (erro) return desenharCheckout();
+
+    ck.busy = true;
+    desenharCheckout();
+    const agora = firebase.firestore.FieldValue.serverTimestamp();
+    const ref = window.firebaseDb.collection('negocios').doc(negocioId).collection('pedidos').doc(ck.id);
+    try {
+      await ref.set({
+        clienteUid: utilizador.uid,
+        clienteNome: perfil.nome || utilizador.displayName || 'Cliente',
+        clienteTelefone,
+        modo: ck.modo,
+        hora: ck.modo === 'mesa' ? 'agora' : ck.hora,
+        morada: ck.modo === 'entrega' ? morada : '',
+        mesa: ck.modo === 'mesa' ? mesaLimpa : '',
+        filial: ck.modo === 'entrega' ? '' : ck.filial,
+        pagamento: ck.pagamento,
+        itens: linhasCesta().map((l) => ({ produtoId: l.produto.id, nome: l.produto.nome, preco: l.produto.preco, qtd: l.qtd })),
+        ...totais(),
+        negocioId,
+        negocioNome: negocio.nome,
+        dadosPagamento: ck.pagamento === 'referencia' ? negocio.dadosPagamento : '',
+        pago: false,
+        estado: 'novo',
+        dia: diaDe(),
+        source: 'site',
+        createdAt: agora,
+        updatedAt: agora,
+      });
+    } catch (e) {
+      ck.busy = false;
+      ck.erro = e.code === 'permission-denied' ? t('Este negócio não aceita pedidos agora. Podes enviar por WhatsApp.', "This business isn't taking orders now. You can send by WhatsApp.") : t('Não foi possível enviar o pedido. Tenta outra vez.', "We couldn't send the order. Try again.");
+      return desenharCheckout();
+    }
+    const id = ck.id;
+    ck.busy = false;
+    ck.id = '';
+    cesta.clear();
+    redesenhos.forEach((d) => d());
+    acompanharPedido(id);
+  }
+
+  // Do navegador não dá para enviar avisos ao telemóvel do negócio: por isso o botão de WhatsApp fica em destaque.
+  function acompanharPedido(id) {
+    const ref = window.firebaseDb.collection('negocios').doc(negocioId).collection('pedidos').doc(id);
+    const codigo = codigoPedido(id);
+    const PASSOS = [['novo', t('Novo', 'New')], ['preparo', t('Em preparo', 'Being prepared')], ['pronto', t('Pronto', 'Ready')], ['entregue', t('Entregue', 'Delivered')]];
+    pararPedido = ref.onSnapshot((s) => {
+      const p = s.data();
+      if (!p) return;
+      const atual = PASSOS.findIndex(([e]) => e === p.estado);
+      const avisar = el('a', { class: 'btn btn--primary', href: wa(negocio.telefone, `Olá ${negocio.nome}! Fiz o pedido #${codigo} pela Conecta Já. Podem confirmar, por favor?`), target: '_blank', rel: 'noopener' }, el('i', { class: 'ph-fill ph-whatsapp-logo', 'aria-hidden': 'true' }), t(' Avisar o negócio por WhatsApp', ' Tell the business on WhatsApp'));
+      const cancelar = el('button', { type: 'button', class: 'btn btn--ghost', text: t('Cancelar pedido', 'Cancel order') });
+      cancelar.onclick = () => ref.update({ estado: 'cancelado', updatedAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
+      $('mCheckCaixa').replaceChildren(
+        topoCheckout(t(`Pedido #${codigo}`, `Order #${codigo}`)),
+        ...(p.estado === 'cancelado'
+          ? [el('div', { class: 'montra-caixa' }, el('strong', { text: t('Pedido cancelado', 'Order cancelled') }))]
+          : [el('div', { style: 'display:grid;gap:.5rem', role: 'status' }, ...PASSOS.map(([, texto], i) => el('div', { class: `montra-passo${i <= atual ? ' feito' : ''}` }, el('i', { class: i <= atual ? 'ph-fill ph-check-circle' : 'ph ph-clock', 'aria-hidden': 'true' }), texto)))]),
+        ...(p.pagamento === 'referencia' && !p.pago && p.estado !== 'cancelado' ? [el('div', { class: 'montra-caixa' }, el('strong', { text: t('Como pagar', 'How to pay') }), el('p', { text: t(`Paga ${kz(p.total)} para ${p.dadosPagamento} e indica a referência CJ-${codigo}. O negócio confirma quando receber.`, `Pay ${kz(p.total)} to ${p.dadosPagamento} and quote reference CJ-${codigo}. The business confirms when it receives it.`) }))] : []),
+        linhaValor('Total', kz(p.total), true),
+        ...(p.estado === 'novo' ? [avisar, cancelar] : []),
+      );
+    });
+  }
+
+  function mostrarCartao() {
+    const f = negocio.fidelidade;
+    if (!f || !(f.meta > 0) || !(f.desconto > 0)) return;
+    const cheios = Math.min(carimbos, f.meta);
+    const faltam = f.meta - carimbos;
+    const texto = faltam <= 0 ? t(`Tens ${kz(f.desconto)} de desconto no próximo pedido`, `You have ${kz(f.desconto)} off your next order`) : t(`${faltam === 1 ? 'Falta 1 compra' : `Faltam ${faltam} compras`} para ${kz(f.desconto)} de desconto`, `${faltam} more ${faltam === 1 ? 'purchase' : 'purchases'} for ${kz(f.desconto)} off`);
+    $('mCartao').replaceChildren(
+      el('strong', { text: t(`Cartão de carimbos · ${cheios} de ${f.meta}`, `Stamp card · ${cheios} of ${f.meta}`) }),
+      el('p', { text: texto }),
+      el('div', { class: 'montra-carimbos', 'aria-hidden': 'true' }, ...Array.from({ length: f.meta }, (_, i) => el('span', { class: i < cheios ? 'cheio' : '' }, ...(i < cheios ? [el('i', { class: 'ph-fill ph-check' })] : [])))),
+    );
+    $('mCartao').hidden = false;
+  }
+
+  // Ao entrar: nome, telefone e carimbos desta pessoa; e volta ao pedido, se foi isso que a levou a entrar.
+  function aoMudarSessao(user) {
+    utilizador = user;
+    carimbos = 0;
+    if (user && negocio) {
+      window.firebaseDb.collection('providers').doc(user.uid).get().then((d) => {
+        const p = d.data() ?? {};
+        perfil = { nome: p.name ?? '', telefone: p.phone ?? '' };
+        if (!ck.telefone && perfil.telefone) ck.telefone = perfil.telefone;
+        if (!$('mCheck').hidden && !pararPedido) desenharCheckout();
+      }).catch(() => {});
+      window.firebaseDb.collection('negocios').doc(negocioId).collection('cartoes').doc(user.uid).get().then((d) => {
+        carimbos = Number(d.data()?.carimbos ?? 0);
+        mostrarCartao();
+        if (!$('mCheck').hidden && !pararPedido) desenharCheckout();
+      }).catch(() => {});
+    }
+    if (negocio) mostrarCartao();
+    if (user && ck.aguardaLogin) {
+      ck.aguardaLogin = false;
+      abrirCheckout();
+    } else if (!$('mCheck').hidden && !pararPedido) {
+      desenharCheckout();
+    }
+  }
+
+  async function carregarAvaliacoes(ref) {
+    try {
+      const s = await ref.collection('avaliacoes').orderBy('createdAt', 'desc').limit(10).get();
+      if (s.empty) return;
+      $('mListaAvaliacoes').replaceChildren(
+        ...s.docs.map((d) => {
+          const a = d.data();
+          const nota = Math.min(5, Math.max(1, Number(a.nota) || 1));
+          return el(
+            'li',
+            { class: 'montra-caixa' },
+            el('div', { class: 'montra-av-topo' }, el('strong', { text: a.clienteNome || t('Cliente', 'Customer') }), el('span', { class: 'montra-estrelas', 'aria-label': t(`${nota} em 5`, `${nota} out of 5`), text: '★'.repeat(nota) + '☆'.repeat(5 - nota) })),
+            ...(a.texto ? [el('p', { text: a.texto })] : []),
+            ...(urlSegura(a.fotoUrl) ? [el('img', { class: 'montra-av-foto', src: a.fotoUrl, alt: '', loading: 'lazy' })] : []),
+            ...(a.resposta ? [el('div', { class: 'montra-resposta' }, el('small', { text: t(`Resposta de ${negocio.nome}`, `Reply from ${negocio.nome}`) }), el('p', { text: a.resposta }))] : []),
+          );
+        }),
+      );
+      $('mAvaliacoes').hidden = false;
+    } catch {
+      // As avaliações são um extra: sem elas, o resto da Montra continua a funcionar.
+    }
   }
 
   function linhaProduto(p) {
@@ -275,6 +634,7 @@
       mais.disabled = n >= limite;
       atualizarCesta();
     };
+    redesenhos.push(desenhar);
     const alterar = (d) => {
       cesta.set(p.id, Math.max(0, Math.min(limite, (cesta.get(p.id) ?? 0) + d)));
       desenhar();
@@ -313,7 +673,7 @@
   function mostrarNegocio(n) {
     negocio = n;
     document.title = `${n.nome} — Conecta Já`;
-    const estado = n.lojaFechada ? { aberto: false, texto: t('Fechado agora', 'Closed now') } : estadoAberto(n.horario);
+    const estado = estadoNegocio(n);
     const municipio = window.AOLocations.municipalityLabel(n.province, n.municipality);
     const provincia = window.AOLocations.provinceLabel(n.province);
     const horas = `${n.horario.abre}–${n.horario.fecha}`;
@@ -327,8 +687,34 @@
 
     $('mPills').replaceChildren(
       ...(n.verificado ? [el('span', { class: 'montra-pill montra-pill--selo' }, el('i', { class: 'ph-fill ph-seal-check', 'aria-hidden': 'true' }), t('Empresa Verificada', 'Verified Business'))] : []),
+      ...(n.notaTotal > 0 ? [el('span', { class: 'montra-pill montra-pill--nota' }, el('i', { class: 'ph-fill ph-star', 'aria-hidden': 'true' }), `${(Math.round((n.notaSoma / n.notaTotal) * 10) / 10).toFixed(1).replace('.', ',')} (${n.notaTotal})`)] : []),
       el('span', { class: `montra-pill${estado.aberto ? ' montra-pill--aberto' : ''}`, text: estado.texto }),
     );
+
+    const fornada = fornadaAtiva(n);
+    const sobras = sobrasAtivas(n).map((x) => ({ id: `sobra:${x.id}`, nome: x.nome, descricao: t(`Sobra do dia · até ${x.ate}`, `Today's leftover · until ${x.ate}`), preco: x.preco, stock: x.qtd, fotoUrl: '', ativo: true }));
+    if (fornada) {
+      $('mFornada').replaceChildren(el('i', { class: 'ph-fill ph-fire', 'aria-hidden': 'true' }), el('div', {}, el('strong', { text: t(`Fornada quente às ${fornada.hora}`, `Hot batch at ${fornada.hora}`) }), ...(fornada.texto ? [el('p', { text: fornada.texto })] : [])));
+      $('mFornada').hidden = false;
+    }
+    if (sobras.length) {
+      produtos = produtos.concat(sobras);
+      $('mSobras').append(...sobras.map(linhaProduto));
+    }
+    $('mOfertas').hidden = !fornada && !sobras.length;
+
+    const filiais = Array.isArray(n.filiais) ? n.filiais : [];
+    if (filiais.length) {
+      $('mFiliais').replaceChildren(
+        el('h2', { text: t('Filiais', 'Branches') }),
+        ...filiais.map((f) => el('p', {}, el('strong', { text: f.nome }), ` · ${[f.neighborhood, window.AOLocations.municipalityLabel(f.province, f.municipality)].filter(Boolean).join(', ')}`)),
+      );
+    }
+    if (mesa && n.mesas) {
+      ck.modo = 'mesa';
+      ck.mesa = mesa;
+    }
+    mostrarCartao();
 
     const tile = (valor, rotulo) => el('div', { class: 'montra-tile' }, el('strong', { text: valor }), el('small', { text: rotulo }));
     $('mTiles').replaceChildren(
@@ -366,7 +752,14 @@
       return mostrarEstado('ph-wifi-slash', t('Sem ligação', 'No connection'), t('Não conseguimos abrir esta Montra.', "We couldn't open this Storefront."));
     }
     if (!doc.exists) return indisponivel();
+    negocioId = id;
     mostrarNegocio(doc.data());
+    $('mVerCesta').onclick = abrirCheckout;
+    $('mCheck').onclick = (e) => { if (e.target === $('mCheck')) fecharCheckout(); };
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('mCheck').hidden) fecharCheckout(); });
+    window.ficarAposEntrar = true;
+    window.firebaseAuth.onAuthStateChanged(aoMudarSessao);
+    carregarAvaliacoes(ref);
 
     let cursor = null;
     async function carregar() {
