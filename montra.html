@@ -242,6 +242,8 @@
   }
 
   const cesta = new Map();
+  // QR de mesa: o número segue na mensagem de WhatsApp.
+  const mesa = (new URLSearchParams(location.search).get('mesa') ?? '').replace(/[^A-Za-z0-9 -]/g, '').slice(0, 10);
   let negocio = null;
   let produtos = [];
 
@@ -258,7 +260,7 @@
     $('mTotal').textContent = kz(total);
     // A mensagem vai sempre em português: é o que o negócio lê.
     const lista = linhas.map((l) => `${l.qtd}× ${l.produto.nome} (${kz(l.produto.preco * l.qtd)})`).join('\n');
-    $('mEnviar').href = wa(negocio.telefone, `Olá ${negocio.nome}! Quero fazer este pedido pela Conecta Já:\n\n${lista}\n\nTotal: ${kz(total)}\n\nConfirma se está disponível, por favor.`);
+    $('mEnviar').href = wa(negocio.telefone, `Olá ${negocio.nome}! Quero fazer este pedido pela Conecta Já:\n\n${lista}${mesa ? `\n\nMesa ${mesa}` : ''}\n\nTotal: ${kz(total)}\n\nConfirma se está disponível, por favor.`);
   }
 
   function linhaProduto(p) {
@@ -311,7 +313,7 @@
   function mostrarNegocio(n) {
     negocio = n;
     document.title = `${n.nome} — Conecta Já`;
-    const estado = estadoAberto(n.horario);
+    const estado = n.lojaFechada ? { aberto: false, texto: t('Fechado agora', 'Closed now') } : estadoAberto(n.horario);
     const municipio = window.AOLocations.municipalityLabel(n.province, n.municipality);
     const provincia = window.AOLocations.provinceLabel(n.province);
     const horas = `${n.horario.abre}–${n.horario.fecha}`;

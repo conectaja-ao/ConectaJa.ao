@@ -196,6 +196,10 @@ service cloud.firestore {
     function podeGerir(n) {
       return isLoggedIn() && (n.ownerUid == request.auth.uid || request.auth.uid in n.get('equipa', {}));
     }
+    // Dono ou gerente. A caixa só trata de pedidos e de abrir e fechar a loja.
+    function podeEditar(n) {
+      return isLoggedIn() && (n.ownerUid == request.auth.uid || n.get('equipa', {}).get(request.auth.uid, '') == 'gerente');
+    }
     // Empresa: 10 dígitos. Empresário em nome individual: número do BI.
     function nifValido(nif) {
       return nif is string && nif.matches('^([0-9]{10}|[0-9]{9}[A-Z]{2}[0-9]{3})$');
@@ -217,6 +221,15 @@ service cloud.firestore {
         && d.horario is map
         && d.entrega is bool
         && d.tempoEntrega is string && d.tempoEntrega.size() <= 30
+        && d.get('taxaEntrega', 0) is number && d.get('taxaEntrega', 0) >= 0
+        && d.get('mesas', false) is bool
+        && d.get('lojaFechada', false) is bool
+        && d.get('dadosPagamento', '') is string && d.get('dadosPagamento', '').size() <= 160
+        && d.get('fornada', {}) is map
+        && d.get('sobras', []) is list && d.get('sobras', []).size() <= 5
+        && d.get('fidelidade', {}) is map
+        && d.get('equipa', {}) is map
+        && d.get('membros', []) is list && d.get('membros', []).size() <= 20
         && urlImagem(d.logoUrl) && urlImagem(d.capaUrl);
     }
     function produtoValido(d) {
@@ -229,11 +242,55 @@ service cloud.firestore {
         && urlImagem(d.fotoUrl);
     }
 
+    // Pedido novo: tudo o que dá para conferir aqui. O preço de cada item não dá (sem ciclos nas regras):
+    // o negócio vê os itens e o total antes de aceitar.
+    function pedidoValido(database, d, n, negocioId) {
+      return d.clienteUid == request.auth.uid
+        && n.status == 'aprovado'
+        && n.get('lojaFechada', false) == false
+        && d.negocioId == negocioId
+        && d.estado == 'novo'
+        && d.pago == false
+        && d.clienteNome is string && d.clienteNome.size() <= 100
+        && d.clienteTelefone is string && d.clienteTelefone.size() <= 20
+        && d.modo in ['levantar', 'entrega', 'mesa']
+        && (d.modo != 'entrega' || (n.entrega == true && d.morada is string && d.morada.size() >= 3 && d.morada.size() <= 160))
+        && (d.modo != 'mesa' || (n.get('mesas', false) == true && d.mesa is string && d.mesa.size() >= 1 && d.mesa.size() <= 10))
+        && d.hora is string && d.hora.size() <= 5
+        && d.pagamento in ['referencia', 'dinheiro']
+        && (d.pagamento != 'referencia' || n.get('dadosPagamento', '') != '')
+        && d.itens is list && d.itens.size() >= 1 && d.itens.size() <= 50
+        && d.subtotal is number && d.subtotal > 0
+        && d.taxa == (d.modo == 'entrega' ? n.get('taxaEntrega', 0) : 0)
+        && d.total == d.subtotal + d.taxa - d.desconto
+        && (d.desconto == 0 || (
+          d.desconto == n.fidelidade.desconto
+          && d.subtotal >= d.desconto
+          && get(/databases/$(database)/documents/negocios/$(negocioId)/cartoes/$(request.auth.uid)).data.carimbos >= n.fidelidade.meta
+        ));
+    }
+    function transicaoPedido(de, para) {
+      return para == de
+        || (de == 'novo' && para in ['preparo', 'cancelado'])
+        || (de == 'preparo' && para in ['pronto', 'cancelado'])
+        || (de == 'pronto' && para in ['entregue', 'cancelado']);
+    }
+
+    // Os pedidos a lojas de um cliente, em todos os negócios (separador Lojas em Pedidos).
+    match /{caminho=**}/pedidos/{pedidoId} {
+      allow list: if isLoggedIn() && resource.data.clienteUid == request.auth.uid;
+    }
+
     match /negocios/{negocioId} {
+      function negocio() {
+        return get(/databases/$(database)/documents/negocios/$(negocioId)).data;
+      }
+
       // O público só vê negócios aprovados; o dono e a equipa vêem sempre o seu.
       allow get: if resource.data.status == 'aprovado' || podeGerir(resource.data) || isAdmin();
       allow list: if resource.data.status == 'aprovado' || isAdmin()
-        || (isLoggedIn() && resource.data.ownerUid == request.auth.uid);
+        || (isLoggedIn() && resource.data.ownerUid == request.auth.uid)
+        || (isLoggedIn() && request.auth.uid in resource.data.membros);
 
       // Nasce como rascunho, sem selo e no plano grátis.
       allow create: if isLoggedIn()
@@ -241,16 +298,18 @@ service cloud.firestore {
         && request.resource.data.status == 'rascunho'
         && request.resource.data.verificado == false
         && request.resource.data.plano == 'gratis'
-        && !request.resource.data.keys().hasAny(['equipa', 'planoAte'])
+        && !request.resource.data.keys().hasAny(['equipa', 'membros', 'planoAte'])
         && negocioValido(request.resource.data);
 
-      // Selo, plano, dono e equipa não se mudam daqui. O dono só pode pedir aprovação;
+      // Selo, plano e dono não se mudam daqui; a equipa só o dono muda. O dono só pode pedir aprovação;
       // aprovar ou rejeitar é só para a administração. Depois de aprovado, o nome fica preso:
       // o selo foi dado àquele nome.
       allow update: if isAdmin() || (
         podeGerir(resource.data)
         && negocioValido(request.resource.data)
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerUid', 'verificado', 'plano', 'planoAte', 'equipa', 'motivoRejeicao'])
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerUid', 'verificado', 'plano', 'planoAte', 'motivoRejeicao'])
+        && (resource.data.ownerUid == request.auth.uid || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['equipa', 'membros']))
+        && (podeEditar(resource.data) || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sobras', 'lojaFechada']))
         && (resource.data.status != 'aprovado' || request.resource.data.nome == resource.data.nome)
         && (request.resource.data.status == resource.data.status
           || (resource.data.status in ['rascunho', 'rejeitado'] && request.resource.data.status == 'pendente'))
@@ -259,12 +318,41 @@ service cloud.firestore {
       allow delete: if isAdmin() || (isLoggedIn() && resource.data.ownerUid == request.auth.uid);
 
       match /produtos/{produtoId} {
-        function negocio() {
-          return get(/databases/$(database)/documents/negocios/$(negocioId)).data;
-        }
         allow read: if negocio().status == 'aprovado' || podeGerir(negocio()) || isAdmin();
-        allow create, update: if podeGerir(negocio()) && produtoValido(request.resource.data);
-        allow delete: if podeGerir(negocio());
+        allow create: if podeEditar(negocio()) && produtoValido(request.resource.data);
+        // A caixa só mexe no stock, ao aceitar ou cancelar um pedido.
+        allow update: if produtoValido(request.resource.data) && (
+          podeEditar(negocio())
+          || (podeGerir(negocio()) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock']))
+        );
+        allow delete: if podeEditar(negocio());
+      }
+
+      match /pedidos/{pedidoId} {
+        allow get, list: if isLoggedIn() && (resource.data.clienteUid == request.auth.uid || podeGerir(negocio()));
+        allow create: if isLoggedIn() && pedidoValido(database, request.resource.data, negocio(), negocioId);
+        allow update: if isLoggedIn() && (
+          (podeGerir(negocio())
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'pago', 'updatedAt'])
+            && request.resource.data.pago is bool
+            && transicaoPedido(resource.data.estado, request.resource.data.estado))
+          || (resource.data.clienteUid == request.auth.uid
+            && resource.data.estado == 'novo'
+            && request.resource.data.estado == 'cancelado'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'updatedAt']))
+        );
+        // Só ao eliminar a conta do dono.
+        allow delete: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
+      }
+
+      // Carimbos de fidelidade: é o negócio que os dá, ao entregar. O cliente só lê os seus.
+      match /cartoes/{clienteUid} {
+        allow get: if isLoggedIn() && (request.auth.uid == clienteUid || podeGerir(negocio()));
+        allow create, update: if podeGerir(negocio())
+          && request.auth.uid != clienteUid
+          && request.resource.data.carimbos is int && request.resource.data.carimbos >= 0;
+        allow delete: if isLoggedIn() && (request.auth.uid == clienteUid || negocio().ownerUid == request.auth.uid);
+        allow list: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
       }
     }
 
