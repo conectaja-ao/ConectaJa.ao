@@ -224,6 +224,7 @@ service cloud.firestore {
         && d.get('taxaEntrega', 0) is number && d.get('taxaEntrega', 0) >= 0
         && d.get('mesas', false) is bool
         && d.get('lojaFechada', false) is bool
+        && d.get('filaAberta', false) is bool
         && d.get('dadosPagamento', '') is string && d.get('dadosPagamento', '').size() <= 160
         && d.get('fornada', {}) is map
         && d.get('sobras', []) is list && d.get('sobras', []).size() <= 5
@@ -280,6 +281,13 @@ service cloud.firestore {
     match /{caminho=**}/pedidos/{pedidoId} {
       allow list: if isLoggedIn() && resource.data.clienteUid == request.auth.uid;
     }
+    match /{caminho=**}/reservas/{reservaId} {
+      allow list: if isLoggedIn() && resource.data.clienteUid == request.auth.uid;
+    }
+    // Só para apagar as senhas ao eliminar a conta.
+    match /{caminho=**}/fila/{senhaId} {
+      allow list: if isLoggedIn() && resource.data.clienteUid == request.auth.uid;
+    }
 
     match /negocios/{negocioId} {
       function negocio() {
@@ -309,7 +317,7 @@ service cloud.firestore {
         && negocioValido(request.resource.data)
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerUid', 'verificado', 'plano', 'planoAte', 'motivoRejeicao'])
         && (resource.data.ownerUid == request.auth.uid || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['equipa', 'membros']))
-        && (podeEditar(resource.data) || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sobras', 'lojaFechada']))
+        && (podeEditar(resource.data) || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sobras', 'lojaFechada', 'filaAberta']))
         && (resource.data.status != 'aprovado' || request.resource.data.nome == resource.data.nome)
         && (request.resource.data.status == resource.data.status
           || (resource.data.status in ['rascunho', 'rejeitado'] && request.resource.data.status == 'pendente'))
@@ -342,6 +350,94 @@ service cloud.firestore {
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'updatedAt']))
         );
         // Só ao eliminar a conta do dono.
+        allow delete: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
+      }
+
+      // Índice de preços do comparador: um documento só, público como o catálogo.
+      match /publico/{docId} {
+        allow get: if negocio().status == 'aprovado' || podeGerir(negocio()) || isAdmin();
+        allow create, update: if podeGerir(negocio()) && request.resource.data.itens is map;
+        allow list, delete: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
+      }
+
+      // Painel de senhas: público e sem nomes. O número sobe um de cada vez, e a loja só mexe em quem está a chamar.
+      match /contadores/{nome} {
+        function filaAberta() {
+          return isLoggedIn() && nome == 'fila' && negocio().status == 'aprovado' && negocio().get('filaAberta', false) == true;
+        }
+        allow get: if negocio().status == 'aprovado' || podeGerir(negocio()) || isAdmin();
+        allow create: if filaAberta()
+          && request.resource.data.dia is string
+          && request.resource.data.ultimo == 1
+          && request.resource.data.chamado == 0;
+        allow update: if (filaAberta() && (
+            (request.resource.data.dia == resource.data.dia
+              && request.resource.data.ultimo == resource.data.ultimo + 1
+              && request.resource.data.chamado == resource.data.chamado)
+            || (request.resource.data.dia != resource.data.dia
+              && request.resource.data.ultimo == 1
+              && request.resource.data.chamado == 0)
+          ))
+          || (podeGerir(negocio())
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['chamado'])
+            && request.resource.data.chamado is int
+            && request.resource.data.chamado <= resource.data.ultimo);
+        allow list, delete: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
+      }
+
+      // Senhas: uma por cliente em cada loja. O número tem de ser o que o contador acabou de dar.
+      match /fila/{clienteUid} {
+        function senhaValida() {
+          let d = request.resource.data;
+          let contador = getAfter(/databases/$(database)/documents/negocios/$(negocioId)/contadores/fila).data;
+          return request.auth.uid == clienteUid
+            && negocio().status == 'aprovado'
+            && negocio().get('filaAberta', false) == true
+            && d.clienteUid == clienteUid
+            && d.estado == 'espera'
+            && d.numero == contador.ultimo
+            && d.dia == contador.dia
+            && d.clienteNome is string && d.clienteNome.size() <= 100
+            && d.clienteTelefone is string && d.clienteTelefone.size() <= 20
+            && d.pessoas is int && d.pessoas >= 1 && d.pessoas <= 50;
+        }
+        allow get: if isLoggedIn() && (request.auth.uid == clienteUid || podeGerir(negocio()));
+        allow list: if podeGerir(negocio());
+        allow create: if isLoggedIn() && senhaValida();
+        allow update: if isLoggedIn() && (
+          (senhaValida() && (resource.data.dia != request.resource.data.dia || resource.data.estado in ['saiu', 'atendido', 'faltou']))
+          || (request.auth.uid == clienteUid
+            && resource.data.estado in ['espera', 'chamado']
+            && request.resource.data.estado == 'saiu'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'updatedAt']))
+          || (podeGerir(negocio())
+            && request.resource.data.estado in ['chamado', 'atendido', 'faltou']
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'updatedAt']))
+        );
+        allow delete: if isLoggedIn() && (request.auth.uid == clienteUid || negocio().ownerUid == request.auth.uid);
+      }
+
+      // Reservas de mesa: o cliente pede, o negócio responde.
+      match /reservas/{reservaId} {
+        allow get, list: if isLoggedIn() && (resource.data.clienteUid == request.auth.uid || podeGerir(negocio()));
+        allow create: if isLoggedIn()
+          && request.resource.data.clienteUid == request.auth.uid
+          && request.resource.data.negocioId == negocioId
+          && negocio().status == 'aprovado'
+          && negocio().get('mesas', false) == true
+          && request.resource.data.estado == 'pendente'
+          && request.resource.data.data.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.hora.matches('^[0-9]{2}:[0-9]{2}$')
+          && request.resource.data.pessoas is int && request.resource.data.pessoas >= 1 && request.resource.data.pessoas <= 50
+          && request.resource.data.clienteNome is string && request.resource.data.clienteNome.size() <= 100
+          && request.resource.data.clienteTelefone is string && request.resource.data.clienteTelefone.size() <= 20
+          && request.resource.data.nota is string && request.resource.data.nota.size() <= 200;
+        allow update: if isLoggedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'updatedAt']) && (
+          (podeGerir(negocio()) && request.resource.data.estado in ['confirmada', 'recusada', 'concluida', 'faltou'])
+          || (resource.data.clienteUid == request.auth.uid
+            && resource.data.estado in ['pendente', 'confirmada']
+            && request.resource.data.estado == 'cancelada')
+        );
         allow delete: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
       }
 
