@@ -207,6 +207,8 @@ service cloud.firestore {
     function negocioValido(d) {
       return d.nome is string && d.nome.size() >= 2 && d.nome.size() <= 80
         && d.categoria in ['restaurante', 'padaria', 'supermercado', 'farmacia', 'boutique', 'oficina', 'outro']
+        && d.get('tipoOutro', '') is string && d.get('tipoOutro', '').size() <= 40
+        && (d.categoria != 'outro' || d.get('tipoOutro', '').size() >= 2)
         && d.descricao is string && d.descricao.size() <= 600
         && d.telefone is string && d.telefone.matches('^[+]2449[0-9]{8}$')
         && d.province is string && d.province.size() > 0

@@ -320,7 +320,8 @@
     if (urlSegura(n.logoUrl)) $('mLogo').replaceChildren(el('img', { src: n.logoUrl, alt: '' }));
     else $('mLogo').textContent = n.nome.split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
     $('mNome').textContent = n.nome;
-    $('mSub').textContent = [CATEGORIAS[n.categoria] ?? CATEGORIAS.outro, municipio].filter(Boolean).join(' · ');
+    const tipo = (n.categoria === 'outro' && n.tipoOutro) || (CATEGORIAS[n.categoria] ?? CATEGORIAS.outro);
+    $('mSub').textContent = [tipo, municipio].filter(Boolean).join(' · ');
 
     $('mPills').replaceChildren(
       ...(n.verificado ? [el('span', { class: 'montra-pill montra-pill--selo' }, el('i', { class: 'ph-fill ph-seal-check', 'aria-hidden': 'true' }), t('Empresa Verificada', 'Verified Business'))] : []),
