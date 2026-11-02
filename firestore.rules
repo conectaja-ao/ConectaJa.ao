@@ -192,5 +192,95 @@ service cloud.firestore {
       allow delete: if isLoggedIn() && isOwner(resource.data.clientId);
     }
 
+    // ── Negócios (lojas com catálogo) ──
+    function podeGerir(n) {
+      return isLoggedIn() && (n.ownerUid == request.auth.uid || request.auth.uid in n.get('equipa', {}));
+    }
+    // Empresa: 10 dígitos. Empresário em nome individual: número do BI.
+    function nifValido(nif) {
+      return nif is string && nif.matches('^([0-9]{10}|[0-9]{9}[A-Z]{2}[0-9]{3})$');
+    }
+    // Vazio, ou um https: o site mete este valor num <img>.
+    function urlImagem(v) {
+      return v is string && v.size() <= 300 && (v == '' || v.matches('^https://[^ <>"]+$'));
+    }
+    function negocioValido(d) {
+      return d.nome is string && d.nome.size() >= 2 && d.nome.size() <= 80
+        && d.categoria in ['restaurante', 'padaria', 'supermercado', 'farmacia', 'boutique', 'oficina', 'outro']
+        && d.descricao is string && d.descricao.size() <= 600
+        && d.telefone is string && d.telefone.matches('^[+]2449[0-9]{8}$')
+        && d.province is string && d.province.size() > 0
+        && d.municipality is string && d.municipality.size() > 0
+        && d.neighborhood is string && d.neighborhood.size() <= 80
+        && d.horario is map
+        && d.entrega is bool
+        && d.tempoEntrega is string && d.tempoEntrega.size() <= 30
+        && urlImagem(d.logoUrl) && urlImagem(d.capaUrl);
+    }
+    function produtoValido(d) {
+      return d.nome is string && d.nome.size() >= 1 && d.nome.size() <= 100
+        && d.descricao is string && d.descricao.size() <= 300
+        && d.preco is number && d.preco >= 0
+        && (d.stock == null || (d.stock is int && d.stock >= 0))
+        && d.ativo is bool
+        && d.ordem is number
+        && urlImagem(d.fotoUrl);
+    }
+
+    match /negocios/{negocioId} {
+      // O público só vê negócios aprovados; o dono e a equipa vêem sempre o seu.
+      allow get: if resource.data.status == 'aprovado' || podeGerir(resource.data) || isAdmin();
+      allow list: if resource.data.status == 'aprovado' || isAdmin()
+        || (isLoggedIn() && resource.data.ownerUid == request.auth.uid);
+
+      // Nasce como rascunho, sem selo e no plano grátis.
+      allow create: if isLoggedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.status == 'rascunho'
+        && request.resource.data.verificado == false
+        && request.resource.data.plano == 'gratis'
+        && !request.resource.data.keys().hasAny(['equipa', 'planoAte'])
+        && negocioValido(request.resource.data);
+
+      // Selo, plano, dono e equipa não se mudam daqui. O dono só pode pedir aprovação;
+      // aprovar ou rejeitar é só para a administração. Depois de aprovado, o nome fica preso:
+      // o selo foi dado àquele nome.
+      allow update: if isAdmin() || (
+        podeGerir(resource.data)
+        && negocioValido(request.resource.data)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerUid', 'verificado', 'plano', 'planoAte', 'equipa', 'motivoRejeicao'])
+        && (resource.data.status != 'aprovado' || request.resource.data.nome == resource.data.nome)
+        && (request.resource.data.status == resource.data.status
+          || (resource.data.status in ['rascunho', 'rejeitado'] && request.resource.data.status == 'pendente'))
+      );
+
+      allow delete: if isAdmin() || (isLoggedIn() && resource.data.ownerUid == request.auth.uid);
+
+      match /produtos/{produtoId} {
+        function negocio() {
+          return get(/databases/$(database)/documents/negocios/$(negocioId)).data;
+        }
+        allow read: if negocio().status == 'aprovado' || podeGerir(negocio()) || isAdmin();
+        allow create, update: if podeGerir(negocio()) && produtoValido(request.resource.data);
+        allow delete: if podeGerir(negocio());
+      }
+    }
+
+    // Verificação (NIF, alvará, fachada): privada. Só o dono e a administração lêem.
+    match /verificacoes/{negocioId} {
+      allow read: if isAdmin() || (isLoggedIn() && resource.data.ownerUid == request.auth.uid);
+      // Para os dados saírem com a conta, ao eliminar conta.
+      allow delete: if isAdmin() || (isLoggedIn() && resource.data.ownerUid == request.auth.uid);
+      allow create, update: if isAdmin() || (
+        isLoggedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && get(/databases/$(database)/documents/negocios/$(negocioId)).data.ownerUid == request.auth.uid
+        && request.resource.data.status == 'pendente'
+        && nifValido(request.resource.data.nif)
+        && request.resource.data.alvara is string && request.resource.data.alvara.size() > 0
+        && request.resource.data.fachada is string && request.resource.data.fachada.size() > 0
+      );
+    }
+
   }
 }

@@ -995,6 +995,12 @@ const I18n = (function () {
     'Instalar apps desconhecidas': 'Install unknown apps',
     'e toca em Instalar.': 'and tap Install.',
     'Para iPhone: em breve.': 'For iPhone: coming soon.',
+    /* ── MONTRA ── */
+    'Pedir': 'Order',
+    'Catálogo': 'Catalogue',
+    'Ver mais': 'See more',
+    'Enviar pedido por WhatsApp': 'Send order by WhatsApp',
+    'Descarrega a app da Conecta Já': 'Download the Conecta Já app',
   };
 
   /* ------------------------------------------
