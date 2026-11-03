@@ -407,6 +407,7 @@ const I18n = (function () {
     'Alterações': 'Changes',
     'Última atualização: Maio de 2026': 'Last updated: May 2026',
     'Última atualização: Novembro de 2026': 'Last updated: November 2026',
+    'Anúncios': 'Ads',
     '10. App': '10. App',
     '11. Negócios': '11. Businesses',
     '12. Serviços técnicos': '12. Technical services',

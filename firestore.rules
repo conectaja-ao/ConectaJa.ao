@@ -104,6 +104,24 @@ service cloud.firestore {
       allow write: if isLoggedIn();
     }
 
+    // ── Anúncios da página inicial: o público vê os activos, só a administração escreve ──
+    match /anuncios/{anuncioId} {
+      function anuncioValido(d) {
+        return d.titulo is string && d.titulo.size() >= 2 && d.titulo.size() <= 60
+          && d.texto is string && d.texto.size() <= 140
+          && urlImagem(d.imagemUrl)
+          && d.destino in ['nenhum', 'prestador', 'negocio', 'link']
+          && d.alvo is string && d.alvo.size() <= 300
+          && (d.destino != 'link' || d.alvo.matches('^https://[^ <>"]+$'))
+          && d.estado in ['ativo', 'pausado']
+          && d.ordem is number
+          && d.ate is number;
+      }
+      allow read: if resource.data.estado == 'ativo' || isAdmin();
+      allow create, update: if isAdmin() && anuncioValido(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
     // ── Conversas ──
     match /conversations/{convId} {
 

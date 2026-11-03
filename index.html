@@ -48,6 +48,17 @@
     <link rel="stylesheet" href="site.css">
     <script>!function(){var t=localStorage.getItem('cj-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}();</script>
     <script>if(localStorage.getItem('cj-lang')==='en')document.documentElement.style.opacity='0';</script>
+  <style>
+    #anuncios[hidden] { display: none; }
+    .anuncios-faixa { display: flex; gap: 1rem; margin-top: 1.25rem; padding-bottom: .5rem; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .anuncio { flex: 0 0 min(85%, 380px); scroll-snap-align: start; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); overflow: hidden; color: var(--text); text-decoration: none; display: block; }
+    .anuncio__imagem { position: relative; aspect-ratio: 2; background: var(--brand-soft); display: flex; align-items: center; justify-content: center; color: var(--brand-strong); font-size: 2.5rem; }
+    .anuncio__imagem img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .anuncio__etiqueta { position: absolute; top: .5rem; left: .5rem; padding: .1rem .5rem; border-radius: 50px; background: rgba(5, 13, 39, .7); color: #fff; font-size: .7rem; font-weight: 700; }
+    .anuncio__corpo { padding: .875rem; }
+    .anuncio__corpo strong { display: block; overflow-wrap: anywhere; }
+    .anuncio__corpo small { display: block; margin-top: .125rem; color: var(--text-muted); overflow-wrap: anywhere; }
+  </style>
 </head>
 <body>
 <div class="page-transition-overlay"></div>
@@ -213,6 +224,16 @@
                 <div><strong>Novo orçamento</strong><small>Limpeza pós-obra · 25.000 Kz</small></div>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- ============================================
+     1a. ANÚNCIOS (os mesmos da app; sem nenhum, não aparece)
+============================================ -->
+<section class="lp-section" id="anuncios" hidden>
+    <div class="container">
+        <h2 class="lp-title">Anúncios</h2>
+        <div class="anuncios-faixa" id="anunciosFaixa"></div>
     </div>
 </section>
 
@@ -703,6 +724,59 @@
 <script src="firebase-config.js"></script>
 <script src="ao-locations.js"></script>
 <script src="script.js"></script>
+<script>
+// Anúncios: os mesmos da app. O texto entra sempre por textContent e os links só por https.
+(function () {
+  const https = (u) => typeof u === 'string' && /^https:\/\/[^\s<>"]+$/.test(u);
+  const destino = (a) => {
+    if (a.destino === 'prestador' && a.alvo) return `perfil-prestador.html?id=${encodeURIComponent(a.alvo)}`;
+    if (a.destino === 'negocio' && a.alvo) return `montra.html?id=${encodeURIComponent(a.alvo)}`;
+    return a.destino === 'link' && https(a.alvo) ? a.alvo : '';
+  };
+  const el = (tag, classe, texto) => {
+    const n = document.createElement(tag);
+    if (classe) n.className = classe;
+    if (texto) n.textContent = texto;
+    return n;
+  };
+  function cartao(a) {
+    const link = destino(a);
+    const raiz = el(link ? 'a' : 'div', 'anuncio');
+    if (link) {
+      raiz.href = link;
+      if (a.destino === 'link') {
+        raiz.target = '_blank';
+        raiz.rel = 'noopener';
+      }
+    }
+    const imagem = el('div', 'anuncio__imagem');
+    if (https(a.imagemUrl)) {
+      const img = el('img');
+      img.src = a.imagemUrl;
+      img.alt = '';
+      img.loading = 'lazy';
+      imagem.append(img);
+    } else {
+      const icone = el('i', 'ph ph-megaphone');
+      icone.setAttribute('aria-hidden', 'true');
+      imagem.append(icone);
+    }
+    imagem.append(el('span', 'anuncio__etiqueta', I18n.getCurrentLang() === 'en' ? 'Ad' : 'Anúncio'));
+    const corpo = el('div', 'anuncio__corpo');
+    corpo.append(el('strong', '', a.titulo));
+    if (a.texto) corpo.append(el('small', '', a.texto));
+    raiz.append(imagem, corpo);
+    return raiz;
+  }
+  window.firebaseDb.collection('anuncios').where('estado', '==', 'ativo').limit(20).get().then((s) => {
+    const agora = Date.now();
+    const lista = s.docs.map((d) => d.data()).filter((a) => !a.ate || a.ate > agora).sort((x, y) => (y.ordem || 0) - (x.ordem || 0));
+    if (!lista.length) return;
+    document.getElementById('anunciosFaixa').replaceChildren(...lista.map(cartao));
+    document.getElementById('anuncios').hidden = false;
+  }).catch(() => {});
+})();
+</script>
 <script>
   // Tabs "Como funciona" — padrão ARIA com setas do teclado
   (function () {
