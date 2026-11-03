@@ -344,6 +344,24 @@
   const mesa = (new URLSearchParams(location.search).get('mesa') ?? '').replace(/[^A-Za-z0-9 -]/g, '').slice(0, 10);
   let negocio = null;
   let negocioId = '';
+
+  // Números da loja: soma 1 ao contador do dia (a própria loja e a equipa não contam).
+  // Uma visita por dia neste navegador; os toques contam sempre. Nunca mostra erros.
+  function contar(campo) {
+    const uid = window.firebaseAuth.currentUser?.uid;
+    if (!negocioId || !negocio || (uid && (uid === negocio.ownerUid || (negocio.equipa && uid in negocio.equipa)))) return;
+    const dia = diaDe();
+    if (campo === 'visitas') {
+      try {
+        const chave = `cj:visita:${negocioId}`;
+        if (localStorage.getItem(chave) === dia) return;
+        localStorage.setItem(chave, dia);
+      } catch {}
+    }
+    window.firebaseDb.collection('negocios').doc(negocioId).collection('estatisticas').doc(dia)
+      .set({ [campo]: firebase.firestore.FieldValue.increment(1) }, { merge: true })
+      .catch(() => {});
+  }
   let produtos = [];
   let utilizador = null;
   let perfil = { nome: '', telefone: '' };
@@ -526,6 +544,7 @@
       ck.erro = e.code === 'permission-denied' ? t('Este negócio não aceita pedidos agora. Podes enviar por WhatsApp.', "This business isn't taking orders now. You can send by WhatsApp.") : t('Não foi possível enviar o pedido. Tenta outra vez.', "We couldn't send the order. Try again.");
       return desenharCheckout();
     }
+    contar('pedidos');
     const id = ck.id;
     ck.busy = false;
     ck.id = '';
@@ -754,6 +773,13 @@
     if (!doc.exists) return indisponivel();
     negocioId = id;
     mostrarNegocio(doc.data());
+    // Espera pela sessão para saber se quem abre é a própria loja.
+    const pararContagem = window.firebaseAuth.onAuthStateChanged(() => {
+      pararContagem();
+      contar('visitas');
+    });
+    $('mLigar').addEventListener('click', () => contar('ligacoes'));
+    $('mPedir').addEventListener('click', () => contar('whatsapp'));
     $('mVerCesta').onclick = abrirCheckout;
     $('mCheck').onclick = (e) => { if (e.target === $('mCheck')) fecharCheckout(); };
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('mCheck').hidden) fecharCheckout(); });

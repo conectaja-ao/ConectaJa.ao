@@ -350,9 +350,20 @@ service cloud.firestore {
       // Selo, plano e dono não se mudam daqui; a equipa só o dono muda. O dono só pode pedir aprovação;
       // aprovar ou rejeitar é só para a administração. Depois de aprovado, o nome fica preso:
       // o selo foi dado àquele nome.
+      function promoPermitida() {
+        let d = request.resource.data;
+        return !d.diff(resource.data).affectedKeys().hasAny(['promo'])
+          || !('promo' in d)
+          || (resource.data.get('plano', 'gratis') == 'premium' && resource.data.planoAte > request.time
+            && d.promo.keys().hasOnly(['texto', 'ate'])
+            && d.promo.texto is string && d.promo.texto.size() >= 3 && d.promo.texto.size() <= 80
+            && d.promo.ate is number && d.promo.ate <= request.time.toMillis() + 14460000);
+      }
+
       allow update: if isAdmin() || contagemAvaliacao() || (
         podeGerir(resource.data)
         && negocioValido(request.resource.data)
+        && promoPermitida()
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerUid', 'verificado', 'plano', 'planoAte', 'motivoRejeicao', 'notaSoma', 'notaTotal'])
         && (resource.data.ownerUid == request.auth.uid || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['equipa', 'membros']))
         && (podeEditar(resource.data) || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sobras', 'lojaFechada', 'filaAberta']))
@@ -429,6 +440,22 @@ service cloud.firestore {
         allow get: if negocio().status == 'aprovado' || podeGerir(negocio()) || isAdmin();
         allow create, update: if podeGerir(negocio()) && request.resource.data.itens is map;
         allow list, delete: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
+      }
+
+      // Números da loja: quem abre a Montra soma 1 a um contador do dia, um campo de cada vez.
+      // Ninguém consegue baixar nem saltar números; só o dono, a equipa e a administração lêem.
+      match /estatisticas/{dia} {
+        function nasceComUm(k) {
+          return request.resource.data.keys().hasOnly([k]) && request.resource.data[k] == 1;
+        }
+        function somaUm(k) {
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly([k])
+            && request.resource.data[k] == resource.data.get(k, 0) + 1;
+        }
+        allow read: if podeGerir(negocio()) || isAdmin();
+        allow create: if dia.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && (nasceComUm('visitas') || nasceComUm('ligacoes') || nasceComUm('whatsapp') || nasceComUm('pedidos'));
+        allow update: if somaUm('visitas') || somaUm('ligacoes') || somaUm('whatsapp') || somaUm('pedidos');
       }
 
       // Painel de senhas: público e sem nomes. O número sobe um de cada vez, e a loja só mexe em quem está a chamar.
