@@ -51,10 +51,25 @@ service cloud.firestore {
         ||
         (request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['rating', 'reviews']))
+        ||
+        // c) a administração activa ou retira o Destaque (só plan/planUntil), depois de confirmar o pagamento
+        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['plan', 'planUntil']))
       );
 
       // Eliminação de conta: só o próprio
       allow delete: if isLoggedIn() && isOwner(uid);
+
+      // Pró-formas do prestador: só ele as vê e emite.
+      match /proformas/{pfId} {
+        allow read: if isLoggedIn() && isOwner(uid);
+        allow create: if isLoggedIn() && isOwner(uid) && proformaValida(request.resource.data);
+        allow delete: if isLoggedIn() && isOwner(uid);
+      }
+      match /proformaSeq/{seqId} {
+        allow read: if isLoggedIn() && isOwner(uid);
+        allow write: if isLoggedIn() && isOwner(uid) && seqId == 'atual' && contadorProforma();
+      }
     }
 
     // ── Pedidos de serviço (a app usa a coleção "orders") ──
@@ -223,6 +238,21 @@ service cloud.firestore {
       return nif is string && nif.matches('^([0-9]{10}|[0-9]{9}[A-Z]{2}[0-9]{3})$');
     }
     // Vazio, ou um https: o site mete este valor num <img>.
+    // Pró-forma: documento fechado (não se edita depois de emitida). Só campos conhecidos e tamanhos limitados.
+    function proformaValida(d) {
+      return d.keys().hasOnly(['emitente', 'cliente', 'linhas', 'desconto', 'taxaEntrega', 'ivaPct', 'validadeDias', 'pagamento', 'notas', 'pedidoId', 'seq', 'numero', 'ano', 'criadoEm', 'criadoPor'])
+        && d.cliente is map && d.cliente.nome is string && d.cliente.nome.size() >= 2 && d.cliente.nome.size() <= 120
+        && d.emitente is map && d.emitente.nome is string && d.emitente.nome.size() <= 120
+        && d.linhas is list && d.linhas.size() >= 1 && d.linhas.size() <= 60
+        && d.seq is int && d.seq >= 1 && d.numero is string && d.numero.size() <= 20
+        && d.ivaPct is number && d.ivaPct >= 0 && d.ivaPct <= 30
+        && d.pagamento is string && d.pagamento.size() <= 300 && d.notas is string && d.notas.size() <= 500
+        && d.criadoPor == request.auth.uid && d.criadoEm == request.time;
+    }
+    function contadorProforma() {
+      return request.resource.data.keys().hasOnly(['n']) && request.resource.data.n is int
+        && request.resource.data.n == (resource == null ? 1 : resource.data.n + 1);
+    }
     function urlImagem(v) {
       return v is string && v.size() <= 300 && (v == '' || v.matches('^https://[^ <>"]+$'));
     }
@@ -440,6 +470,17 @@ service cloud.firestore {
         allow get: if negocio().status == 'aprovado' || podeGerir(negocio()) || isAdmin();
         allow create, update: if podeGerir(negocio()) && request.resource.data.itens is map;
         allow list, delete: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
+      }
+
+      // Pró-formas do negócio: o dono e a equipa.
+      match /proformas/{pfId} {
+        allow read: if podeGerir(negocio()) || isAdmin();
+        allow create: if podeGerir(negocio()) && proformaValida(request.resource.data);
+        allow delete: if isLoggedIn() && negocio().ownerUid == request.auth.uid;
+      }
+      match /proformaSeq/{seqId} {
+        allow read: if podeGerir(negocio());
+        allow write: if podeGerir(negocio()) && seqId == 'atual' && contadorProforma();
       }
 
       // Números da loja: quem abre a Montra soma 1 a um contador do dia, um campo de cada vez.
